@@ -1,0 +1,41 @@
+ticker,description
+A2A.MI,A2A S.p.A.
+AMP.MI,Amplifon S.p.A.
+AZM.MI,Azimut Holding S.p.A.
+BMED.MI,Banca Mediolanum S.p.A.
+BMPS.MI,Banca Monte dei Paschi di Siena S.p.A.
+BAMI.MI,Banco BPM S.p.A.
+BPSO.MI,Banca Popolare di Sondrio S.c.p.A.
+BPE.MI,BPER Banca S.p.A.
+BC.MI,Brunello Cucinelli S.p.A.
+CPR.MI,Davide Campari-Milano N.V.
+DIA.MI,DiaSorin S.p.A.
+ENEL.MI,Enel S.p.A.
+ENI.MI,Eni S.p.A.
+ERG.MI,ERG S.p.A.
+RACE.MI,Ferrari N.V.
+FBK.MI,FinecoBank Banca Fineco S.p.A.
+G.MI,Assicurazioni Generali S.p.A.
+HER.MI,Hera S.p.A.
+IP.MI,Interpump Group S.p.A.
+ISP.MI,Intesa Sanpaolo S.p.A.
+INW.MI,Infrastrutture Wireless Italiane S.p.A.
+IG.MI,Italgas S.p.A.
+IVG.MI,Iveco Group N.V.
+LDO.MI,Leonardo S.p.A.
+MB.MI,Mediobanca Banca di Credito Finanziario S.p.A.
+MONC.MI,Moncler S.p.A.
+NEXI.MI,Nexi S.p.A.
+PIRC.MI,Pirelli & C. S.p.A.
+PST.MI,Poste Italiane S.p.A.
+PRY.MI,Prysmian S.p.A.
+REC.MI,Recordati Industria Chimica e Farmaceutica S.p.A.
+SPM.MI,Saipem S.p.A.
+SRG.MI,Snam S.p.A.
+STLAM.MI,Stellantis N.V.
+STMMI.MI,STMicroelectronics N.V.
+TIT.MI,Telecom Italia S.p.A.
+TEN.MI,Tenaris S.A.
+TRN.MI,Terna S.p.A.
+UCG.MI,UniCredit S.p.A.
+UNI.MI,Unipol Gruppo S.p.A.

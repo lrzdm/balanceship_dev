@@ -1,0 +1,1267 @@
+ticker,description
+134A.T,Upraise, Inc.
+136A.T,Sankosyoji Co., Ltd.
+1376.T,Kaneko Seeds Co., Ltd.
+1380.T,Akikawa Foods & Farms Co., Ltd.
+1383.T,Berg Earth Co., Ltd.
+139A.T,Higashinihon Jisho Co., Ltd.
+1419.T,Tama Home Co., Ltd.
+1420.T,Sanyo Homes Corp.
+1430.T,First-Corporation Inc.
+1436.T,Greenenergy & Company Inc.
+1445.T,Hikari Holdings Co., Ltd.
+1447.T,Saaf Holdings Co., Ltd.
+1450.T,Tanaken Inc.
+146A.T,Columbia Works Inc.
+148A.T,Hatch Work Co., Ltd.
+149A.T,Thinca Co., Ltd.
+153A.T,Caulis Inc.
+155A.T,Information Strategy And Technology Co.,
+160A.T,As Partners Co., Ltd.
+164A.T,Applepark. Co., Ltd.
+166A.T,Tasuki Holdings Inc.
+168A.T,Itamiarts Inc.
+1716.T,Dai-Ichi Cutter Kogyo K.K.
+1719.T,Hazama Ando Corp.
+1724.T,Synclayer Inc.
+1743.T,Koatsu Kogyo Co., Ltd.
+1757.T,Souken Ace Co., Ltd.
+175A.T,Will Smart Co., Ltd.
+1770.T,Fujita Engineering Co., Ltd.
+1773.T,Ytl Corporation Berhad
+1783.T,Fantasista Co., Ltd.
+1787.T,Nakabohtec Corrosion Protecting Co., Ltd
+1795.T,Masaru Corp.
+1799.T,Daiichi Kensetsu Corp.
+1802.T,Obayashi Corp.
+1808.T,Haseko Corp.
+1811.T,The Zenitaka Corp.
+1813.T,Fudo Tetra Corp.
+1820.T,Nishimatsu Const. Co., Ltd.
+1826.T,Sata Construction Co., Ltd.
+1828.T,Tanabe Engineering Corp.
+1833.T,Okumura Corp.
+1841.T,Sanyu Construction Co., Ltd.
+1850.T,Nankai Tatsumura Construction Co., Ltd.
+185A.T,Recycle Tech Japan Corp.
+1861.T,Kumagai Gumi Co., Ltd.
+186A.T,Astroscale Holdings Inc.
+1878.T,Daito Trust Construction Co.
+1884.T,The Nippon Road Co., Ltd.
+1888.T,Wakachiku Const. Co., Ltd.
+1893.T,Penta-Ocean Const. Co., Ltd.
+1899.T,Fukuda Corp.
+1904.T,Taisei Oncho Co., Ltd.
+190A.T,Chordia Therapeutics Inc.
+191A.T,Mimosa Co., Ltd.
+1926.T,Raito Kogyo Co., Ltd.
+1942.T,Kandenko Co., Ltd.
+194A.T,Wolves Hand Co., Ltd.
+1960.T,Sanyo Engineering & Construction Inc.
+1964.T,Chugai Ro Co., Ltd.
+1966.T,Takada Corp.
+1968.T,Taihei Dengyo Kaisha, Ltd.
+1972.T,Sanko Metal Ind. Co., Ltd.
+1976.T,Meisei Industrial Co., Ltd.
+197A.T,Tauns Laboratories, Inc.
+1981.T,Kyowanissei Co., Ltd.
+1992.T,Kanda Tsushinki Co., Ltd.
+1997.T,Akatsuki Eazima Co., Ltd.
+199A.T,Mediair Corp.
+202A.T,Mamezo Digital Holdings Co., Ltd.
+2055.T,Nichiwa Sangyo Co., Ltd.
+206A.T,Prism Biolab Co,. Ltd.
+208A.T,Kozo Keikaku Engineering Holdings Inc.
+2107.T,Toyo Sugar Refining Co., Ltd.
+2109.T,Mitsui Dm Sugar Co., Ltd.
+2117.T,Wellneo Sugar Co., Ltd.
+2122.T,Interspace Co., Ltd.
+2127.T,Nihon M&A Center Holdings Inc.
+2134.T,Kitahama Capital Partners Co., Ltd.
+2148.T,Itmedia Inc.
+2156.T,Saylor Advertising Inc.
+2163.T,Artner Co., Ltd.
+2168.T,Pasona Group Inc.
+2170.T,Link And Motivation Inc.
+2179.T,Seigakusha Co., Ltd.
+2186.T,Sobal Corp.
+2193.T,Cookpad Inc.
+219A.T,Heartseed Inc.
+2204.T,Nakamuraya Co., Ltd.
+2207.T,Meito Sangyo Co., Ltd.
+220A.T,Faber Company Inc.
+2212.T,Yamazaki Baking Co., Ltd.
+2216.T,Kanro Inc.
+2220.T,Kameda Seika Co., Ltd.
+2226.T,Koike-Ya Inc.
+222A.T,Nippon Information Control System Inc.
+2267.T,Yakult Honsha Co., Ltd.
+226A.T,Katsu Mi Japan Inc.
+227A.T,Insight Lab, Inc.
+2286.T,Hayashikane Sangyo Co., Ltd.
+2291.T,Fukutome Meat Packers, Ltd.
+2294.T,Kakiyasu Honten Co., Ltd.
+229A.T,Asumi Hd Inc.
+2303.T,Dawn Corp.
+2307.T,Cross Cat Co., Ltd.
+2317.T,Systena Corp.
+2326.T,Digital Arts Inc.
+2338.T,Quantum Solutions Co., Ltd.
+2341.T,Arbeit-Times Co., Ltd.
+2344.T,Heian Ceremony Service Co., Ltd.
+2351.T,Asj Inc.
+2354.T,Ye Digital Corp.
+2373.T,Care Twentyone Corp.
+2378.T,Renaissance, Inc.
+2391.T,Planet, Inc.
+2395.T,Shin Nippon Biomedical Laboratories, Ltd
+239A.T,Balleggs Co., Ltd.
+2411.T,Gendai Agency Inc.
+2418.T,Tsukada Global Holdings Inc.
+2425.T,Care Service Co., Ltd.
+2433.T,Hakuhodo Dy Holdings Inc.
+2436.T,Kyodo Public Relations Co., Ltd.
+2438.T,Asukanet Co., Ltd.
+2445.T,Takamiya Co., Ltd.
+244A.T,Growth Xpartners, Inc.
+2459.T,Aun Consulting, Inc.
+2464.T,Aoba-Bbt, Inc.
+2477.T,Temairazu, Inc.
+2480.T,System Location Co., Ltd.
+2483.T,Honyaku Center Inc.
+2485.T,Tear Corp.
+248A.T,Kids Star Inc.
+2492.T,Infomart Corp.
+2499.T,Nihonwasou Holdings, Inc.
+2501.T,Sapporo Holdings Ltd.
+250A.T,Shimadaya Corp.
+2531.T,Takara Holdings Inc.
+2573.T,Hokkaido Coca-Cola Bottling Co., Ltd.
+2585.T,Lifedrink Company, Inc.
+2587.T,Suntory Beverage & Food Ltd.
+2597.T,Unicafe Inc.
+2612.T,Kadoya Sesame Mills Inc.
+263A.T,Digitalcube Co., Ltd.
+2653.T,Aeon Kyushu Co., Ltd.
+2659.T,San-A Co., Ltd.
+2666.T,Autowave Co., Ltd.
+2668.T,Tabio Corp.
+266A.T,Glocal Marketing Co., Ltd.
+2673.T,Yumemitsuketai Co., Ltd.
+2676.T,Takachiho Koheki Co., Ltd.
+267A.T,Towarise Corp.
+2687.T,Cvs Bay Area Inc.
+268A.T,Rigaku Holdings Corp.
+2695.T,Kura Sushi, Inc.
+269A.T,Sapeet Inc.
+2705.T,Ootoya Holdings Co., Ltd.
+2726.T,Pal Group Holdings Co., Ltd.
+2734.T,Sala Corp.
+2736.T,Festaria Holdings Co., Ltd.
+2743.T,Pixel Companyz Inc.
+2753.T,Amiyaki Tei Co., Ltd.
+2762.T,Sanko Marketing Foods Co., Ltd.
+2767.T,Tsuburaya Fields Holdings Inc.
+276A.T,Ccreb Advisors Inc.
+2782.T,Seria Co., Ltd.
+2788.T,Apple International Co., Ltd.
+278A.T,Terra Drone Corp.
+2791.T,Daikokutenbussan Co., Ltd.
+2798.T,Y'S Table Corp.
+2802.T,Ajinomoto Co., Inc.
+2806.T,Yutaka Foods Corp.
+2813.T,Wakou Shokuhin Co., Ltd.
+2815.T,Ariake Japan Co., Ltd.
+2819.T,Ebara Foods Industry, Inc.
+2830.T,Aohata Corp.
+284A.T,Fukuya Construction Co., Ltd.
+286A.T,Eucalia Inc.
+287A.T,Kuroda Group Co., Ltd.
+2883.T,Dairei Co., Ltd.
+288A.T,Laxus Technologies Inc.
+2907.T,Ahjikan Co., Ltd.
+2914.T,Japan Tobacco Inc.
+2916.T,Semba Tohka Industries Co., Ltd.
+2918.T,Warabeya Nichiyo Holdings Co., Ltd.
+2922.T,Natori Co., Ltd.
+2924.T,Ifuji Sangyo Co., Ltd.
+2927.T,Afc-Hd Ams Life Science Co., Ltd.
+2929.T,Pharma Foods International Co., Ltd.
+2931.T,Euglena Co., Ltd.
+2937.T,St.Cousair Co., Ltd.
+293A.T,Baby Job Co., Ltd.
+2970.T,Good Life Company, Inc.
+2972.T,Sankei Real Estate Inc.
+2975.T,Star Mica Holdings Co., Ltd.
+2978.T,Tsukuruba Inc.
+297A.T,Alpico Holdings Co., Ltd.
+2982.T,A.D.Works Group Co., Ltd.
+2984.T,Yamaichi Uniheim Real Estate Co., Ltd.
+2986.T,La Holdings Co., Ltd.
+298A.T,Gva Tech, Inc.
+2991.T,Landnet Inc.
+2994.T,Answer Holdings Co., Ltd.
+2998.T,Creal Inc.
+3004.T,Shinyei Kaisha
+3011.T,Banners Co., Ltd.
+3021.T,Pacific Net Co., Ltd.
+3024.T,Create Corp.
+3031.T,Raccoon Holdings, Inc.
+3038.T,Kobe Bussan Co., Ltd.
+3042.T,Secuavail Inc.
+3048.T,Bic Camera Inc.
+3059.T,Hiraki Co., Ltd.
+3067.T,Tokyo Ichiban Foods Co., Ltd.
+3070.T,Jelly Beans Group Co., Ltd.
+3075.T,Choushimaru Co., Ltd.
+307A.T,Housing Staff Inc.
+3083.T,Star Seeds Co., Ltd.
+3088.T,Matsukiyococokara & Co.
+308A.T,Postmate Holdings, Inc.
+3094.T,Super Value Co., Ltd.
+3097.T,The Monogatari Corp.
+309A.T,Cosmos Chouzai Pharmacy Co., Ltd.
+3106.T,Kurabo Industries Ltd.
+3113.T,Univa Oak Holdings Ltd.
+3123.T,Saibo Co., Ltd.
+3133.T,Kaihan Co., Ltd.
+3135.T,Marketenterprise Co., Ltd.
+3139.T,Lacto Japan Co., Ltd.
+3148.T,Create Sd Holdings Co., Ltd.
+3153.T,Yashima Denki Co., Ltd.
+3159.T,Maruzen Chi Holdings Co., Ltd.
+3167.T,Tokai Holdings Corp.
+3172.T,Tea Life Co., Ltd.
+3175.T,Ap Holdings Co., Ltd.
+3177.T,Arigatou Services Co., Ltd.
+3180.T,Beauty Garage Inc.
+3182.T,Oisix Ra Daichi Inc.
+3184.T,International Conglomerate Of Distributi
+3186.T,Nextage Co., Ltd.
+3189.T,Anap Holdings Inc.
+3191.T,Joyful Honda Co., Ltd.
+3193.T,Eternal Hospitality Group Co., Ltd.
+3196.T,Hotland Holdings Co., Ltd.
+3199.T,Watahan & Co., Ltd.
+3201.T,The Japan Wool Textile Co., Ltd.
+3204.T,Toabo Corp.
+321A.T,Human Stage Holdings Corp.
+3223.T,Sld Entertainment Inc.
+3226.T,Nippon Accommodations Fund Inc.
+3231.T,Nomura Real Estate Holdings, Inc.
+3238.T,Central General Development Co., Ltd.
+3245.T,Dear Life Co., Ltd.
+3249.T,Industrial & Infrastructure Fund Investm
+3261.T,Grandes, Inc.
+3267.T,Phil Company, Inc.
+326A.T,Aero Lab International Inc.
+3276.T,Japan Property Management Center Co., Lt
+3279.T,Activia Properties Inc.
+3289.T,Tokyu Fudosan Holdings Corp.
+3292.T,Aeon Reit Investment Corp.
+3294.T,E'Grand Co., Ltd.
+3299.T,Mugen Estate Co., Ltd.
+3300.T,Ambition Dx Holdings Co., Ltd.
+330A.T,Talentx Inc.
+3321.T,Mitachi Co., Ltd.
+3333.T,Asahi Co., Ltd.
+334A.T,Visual Processing Japan Co., Ltd.
+3352.T,Buffalo Co., Ltd.
+3355.T,Kuriyama Holdings Corp.
+335A.T,Mirairo Inc.
+336A.T,Dynamic Map Platform Co., Ltd.
+3371.T,Softcreate Holdings Corp.
+3374.T,Naigai Tec Corp.
+3377.T,Bike O & Company Ltd.
+3387.T,Create Restaurants Holdings Inc.
+3392.T,Delica Foods Holdings Co., Ltd.
+3395.T,Saint Marc Holdings Co., Ltd.
+3402.T,Toray Industries, Inc.
+3407.T,Asahi Kasei Corp.
+340A.T,Zig-Zag, Inc.
+3416.T,Pixta Inc.
+3418.T,Balnibarbi Co., Ltd.
+3421.T,Inaba Seisakusho Co., Ltd.
+3426.T,Atom Livin Tech Co., Ltd.
+3433.T,Tocalo Co., Ltd.
+3435.T,Sanko Techno Co., Ltd.
+3441.T,Sanno Co., Ltd.
+3443.T,Kawada Technologies, Inc.
+3447.T,Shinwa Co., Ltd.
+3462.T,Nomura Real Estate Master Fund, Inc.
+3466.T,Lasalle Logiport Reit
+3468.T,Star Asia Investment Corp.
+3470.T,Marimo Regional Revitalization Reit, Inc
+3472.T,Nippon Hotel & Residential Investment Co
+3475.T,Good Com Asset Co., Ltd.
+3481.T,Mitsubishi Estate Logistics Reit Investm
+3484.T,Innovation Holdings Co., Ltd.
+3488.T,Xymax Reit Investment Corp.
+3490.T,Azplanning Co., Ltd.
+3492.T,Takara Leben Real Estate Investment Corp
+3496.T,Azoom Co., Ltd.
+3513.T,Ichikawa Co., Ltd.
+3521.T,Econach Holdings Co., Ltd.
+3529.T,Atsugi Co., Ltd.
+3536.T,Axas Holdings Co., Ltd.
+3542.T,Vega Corporation Co., Ltd.
+3544.T,Satudora Holdings Co., Ltd.
+3547.T,Kushikatsu Tanaka Holdings Co.
+3549.T,Kusuri No Aoki Holdings Co., Ltd.
+3553.T,Kyowa Leather Cloth Co., Ltd.
+3558.T,Jade Group, Inc.
+355A.T,Now Village Co., Ltd.
+3563.T,Food & Life Companies Ltd.
+3577.T,Tokai Senko K.K.
+3583.T,Aubex Corp.
+3593.T,Hogy Medical Co., Ltd.
+3607.T,Kuraudia Holdings Co., Ltd.
+3622.T,Netyear Group Corp.
+3627.T,Tecmira Holdings Inc.
+3633.T,Gmo Pepabo, Inc.
+3639.T,Voltage Inc.
+3641.T,Papyless Co., Ltd.
+3646.T,Ekitan & Co., Ltd.
+3652.T,Digital Media Professionals Inc.
+3656.T,Klab Inc.
+3664.T,Mobcast Holdings Inc.
+3671.T,Softmax Co., Ltd.
+3673.T,Broadleaf Co., Ltd.
+3675.T,Cross Marketing Group Inc.
+3678.T,Media Do Co., Ltd.
+3687.T,Fixstars Corp.
+3691.T,Digital Plus, Inc.
+3698.T,Cri Middleware Co., Ltd.
+3710.T,Jorudan Co., Ltd.
+3719.T,Ai Storm Co., Ltd.
+3727.T,Aplix Corp.
+3741.T,Systems Engineering Consultants Co., Ltd
+3750.T,Cytori Cell Research Institute, Inc.
+3760.T,Cave Interactive Co., Ltd.
+3765.T,Gungho Online Entertainment, Inc.
+3770.T,Zappallas, Inc.
+3772.T,Wealth Management, Inc.
+3774.T,Internet Initiative Japan Inc.
+3776.T,Broadband Tower, Inc.
+3787.T,Techno Mathematical Co., Ltd.
+3796.T,E-Seikatsu Co., Ltd.
+3800.T,Unirita Inc.
+3815.T,Media Kobo, Inc.
+3817.T,Sra Holdings, Inc.
+3834.T,Asahi Net, Inc.
+3836.T,Avant Group Corp.
+3840.T,Path Corp.
+3847.T,Pacific Systems Corp.
+3851.T,Nippon Ichi Software, Inc.
+3856.T,Abalance Corp.
+3863.T,Nippon Paper Industries Co., Ltd.
+3877.T,Chuetsu Pulp & Paper Co., Ltd.
+3880.T,Daio Paper Corp.
+3895.T,Havix Corp.
+3901.T,Marklines Co., Ltd.
+3904.T,Kayac Inc.
+3908.T,Collabos Corp.
+3911.T,Aiming Inc.
+3914.T,Jig-Saw Inc.
+3916.T,Digital Information Technologies Corp.
+3921.T,Neojapan Inc.
+3925.T,Double Standard Inc.
+3929.T,Socialwire Co., Ltd.
+3931.T,Value Golf Inc.
+3934.T,Benefit Japan Co., Ltd.
+3936.T,Globalway, Inc.
+3940.T,Nomura System Corporation Co., Ltd.
+3944.T,Furubayashi Shiko Co., Ltd.
+3947.T,Dynapac Co., Ltd.
+3950.T,The Pack Corp.
+3954.T,Showa Paxxs Corp.
+3958.T,Sasatoku Printing Co., Ltd.
+3964.T,Aucnet Inc.
+3969.T,Atled Corp.
+3974.T,Scat Inc.
+3978.T,Macromill, Inc.
+3984.T,User Local, Inc.
+3986.T,Bbreak Systems Co., Ltd.
+3991.T,Wantedly, Inc.
+3994.T,Money Forward, Inc.
+3998.T,Surala Net Co., Ltd.
+4005.T,Sumitomo Chemical Co., Ltd.
+4011.T,Headwaters Co., Ltd.
+4014.T,Karadanote, Inc.
+4017.T,Creema Ltd.
+4021.T,Nissan Chemical Corp.
+4023.T,Kureha Corp.
+4026.T,Konoshima Chemical Co., Ltd.
+4028.T,Ishihara Sangyo Kaisha, Ltd.
+4040.T,Nankai Chemical Co., Ltd.
+4043.T,Tokuyama Corp.
+4045.T,Toagosei Co., Ltd.
+4047.T,Kanto Denka Kogyo Co., Ltd.
+4052.T,Ficha Inc.
+4054.T,Japan Proptech Co., Ltd.
+4057.T,Interfactory, Inc.
+4060.T,Rakumo Inc.
+4063.T,Shin-Etsu Chemical Co., Ltd.
+4068.T,Basis Corp.
+4072.T,Densan System Holdings Co., Ltd.
+4074.T,Lakeel, Inc.
+4078.T,Sakai Chemical Ind. Co., Ltd.
+4082.T,Daiichi Kigenso Kagaku-Kogyo Co., Ltd.
+4091.T,Nippon Sanso Holdings Corp.
+4093.T,Toho Acetylene Co., Ltd.
+4095.T,Nihon Parkerizing Co., Ltd.
+4098.T,Titan Kogyo , Ltd.
+4100.T,Toda Kogyo Corp.
+4107.T,Ise Chemicals Corp.
+4112.T,Hodogaya Chemical Co., Ltd.
+4114.T,Nippon Shokubai Co., Ltd.
+4118.T,Kaneka Corp.
+4124.T,Osaka Yuka Industry Ltd.
+4151.T,Kyowa Kirin Co., Ltd.
+4166.T,Cacco Inc.
+4169.T,Enechange Ltd.
+4171.T,Global Information, Inc.
+4173.T,Wacul. Inc.
+4176.T,Coconala Inc.
+4180.T,Appier Group, Inc.
+4183.T,Mitsui Chemicals, Inc.
+4187.T,Osaka Organic Chemical Ind. Ltd.
+4193.T,Fabrica Holdings Co., Ltd.
+4196.T,Neo Marketing Inc.
+4198.T,Tenda Co., Ltd.
+4202.T,Daicel Corp.
+4204.T,Sekisui Chemical Co., Ltd.
+4216.T,Asahi Yukizai Corp.
+4221.T,Okura Industrial Co., Ltd.
+4224.T,Lonseal Corp.
+4229.T,Gun Ei Chemical Ind. Co., Ltd.
+4235.T,Ultrafabrics Holdings Co., Ltd.
+4238.T,Miraial Co., Ltd.
+4242.T,Takagi Seiko Corp.
+4246.T,Daikyonishikawa Corp.
+4248.T,Takemoto Yohki Co., Ltd.
+4257.T,Evixar Inc.
+4259.T,Exawizards Inc.
+4265.T,Institution For A Global Society Corp.
+4274.T,Hosoya Pyro-Engineering Co., Ltd.
+4287.T,Just Planning Inc.
+4290.T,Prestige International Inc.
+4301.T,Amuse Inc.
+4308.T,J-Stream Inc.
+4316.T,Bemap, Inc.
+4319.T,Tac Co., Ltd.
+4326.T,Intage Holdings Inc.
+4337.T,Pia Corp.
+4347.T,Broadmedia Corp.
+4351.T,Yamada Servicer Synthetic Office
+4360.T,Manac Chemical Partners Co., Ltd.
+4362.T,Nippon Fine Chemical Co., Ltd.
+4366.T,Daito Chemix Corp.
+4368.T,Fuso Chemical Co., Ltd.
+4374.T,Robot Payment Inc.
+4376.T,Kufu Company Holdings Inc.
+4380.T,M-Mart Inc.
+4384.T,Raksul Inc.
+4388.T,Ai, Inc.
+4391.T,Logizard Co., Ltd.
+4393.T,Bank Of Innovation, Inc.
+4397.T,Teamspirit Inc.
+4401.T,Adeka Corp.
+4406.T,New Japan Chemical Co., Ltd.
+4410.T,Harima Chemicals Group, Inc.
+4413.T,Baudroie, Inc.
+4416.T,True Data Inc.
+4418.T,Japan Data Science Consortium Co., Ltd.
+4422.T,Valuenex Japan Inc.
+4425.T,Kudan Inc.
+4427.T,Edulab, Inc.
+4431.T,Smaregi, Inc.
+4433.T,Hito-Communications Holdings, Inc.
+4436.T,Minkabu The Infonoid, Inc.
+4441.T,Tobila Systems Inc.
+4443.T,Sansan, Inc.
+4462.T,Ishihara Chemical Co., Ltd.
+4465.T,Niitaka Co., Ltd.
+4476.T,Ai Cross Inc.
+4479.T,Makuake, Inc.
+4484.T,Lancers, Inc.
+4487.T,Spacemarket, Inc.
+4490.T,Visasq Inc.
+4494.T,Vario Secure Inc.
+4502.T,Takeda Pharmaceutical Co., Ltd.
+4506.T,Sumitomo Pharma Co., Ltd.
+4516.T,Nippon Shinyaku Co., Ltd.
+4521.T,Kaken Pharmaceutical Co., Ltd.
+4524.T,Morishita Jintan Co., Ltd.
+4527.T,Rohto Pharmaceutical Co., Ltd.
+4530.T,Hisamitsu Pharmaceutical Co., Inc.
+4536.T,Santen Pharmaceutical Co., Ltd.
+4539.T,Nippon Chemiphar Co., Ltd.
+4547.T,Kissei Pharmaceutical Co., Ltd.
+4549.T,Eiken Chemical Co., Ltd.
+4552.T,Jcr Pharmaceuticals Co., Ltd.
+4554.T,Fuji Pharma Co., Ltd.
+4558.T,Chukyo Iyakuhin Co., Ltd.
+4563.T,Anges, Inc.
+4565.T,Nxera Pharma Co., Ltd.
+4569.T,Kyorin Pharmaceutical Co., Ltd.
+4571.T,Nano Mrna Co., Ltd.
+4574.T,Taiko Pharmaceutical Co., Ltd.
+4576.T,D.Western Therapeutics Institute, Inc.
+4578.T,Otsuka Holdings Co., Ltd.
+4582.T,Symbio Pharmaceuticals Ltd.
+4588.T,Oncolys Biopharma Inc.
+4593.T,Healios K.K.
+4596.T,Kubota Pharmaceutical Holdings Co., Ltd.
+4598.T,Delta-Fly Pharma, Inc.
+4612.T,Nippon Paint Holdings Co., Ltd.
+4615.T,Shinto Paint Co., Ltd.
+4617.T,Chugoku Marine Paints, Ltd.
+4623.T,Asahipen Corp.
+4625.T,Atomix Co., Ltd.
+4627.T,Natoco Co., Ltd.
+4629.T,Daishin Chemical Co., Ltd.
+4634.T,Artience Co., Ltd.
+4642.T,Original Engineering Consultants Co.,Ltd
+4650.T,Sd Entertainment, Inc.
+4657.T,Environmental Control Center Co., Ltd.
+4659.T,Ajis Co., Ltd.
+4664.T,Japan Reliance Service Corp.
+4667.T,Aisan Technology Co., Ltd.
+4671.T,Falco Holdings Co., Ltd.
+4676.T,Fuji Media Holdings, Inc.
+4690.T,Nippon Pallet Pool Co., Ltd.
+4707.T,Kitac Corp.
+4718.T,Waseda Academy Co., Ltd.
+4720.T,Johnan Academic Preparatory Inst. Inc.
+4733.T,Obic Business Consultants Co., Ltd.
+4745.T,Tokyo Individualized Educational Inc.
+4751.T,Cyberagent, Inc.
+4755.T,Rakuten Group, Inc.
+4761.T,Sakura Kcs Corp.
+4766.T,Pa Co., Ltd.
+4772.T,Stream Media Corp.
+4792.T,Yamada Consulting Group Co., Ltd.
+4809.T,Paraca Inc.
+4813.T,Access Co., Ltd.
+4816.T,Toei Animation Co., Ltd.
+4825.T,Weathernews Inc.
+4845.T,Scala, Inc.
+4848.T,Fullcast Holdings Co., Ltd.
+4875.T,Medicinova, Inc.
+4884.T,Kringle Pharma, Inc.
+4886.T,Aska Pharmaceutical Holdings Co., Ltd.
+4888.T,Stella Pharma Corp.
+4890.T,Tsubota Laboratory Inc.
+4896.T,K Pharma, Inc.
+4914.T,Takasago International Corp.
+4920.T,Nippon Shikizai, Inc.
+4925.T,Haba Laboratories, Inc.
+4929.T,Adjuvant Holdings Co., Ltd.
+4932.T,Almado, Inc.
+4935.T,Liberta Co., Ltd.
+4937.T,Waqoo Inc.
+4958.T,T.Hasegawa Co., Ltd.
+4966.T,C.Uyemura & Co., Ltd.
+4968.T,Arakawa Chemical Industries, Ltd.
+4973.T,Japan Pure Chemical Co., Ltd.
+4977.T,Nitta Gelatin Inc.
+4980.T,Dexerials Corp.
+4990.T,Showa Chemical Ind. Co., Ltd.
+4994.T,Taisei Lamick Group Head Quarter & Innov
+4996.T,Kumiai Chemical Ind. Co., Ltd.
+4998.T,Fumakilla Ltd.
+5015.T,Bp Castrol K.K.
+5019.T,Idemitsu Kosan Co., Ltd.
+5027.T,Anymind Group Inc.
+5029.T,Circlace Inc.
+5033.T,Nulab Inc.
+5072.T,Art Force Japan Co., Ltd.
+5079.T,Novac Co., Ltd.
+5103.T,Showa Holdings Co., Ltd.
+5122.T,Okamoto Industries, Inc.
+5136.T,Tripla Co., Ltd.
+5138.T,Rebase, Inc.
+5161.T,Nishikawa Rubber Co., Ltd.
+5186.T,Nitta Corp.
+5189.T,Sakura Rubber Co., Ltd.
+5195.T,Bando Chemical Ind., Ltd.
+5201.T,Agc Inc.
+5204.T,Ishizuka Glass Co., Ltd.
+5210.T,Nihon Yamamura Glass Co., Ltd.
+5216.T,Kuramoto Co., Ltd.
+5232.T,Sumitomo Osaka Cement Co., Ltd.
+5237.T,Nozawa Corp.
+5241.T,Nihon Office Automation Research Co., Lt
+5250.T,Prime Strategy Co., Ltd.
+5255.T,Monstarlab Inc.
+5258.T,Transaction Media Networks Inc.
+5268.T,Asahi Concrete Works Co., Ltd.
+5273.T,Mitani Sekisan Co., Ltd.
+5284.T,Yamau Holdings Co., Ltd.
+5288.T,Asia Pile Holdings Corp.
+5302.T,Nippon Carbon Co., Ltd.
+5310.T,Toyo Tanso Co., Ltd.
+5333.T,Ngk Insulators, Ltd.
+5337.T,Danto Holdings Corp.
+5351.T,Shinagawa Refractories Co., Ltd.
+5356.T,Mino Ceramic Co., Ltd.
+5367.T,Nikkato Corp.
+5386.T,Tsuruya Co., Ltd.
+5393.T,Nichias Corp.
+5444.T,Yamato Kogyo Co., Ltd.
+5449.T,Osaka Steel Co., Ltd.
+5458.T,Takasago Tekko K.K.
+5463.T,Maruichi Steel Tube Ltd.
+5476.T,Nippon Koshuha Steel Co., Ltd.
+5482.T,Aichi Steel Corp.
+5531.T,Nakayama Fudousan Co., Ltd.
+5534.T,Angel Group Inc.
+5536.T,Kyobashi Art Residence Co., Ltd.
+5541.T,Pacific Metals Co., Ltd.
+5570.T,Jenoba Co., Ltd.
+5574.T,Abeja, Inc.
+5578.T,Ar Advanced Technology, Inc.
+5585.T,Econavista, Inc.
+5587.T,Inbound Platform Corp.
+5589.T,Autoserver Co., Ltd.
+5591.T,Avilen Inc.
+5595.T,Institute For Q-Shu Pioneers Of Space, I
+5598.T,Yottavias Co., Ltd.
+5612.T,Nippon Chutetsukan K.K.
+5620.T,Spo Entertainment Inc.
+5631.T,The Japan Steel Works, Ltd.
+5658.T,Nichia Steel Works, Ltd.
+5702.T,Daiki Aluminium Ind. Co., Ltd.
+5711.T,Mitsubishi Materials Corp.
+5714.T,Dowa Holdings Co., Ltd.
+5724.T,Asaka Riken Co., Ltd.
+5727.T,Toho Titanium Co., Ltd.
+5742.T,Nic Autotec, Inc.
+5801.T,Furukawa Electric Co., Ltd.
+5816.T,Onamba Co., Ltd.
+5819.T,Canare Electric Co., Ltd.
+5831.T,Shizuoka Financial Group, Inc.
+5834.T,Sbi Leasing Services Co., Ltd.
+5838.T,Rakuten Bank, Ltd.
+5844.T,Kyoto Financial Group, Inc.
+5857.T,Are Holdings, Inc.
+5870.T,Nalnet Communications Inc.
+5885.T,Gdep Advance, Inc.
+5888.T,Daiwa Cycle Co., Ltd.
+5891.T,Kairikiya Co., Ltd.
+5900.T,Daiken Co., Ltd.
+5902.T,Hokkan Holdings Ltd.
+5909.T,Corona Corp.
+5915.T,Komaihaltec Inc.
+5921.T,Kawagishi Bridge Works Co., Ltd.
+5923.T,Takada Kiko (Steel Construct.) Co., Ltd.
+5929.T,Sanwa Holdings Corp.
+5932.T,Sankyo Tateyama, Inc.
+5939.T,Otani Kogyo Co., Ltd.
+5941.T,Nakanishi Mfg. Co., Ltd.
+5946.T,Chofu Seisakusho Co., Ltd.
+5950.T,Japan Power Fastening Co., Ltd.
+5952.T,Amatei Inc.
+5958.T,Sanyo Industries, Ltd.
+5962.T,Asaka Industrial Co., Ltd.
+5971.T,Kyowakogyosyo Co., Ltd.
+5985.T,Suncall Corp.
+5997.T,Kyoritsu Air Tech Inc.
+6016.T,Japan Engine Corp.
+6022.T,Akasaka Diesels Ltd.
+6030.T,Adventure, Inc.
+6035.T,Ir Japan Holdings, Ltd.
+6037.T,Rakumachi, Inc.
+6044.T,Sanki Service Corp.
+6046.T,Linkbal Inc.
+6050.T,E-Guardian Inc.
+6059.T,Uchiyama Holdings Co., Ltd.
+6062.T,Charm Care Corp.
+6070.T,Careerlink Co., Ltd.
+6073.T,Asante Inc.
+6078.T,Value Hr Co., Ltd.
+6081.T,Allied Architects, Inc.
+6086.T,Shin Maint Holdings Co., Ltd.
+6088.T,Sigmaxyz Holdings Inc.
+6093.T,Escrow Agent Japan, Inc.
+6096.T,Rarejob, Inc.
+6101.T,Tsugami Corp.
+6104.T,Shibaura Machine Co., Ltd.
+6113.T,Amada Co., Ltd.
+6125.T,Okamoto Machine Tool Works, Ltd.
+6135.T,Makino Milling Machine Co., Ltd.
+6138.T,Dijet Industrial Co., Ltd.
+6144.T,Seibu Electric & Machinery Co., Ltd.
+6149.T,Odawara Engineering Co., Ltd.
+6155.T,Takamatsu Machinery Co., Ltd.
+6158.T,Waida Mfg. Co., Ltd.
+6173.T,Aqualine Ltd.
+6176.T,Brangista. Inc.
+6178.T,Japan Post Holdings Co., Ltd.
+6181.T,Tameny Inc.
+6184.T,Kamakura Shinsho, Ltd.
+6189.T,Global Kids Company Corp.
+6193.T,Virtualex Holdings, Inc.
+6197.T,Solasto Corp.
+6199.T,Seraku Co., Ltd.
+6203.T,Howa Machinery, Ltd.
+6217.T,Tsudakoma Corp.
+6227.T,Aimechatec, Ltd.
+6230.T,Sanei Ltd.
+6232.T,Acsl Ltd.
+6237.T,Iwaki Co., Ltd.
+6240.T,Yamashin-Filter Corp.
+6246.T,Techno Smart Corp.
+6248.T,Yokota Manufacturing Co., Ltd.
+6250.T,Yamabiko Corp.
+6258.T,Hirata Corp.
+6264.T,Marumae Co., Ltd.
+6267.T,General Packer Co., Ltd.
+6272.T,Rheon Automatic Machinery Co., Ltd.
+6291.T,Airtech Japan, Ltd.
+6293.T,Nissei Plastic Industrial Co., Ltd.
+6301.T,Komatsu Ltd.
+6305.T,Hitachi Const. Mach. Co., Ltd.
+6315.T,Towa Corp.
+6317.T,Kitagawa Corp.
+6324.T,Harmonic Drive Systems Inc.
+6326.T,Kubota Corp.
+6328.T,Ebara Jitsugyo Co., Ltd.
+6332.T,Tsukishima Holdings Co., Ltd.
+6335.T,Tokyo Kikai Seisakusho, Ltd.
+6340.T,Shibuya Corp.
+6343.T,Freesia Macross Corp.
+6346.T,Kikukawa Enterprise, Inc.
+6356.T,Nippon Gear Co., Ltd.
+6361.T,Ebara Corp.
+6364.T,Airman Corp.
+6367.T,Daikin Industries, Ltd.
+6369.T,Toyo Kanetsu K.K.
+6371.T,Tsubakimoto Chain Co.
+6378.T,Kimura Chemical Plants Co., Ltd.
+6380.T,Oriental Chain Mfg. Co., Ltd.
+6382.T,Trinity Industrial Corp.
+6384.T,Showa Shinku Co., Ltd.
+6390.T,Kato Works Co., Ltd.
+6392.T,Yamada Corp.
+6396.T,Unozawa-Gumi Iron Works, Ltd.
+6408.T,Ogura Clutch Co., Ltd.
+6412.T,Heiwa Corp.
+6416.T,Katsuragawa Electric Co., Ltd.
+6418.T,Japan Cash Machine Co., Ltd.
+6420.T,Galilei Co., Ltd.
+6425.T,Universal Entertainment Corp.
+6432.T,Takeuchi Mfg.Co., Ltd.
+6436.T,Amano Corp.
+6444.T,Sanden Corp.
+6454.T,Max Co., Ltd.
+6459.T,Daiwa Industries Ltd.
+6464.T,Tsubaki Nakashima Co., Ltd.
+6467.T,Nichidai Corp.
+6470.T,Taiho Kogyo Co., Ltd.
+6479.T,Minebea Mitsumi Inc.
+6485.T,Maezawa Kyuso Industries Co., Ltd.
+6488.T,Yoshitake Inc.
+6490.T,Pillar Corp.
+6493.T,Nittan Corp.
+6496.T,Nakakita Seisakusho Co., Ltd.
+6501.T,Hitachi, Ltd.
+6507.T,Sinfonia Technology Co., Ltd.
+6516.T,Sanyo Denki Co., Ltd.
+6522.T,Asterisk Inc.
+6527.T,Waka Manufacturing Co., Ltd.
+6533.T,Orchestra Holdings Inc.
+6539.T,Matching Service Japan Co., Ltd.
+6542.T,Founder'S Consultants Holdings Inc.
+6548.T,Tabikobo Co., Ltd.
+6552.T,Gamewith, Inc.
+6561.T,Hanatour Japan Co., Ltd.
+6564.T,Midac Holdings Co., Ltd.
+6566.T,Kaname Kogyo Co., Ltd.
+6570.T,Kyowa Corp.
+6574.T,Convano Inc.
+6584.T,Sanoh Industrial Co., Ltd.
+6588.T,Toshiba Tec Corp.
+6592.T,Mabuchi Motor Co., Ltd.
+6599.T,Ebrains, Inc.
+6613.T,Qd Laser, Inc.
+6620.T,Miyakoshi Holdings, Inc.
+6627.T,Tera Probe, Inc.
+6637.T,Terasaki Electric Co., Ltd.
+6643.T,Togami Electric Mfg. Co., Ltd.
+6648.T,Kawaden Corp.
+6659.T,Media Links Co., Ltd.
+6668.T,Adtec Plasma Technology Co., Ltd.
+6675.T,Saxa, Inc.
+6678.T,Techno Medica Co., Ltd.
+6696.T,Traas On Product Inc.
+6707.T,Sanken Electric Co., Ltd.
+6718.T,Aiphone Co., Ltd.
+6727.T,Wacom Co., Ltd.
+6730.T,Axell Corp.
+6740.T,Japan Display Inc.
+6742.T,Kyosan Electric Mfg. Co., Ltd.
+6744.T,Nohmi Bosai Ltd.
+6752.T,Panasonic Holdings Corp.
+6754.T,Anritsu Corp.
+6757.T,Osg Corporation Co., Ltd.
+6770.T,Alps Alpine Co., Ltd.
+6777.T,Santec Holdings Corp.
+6779.T,Nihon Dempa Kogyo Co., Ltd.
+6803.T,Teac Corp.
+6809.T,Toa Corp.
+6817.T,Sumida Corp.
+6832.T,Aoi Electronics Co., Ltd.
+6836.T,Plat'Home Co., Ltd.
+6838.T,Tamagawa Holdings Co., Ltd.
+6841.T,Yokogawa Electric Corp.
+6853.T,Kyowa Electronic Instruments Co., Ltd.
+6856.T,Horiba, Ltd.
+6862.T,Minato Holdings Inc.
+6870.T,Fenwal Controls Of Japan, Ltd.
+6875.T,Megachips Corp.
+6879.T,Imagica Group Inc.
+6888.T,Acmos Inc.
+6898.T,Tomita Electric Co., Ltd.
+6901.T,Sawafuji Electric Co., Ltd.
+6907.T,Geomatec Co., Ltd.
+6918.T,Aval Data Corp.
+6923.T,Stanley Electric Co., Ltd.
+6929.T,Nippon Ceramic Co., Ltd.
+6937.T,The Furukawa Battery Co., Ltd.
+6942.T,Sophia Holdings Co., Ltd.
+6952.T,Casio Computer Co., Ltd.
+6957.T,Shibaura Electronics Co., Ltd.
+6961.T,Enplas Corp.
+6964.T,Sanko Co., Ltd.
+6969.T,Matsuo Electric Co., Ltd.
+6973.T,Kyoei Sangyo Co., Ltd.
+6977.T,Japan Resistor Mfg. Co., Ltd.
+6982.T,The Lead Co., Inc.
+6993.T,Daikokuya Holdings Co., Ltd.
+6999.T,Koa Corp.
+7011.T,Mitsubishi Heavy Ind., Ltd.
+7014.T,Namura Shipbuild. Co., Ltd.
+7022.T,Sanoyas Holdings Corp.
+7034.T,Prored Partners Co., Ltd.
+7036.T,Emnet Japan. Co., Ltd.
+7039.T,Bridge International Corp.
+7043.T,Alue Co., Ltd.
+7048.T,Veltra Corp.
+7050.T,Frontier International Inc.
+7061.T,Japan Hospice Holdings Inc.
+7063.T,Birdman Inc.
+7071.T,Amvis Holdings, Inc.
+7073.T,Jaic Co., Ltd.
+7077.T,Alink Internet, Inc.
+7090.T,Ligua Inc.
+7092.T,Fast Fitness Japan Inc.
+7095.T,Macbee Planet, Inc.
+7098.T,Agent Inc.
+7110.T,Kurashicom Inc.
+7116.T,Daiwa Tsushin Co., Ltd.
+7118.T,Shinwa-Holdings Co., Ltd.
+7122.T,The Kinki Sharyo Co., Ltd.
+7127.T,Ikka Holdings Co., Ltd.
+7131.T,Nomura Corp.
+7133.T,Hyuga Primary Care Co., Ltd.
+7135.T,Japan Craft Holdings Co., Ltd.
+7139.T,Tokyo Koatsu Co., Ltd.
+7150.T,The Shimane Bank, Ltd.
+7162.T,Astmax Co., Ltd.
+7167.T,Mebuki Financial Group, Inc.
+7175.T,The Imamura Securities Co., Ltd.
+7177.T,Gmo Financial Holdings, Inc.
+7181.T,Japan Post Insurance Co., Ltd.
+7183.T,Anshin Guarantor Service Co., Ltd.
+7186.T,Concordia Financial Group, Ltd.
+7189.T,Nishi-Nippon Financial Holdings, Inc.
+7201.T,Nissan Motor Co., Ltd.
+7208.T,Kanemitsu Corp.
+7218.T,Tanaka Seimitsu Kogyo Co., Ltd.
+7222.T,Nissan Shatai Co., Ltd.
+7226.T,Kyokuto Kaihatsu Kogyo Co., Ltd.
+7228.T,Daytona Corp.
+7235.T,Tokyo Radiator Mfg. Co., Ltd.
+7238.T,Akebono Brake Ind. Co., Ltd.
+7241.T,Futaba Industrial Co., Ltd.
+7250.T,Pacific Industrial Co., Ltd.
+7255.T,Sakurai Ltd.
+7259.T,Aisin Corp.
+7266.T,Imasen Electric Industrial Co., Ltd.
+7270.T,Subaru Corp.
+7272.T,Yamaha Motor Co., Ltd.
+7282.T,Toyoda Gosei Co., Ltd.
+7284.T,Meiwa Industry Co., Ltd.
+7292.T,Murakami Corp.
+7305.T,Araya Industrial Co., Ltd.
+7314.T,Odawara Auto-Machine Mfg. Co., Ltd.
+7322.T,San Ju San Financial Group, Inc.
+7327.T,Daishi Hokuetsu Financial Group, Inc.
+7345.T,Ai Partners Financial Inc.
+7350.T,Okinawa Financial Group, Inc.
+7353.T,Kiyo Learning Co., Ltd.
+7359.T,Tokyo Communications Group, Inc.
+7362.T,Terminalcare Support Institute Inc.
+7364.T,Ryukyu Asteeda Sports Club Co., Ltd.
+7373.T,Aidma Holdings, Inc.
+7379.T,Circulation Co., Ltd.
+7381.T,Hokkoku Financial Holdings, Inc.
+7386.T,Japan Warranty Support Co., Ltd.
+7389.T,Aichi Financial Group, Inc.
+7408.T,Jamco Corp.
+7412.T,Atom Corp.
+7416.T,Haruyama Holdings Inc.
+7419.T,Nojima Co., Ltd.
+7421.T,Kappa.Create Co., Ltd.
+7425.T,Hatsuho Shouji Co., Ltd.
+7427.T,Echo Trading Co., Ltd.
+7434.T,Otake Corp.
+7442.T,Nakayamafuku Co., Ltd.
+7444.T,Harima-Kyowa Co., Ltd.
+7447.T,Nagaileben Co., Ltd.
+7453.T,Ryohin Keikaku Co., Ltd.
+7456.T,Matsuda Sangyo Co., Ltd.
+7459.T,Medipal Holdings Corp.
+7461.T,Kimura Co., Ltd.
+7463.T,Advan Group Co., Ltd.
+7467.T,Hagiwara Electric Holdings Co., Ltd.
+7475.T,Albis Co., Ltd.
+7477.T,Muraki Corp.
+7482.T,Shimojima Co., Ltd.
+7500.T,Nishikawa Keisoku Co., Ltd.
+7509.T,I.A Group Corp.
+7512.T,Aeon Hokkaido Corp.
+7514.T,Himaraya Co., Ltd.
+7522.T,Watami Co., Ltd.
+7524.T,Marche Corp.
+7532.T,Pan Pacific International Holdings Corp.
+7538.T,Daisui Co., Ltd.
+7545.T,Nishimatsuya Chain Co., Ltd.
+7554.T,Kourakuen Corp.
+7559.T,Global Food Creators Co., Ltd.
+7564.T,Workman Co., Ltd.
+7567.T,Sakae Electronics Corp.
+7571.T,Yamano Holdings Corp.
+7581.T,Saizeriya Co., Ltd.
+7590.T,Takasho Co., Ltd.
+7600.T,Japan Medical Dynamic Marketing, Inc.
+7602.T,Ledax Co., Ltd.
+7604.T,Umenohana Group Co., Ltd.
+7607.T,Shinwa Co., Ltd.
+7609.T,Daitron Co., Ltd.
+7621.T,Ukai Co., Ltd.
+7624.T,Naito & Co., Ltd.
+7628.T,Ohashi Technica Inc.
+7634.T,Hoshiiryo-Sanki Co., Ltd.
+7636.T,Handsman Co., Ltd.
+7638.T,New Art Holdings Co., Ltd.
+7646.T,Plant Co., Ltd.
+7674.T,Natty Swanky Holdings Co., Ltd.
+7677.T,Yashima & Co., Ltd.
+7679.T,Yakuodo Holdings Co., Ltd.
+7681.T,Leoclan Co., Ltd.
+7683.T,Wa, Inc.
+7689.T,Copa Corporation Inc.
+7692.T,Earth Infinity Co., Ltd.
+7695.T,Koukandekirukun, Inc.
+7711.T,Sukegawa Electric Co., Ltd.
+7715.T,Nagano Keiki Co., Ltd.
+7718.T,Star Micronics Co., Ltd.
+7723.T,Aichi Tokei Denki Co., Ltd.
+7726.T,Kuroda Precision Ind. Ltd.
+7730.T,Mani, Inc.
+7740.T,Tamron Co., Ltd
+7745.T,A&D Holon Holdings Co., Ltd.
+7747.T,Asahi Intecc Co., Ltd.
+7762.T,Citizen Watch Co., Ltd.
+7775.T,Daiken Medical Co., Ltd.
+7781.T,Hirayama Holdings Co., Ltd.
+7791.T,Dreambed Co., Ltd.
+7793.T,Image Magic Inc.
+7803.T,Bushiroad Inc.
+7809.T,Kotobukiya Co., Ltd.
+7813.T,Platz Co., Ltd.
+7815.T,Tokyo Board Industries Co., Ltd.
+7818.T,Transaction Co., Ltd.
+7822.T,Eidai Co., Ltd.
+7826.T,Furuya Metal Co., Ltd.
+7840.T,France Bed Holdings Co., Ltd.
+7844.T,Marvelous Inc.
+7849.T,Starts Publishing Corp.
+7856.T,Hagihara Industries Inc.
+7860.T,Avex Inc.
+7864.T,Fuji Seal International, Inc.
+7875.T,Takeda Ip Holdings Co., Ltd.
+7878.T,Kohsai Co., Ltd.
+7885.T,Takano Co., Ltd.
+7887.T,Nankai Plywood Co., Ltd.
+7911.T,Toppan Holdings Inc.
+7915.T,Nissha Co., Ltd.
+7917.T,Zacros Corp.
+7919.T,Nozaki Insatsu Shigyo Co., Ltd.
+7922.T,Sanko Sangyo Co., Ltd.
+7928.T,Asahi Kagaku Kogyo Co., Ltd.
+7936.T,Asics Corp.
+7940.T,Wavelock Holdings Co., Ltd.
+7952.T,Kawai Musical Instruments Mfg. Co., Ltd.
+7955.T,Cleanup Corp.
+7957.T,Fujicopian Co., Ltd.
+7981.T,Takara Standard Co., Ltd.
+7989.T,Tachikawa Corp.
+7992.T,The Sailor Pen Co., Ltd.
+7995.T,Valqua, Ltd.
+8002.T,Marubeni Corp.
+8007.T,Takashima & Co., Ltd.
+8012.T,Nagase & Co., Ltd.
+8015.T,Toyota Tsusho Corp.
+8018.T,Sankyo Seiko Co., Ltd.
+8023.T,Daiko Xtech, Ltd.
+8032.T,Japan Pulp & Paper Co., Ltd.
+8038.T,Tohto Suisan Co., Ltd.
+8043.T,Starzen Co., Ltd.
+8046.T,Marufuji Sheet Piling Co., Ltd.
+8052.T,Tsubakimoto Kogyo Co., Ltd.
+8059.T,Daiichi Jitsugyo Co., Ltd.
+8061.T,Seika Corp.
+8066.T,Mitani Corp.
+8076.T,Canox Corp.
+8081.T,Kanaden Corp.
+8088.T,Iwatani Corp.
+8095.T,Astena Holdings Co., Ltd.
+8098.T,Inabata & Co., Ltd.
+8104.T,Kuwazawa Holdings Corp.
+8107.T,Kimuratan Corp.
+8115.T,Moonbat Co., Ltd.
+8119.T,Sanyei Corp.
+8125.T,Wakita & Co., Ltd.
+8130.T,Sangetsu Corp.
+8136.T,Sanrio Co., Ltd.
+8138.T,Sankyokasei Corp.
+8143.T,Lapine Co., Ltd.
+8147.T,Tomita Co., Ltd.
+8152.T,Somar Corp.
+8158.T,Soda Nikka Co., Ltd.
+8165.T,Senshukai Co., Ltd.
+8167.T,Retail Partners Co., Ltd.
+8179.T,Royal Holdings Co., Ltd.
+8202.T,Laox Holdings Co., Ltd.
+8207.T,Ten Allied Co., Ltd.
+8217.T,Okuwa Co., Ltd.
+8225.T,Takachiho Co., Ltd.
+8233.T,Takashimaya Co., Ltd.
+8242.T,H2O Retailing Corp.
+8247.T,Daiwa Co., Ltd.
+8253.T,Credit Saison Co., Ltd.
+8255.T,Axial Retailing Inc.
+8267.T,Aeon Co., Ltd.
+8276.T,Heiwado Co., Ltd.
+8283.T,Paltac Corp.
+8291.T,Nissan Tokyo Sales Holdings Co., Ltd.
+8304.T,Aozora Bank, Ltd.
+8308.T,Resona Holdings, Inc.
+8331.T,The Chiba Bank, Ltd.
+8336.T,The Musashino Bank, Ltd.
+8338.T,Tsukuba Bank, Ltd.
+8343.T,The Akita Bank, Ltd.
+8345.T,The Bank Of Iwate, Ltd.
+8349.T,The Tohoku Bank, Ltd.
+8358.T,Suruga Bank Ltd.
+8362.T,The Fukui Bank, Ltd.
+8365.T,The Bank Of Toyama, Ltd.
+8367.T,The Nanto Bank, Ltd.
+8370.T,The Kiyo Bank, Ltd.
+8381.T,The San-In Godo Bank, Ltd.
+8386.T,The Hyakujushi Bank, Ltd.
+8388.T,The Awa Bank, Ltd.
+8393.T,The Miyazaki Bank, Ltd.
+8410.T,Seven Bank, Ltd.
+8416.T,The Bank Of Kochi, Ltd.
+8421.T,Shinkin Central Bank
+8425.T,Mizuho Leasing Co., Ltd.
+8515.T,Aiful Corp.
+8522.T,The Bank Of Nagoya, Ltd.
+8537.T,The Taiko Bank, Ltd.
+8542.T,Tomato Bank, Ltd.
+8550.T,The Tochigi Bank, Ltd.
+8562.T,The Fukushima Bank, Ltd.
+8566.T,Ricoh Leasing Co., Ltd.
+8572.T,Acom Co., Ltd.
+8593.T,Mitsubishi Hc Capital Inc.
+8595.T,Jafco Group Co., Ltd.
+8601.T,Daiwa Securities Group Inc.
+8609.T,Okasan Securities Group Inc.
+8616.T,Tokai Tokyo Financial Holdings, Inc.
+8697.T,Japan Exchange Group, Inc.
+8704.T,Traders Holdings Co., Ltd.
+8707.T,Iwaicosmo Holdings, Inc.
+8713.T,Fidea Holdings Co., Ltd.
+8715.T,Anicom Holdings, Inc.
+8737.T,Akatsuki Corp.
+8747.T,Yutaka Trusty Securities Co., Ltd.
+8766.T,Tokio Marine Holdings, Inc.
+8771.T,Eguarantee, Inc.
+8783.T,Gfa Co., Ltd.
+8801.T,Mitsui Fudosan Co., Ltd.
+8803.T,Heiwa Real Estate Co., Ltd.
+8818.T,Keihanshin Building Co., Ltd.
+8835.T,Taiheiyo Kouhatsu Inc.
+8848.T,Leopalace21 Corp.
+8864.T,Airport Facilities Co., Ltd.
+8877.T,Eslead Corp.
+8891.T,Amg Holdings Co., Ltd.
+8897.T,Mirarth Holdings, Inc.
+8904.T,Avantia Co., Ltd.
+8908.T,Mainichi Comnet Co., Ltd.
+8914.T,Arealink Co., Ltd.
+8919.T,Katitas Co., Ltd.
+8928.T,Anabuki Kosan Inc.
+8931.T,Wadakohsan Corp.
+8944.T,Land Business Co., Ltd.
+8946.T,Asian Star Co.
+8953.T,Japan Metropolitan Fund Investment Corp.
+8958.T,Global One Real Estate Investment Corp.
+8964.T,Frontier Real Estate Investment Corp.
+8967.T,Japan Logistics Fund, Inc.
+8972.T,Kdx Realty Investment Corp.
+8977.T,Hankyu Hanshin Reit, Inc.
+8984.T,Daiwa House Reit Investment Corp.
+8986.T,Daiwa Securities Living Investment Corp.
+8995.T,Makoto Construction Co., Ltd.
+9001.T,Tobu Railway Co., Ltd.
+9009.T,Keisei Electric Railway Co., Ltd.
+9017.T,Niigata Kotsu Co., Ltd.
+9021.T,West Japan Railway Co.
+9025.T,Konoike Transport Co., Ltd.
+9029.T,Higashi Holdings Co., Ltd.
+9033.T,Hiroshima Electric Railway Co., Ltd.
+9039.T,Sakai Moving Service Co., Ltd.
+9042.T,Hankyu Hanshin Holdings, Inc.
+9045.T,Keihan Holdings Co., Ltd.
+9048.T,Nagoya Railroad Co., Ltd.
+9052.T,Sanyo Electric Railway Co., Ltd.
+9060.T,Japan Logistic Systems Corp.
+9064.T,Yamato Holdings Co., Ltd.
+9067.T,Maruwn Corp.
+9075.T,Fukuyama Transporting Co., Ltd.
+9082.T,Daiwa Motor Transportation Co., Ltd.
+9087.T,Takase Corp.
+9107.T,Kawasaki Kisen Kaisha, Ltd.
+9119.T,Iino Kaiun Kaisha, Ltd.
+9130.T,Kyoei Tanker Co., Ltd.
+9156.T,Hana Holdings Co., Ltd.
+9165.T,Qualtec Co., Ltd.
+9167.T,Futonmaki Jiro, Inc.
+9171.T,Kuribayashi Steamship Co., Ltd.
+9201.T,Japan Airlines Co., Ltd.
+9204.T,Skymark Airlines Inc.
+9212.T,Green Earth Institute Co., Ltd.
+9215.T,Casy Co., Ltd.
+9220.T,Fb Care Service Co., Ltd.
+9224.T,Kankyou No Mikata Inc.
+9233.T,Asia Air Survey Co., Ltd.
+9236.T,Japan M&A Solution Inc.
+9242.T,Media Research Institute, Inc.
+9248.T,People, Dreams & Technologies Group Co.,
+9251.T,Ab&Company Co., Ltd.
+9253.T,Slogan Inc.
+9257.T,Ycp Holdings (Global) Ltd.
+9265.T,Yamashita Health Care Holdings, Inc.
+9271.T,Wagokoro Co., Ltd.
+9275.T,Narumiya International Co., Ltd.
+9284.T,Canadian Solar Infrastructure Fund, Inc.
+9286.T,Enex Infrastructure Investment Corp.
+9303.T,The Sumitomo Warehouse Co., Ltd.
+9305.T,Yamatane Corp.
+9308.T,Inui Global Logistics Co., Ltd.
+9311.T,Asagami Corp.
+9319.T,Chuo Warehouse Co., Ltd.
+9330.T,Ageha Inc.
+9335.T,Techno-Creative Co., Ltd.
+9339.T,Coach A Co., Ltd.
+9341.T,Genova, Inc.
+9344.T,Axis Consulting Corp.
+9347.T,Nippon Kanzai Holdings Co., Ltd.
+9351.T,Toyo Wharf & Warehouse Co., Ltd.
+9360.T,Suzuyo Shinwart Corp.
+9362.T,Hyoki Kaiun Kaisha, Ltd.
+9364.T,Kamigumi Co., Ltd.
+9366.T,Sanritsu Corp.
+9368.T,Kimura Unity Co., Ltd.
+9377.T,Agp Corp.
+9381.T,Ait Corp.
+9388.T,Papanets Co., Ltd.
+9409.T,Tv Asahi Holdings Corp.
+9414.T,Nippon Bs Broadcasting Corp.
+9419.T,Wirelessgate, Inc.
+9424.T,Japan Communications Inc.
+9435.T,Hikari Tsushin, Inc.
+9441.T,Bell-Park Co., Ltd.
+9446.T,Sakai Holdings Co., Ltd.
+9466.T,Aidma Marketing Communication Corp.
+9468.T,Kadokawa Corp.
+9475.T,Shobunsha Holdings, Inc.
+9478.T,Se Holdings And Incubations Co., Ltd.
+9503.T,The Kansai Electric Power Co., Inc.
+9511.T,The Okinawa Electric Power Co., Inc.
+9531.T,Tokyo Gas Co., Ltd.
+9533.T,Toho Gas Co., Ltd.
+9535.T,Hiroshima Gas Co., Ltd.
+9543.T,Shizuoka Gas Co., Ltd.
+9552.T,M&A Research Institute Holdings Inc.
+9554.T,Avic Co., Ltd.
+9558.T,Japaniace Co., Ltd.
+9562.T,Business Coach Inc.
+9610.T,Wilson Learning Worldwide Inc.
+9613.T,Ntt Data Group Corp.
+9622.T,Space Co., Ltd.
+9628.T,San Holdings, Inc.
+9632.T,Subaru Enterprise Co., Ltd.
+9635.T,Musashino Kogyo Co., Ltd.
+9640.T,Saison Technology Co., Ltd.
+9644.T,Tanabe Consulting Group Co., Ltd.
+9651.T,Japan Process Development Co., Ltd.
+9658.T,Business Brain Showa.Ota Inc.
+9663.T,Nagawa Co., Ltd.
+9672.T,Tokyotokeiba Co., Ltd.
+9679.T,Horai Co., Ltd.
+9697.T,Capcom Co., Ltd.
+9704.T,Agora Hospitality Group Co., Ltd.
+9708.T,Imperial Hotel, Ltd.
+9713.T,The Royal Hotel, Ltd.
+9716.T,Nomura Co., Ltd.
+9722.T,Fujita Kanko Inc.
+9731.T,Hakuyosha Co., Ltd.
+9740.T,Central Security Patrols Co., Ltd.
+9757.T,Funai Soken Holdings Inc.
+9761.T,Tokai Lease Co., Ltd.
+9765.T,Ohba Co., Ltd.
+9767.T,Nikken Kogaku Co., Ltd.
+9769.T,Gakkyusha Co., Ltd.
+9778.T,Subaru Co., Ltd.
+9787.T,Aeon Delight Co., Ltd.
+9793.T,Daiseki Co., Ltd.
+9818.T,Daimaru Enawin Co., Ltd.
+9828.T,Genki Global Dining Concepts Corp.
+9831.T,Yamada Holdings Co., Ltd.
+9842.T,Arclands Corp.
+9846.T,Tenmaya Store Co., Ltd.
+9850.T,Gourmet Kineya Co., Ltd.
+9854.T,Aigan Co., Ltd.
+9861.T,Yoshinoya Holdings Co., Ltd.
+9869.T,Kato Sangyo Co., Ltd.
+9882.T,Yellow Hat Ltd.
+9887.T,Matsuya Foods Holdings Co., Ltd.
+9900.T,Sagami Holdings Corp.
+9906.T,Fujii Sangyo Corp.
+9927.T,Watt Mann Co., Ltd.
+9930.T,Kitazawa Sangyo Co., Ltd.
+9941.T,Taiyo Bussan Kaisha, Ltd.
+9950.T,Hachi-Ban Co., Ltd.
+9959.T,Aseed Holdings Co., Ltd.
+9979.T,Daisyo Corp.
+9983.T,Fast Retailing Co., Ltd.
+9993.T,Yamazawa Co., Ltd.
+9996.T,Satoh & Co., Ltd.
+130A.T,Veritas In Silico Inc.

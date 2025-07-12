@@ -1,0 +1,100 @@
+ticker,description
+MKS.L,Marks & Spencer Group Plc
+FRES.L,Fresnillo Plc
+BAB.L,Babcock International Group Plc
+PHNX.L,Phoenix Group Holdings Plc
+BA.L,Bae Systems Plc
+ICG.L,Intermediate Capital Group Plc
+EDV.L,Endeavour Mining Plc
+SVT.L,Severn Trent Plc
+AAL.L,Anglo American Plc
+RR.L,Rolls-Royce Holdings Plc
+AZN.L,Astrazeneca Plc
+SGE.L,The Sage Group Plc
+SMIN.L,Smiths Group Plc
+HSX.L,Hiscox Ld
+CPG.L,Compass Group Plc
+GSK.L,Gsk Plc
+GAW.L,Games Workshop Group Plc
+CNA.L,Centrica Plc
+UU.L,United Utilities Group Plc
+AAF.L,Airtel Africa Plc
+RMV.L,Rightmove Plc
+BEZ.L,Beazley Plc
+NWG.L,Natwest Group Plc
+REL.L,Relx Plc
+TSCO.L,Tesco Plc
+RTO.L,Rentokil Initial Plc
+LLOY.L,Lloyds Banking Group Plc
+CTEC.L,Convatec Group Plc
+NG.L,National Grid Plc
+BATS.L,British American Tobacco Plc
+HLN.L,Haleon Plc
+SHEL.L,Shell Plc
+VOD.L,Vodafone Group Plc
+LAND.L,Land Securities Group Plc
+MRO.L,Melrose Industries Plc
+DPLM.L,Diploma Plc
+SGRO.L,Segro Plc
+WEIR.L,Weir Group Plc
+STJ.L,St.James'S Place Plc
+III.L,3I Group Plc
+SGRO.L,Segro Plc
+AUTO.L,Auto Trader Group Plc
+CCH.L,Coca-Cola Hbc Ag
+ULVR.L,Unilever Plc
+IMB.L,Imperial Brands Plc
+BARC.L,Barclays Plc
+CCEP.L,Coca-Cola Europacific Partners Plc
+HSBA.L,Hsbc Hldgs Plc
+MNDI.L,Mondi Plc
+BP.L,Bp Plc
+PSON.L,Pearson Plc
+WTB.L,Whitbread Plc
+SBRY.L,Sainsbury(J) Plc
+AV.L,Aviva Plc
+ITRK.L,Intertek Group Plc
+SN.L,Smith & Nephew Plc
+FCIT.L,F&C Investment Trust Plc
+ANTO.L,Antofagasta Plc
+STAN.L,Standard Chartered Plc
+SDR.L,Schroders Plc
+HLMA.L,Halma Plc
+DGE.L,Diageo Plc
+UTG.L,Unite Group Plc
+RIO.L,Rio Tinto Plc
+SMT.L,Scottish Mortgage Inv Tst Plc
+ABF.L,Associated British Foods Plc
+IMI.L,Imi Plc
+HWDN.L,Howden Joinery Group Plc
+BNZL.L,Bunzl Plc
+PCT.L,Polar Capital Technology Trust Plc
+MNG.L,M&G Plc
+CRDA.L,Croda International Plc
+LGEN.L,Legal & General Group Plc
+INF.L,Informa Plc
+LSEG.L,London Stock Exchange Group Plc
+BKG.L,Berkeley Group Holdings (The) Plc
+RKT.L,Reckitt Benckiser Group Plc
+LMP.L,Londonmetric Property Plc
+ENT.L,Entain Plc
+PSH.L,Pershing Square Holdings Ltd
+ALW.L,Alliance Witan Plc
+DCC.L,Dcc Plc
+NXT.L,Next Plc
+EZJ.L,Easyjet Plc
+PRU.L,Prudential Plc
+BT-A.L,Bt Group Plc
+GLEN.L,Glencore Plc
+KGF.L,Kingfisher Plc
+PSN.L,Persimmon Plc
+TW.L,Taylor Wimpey Plc
+EXPN.L,Experian Plc
+AHT.L,Ashtead Group Plc
+IAG.L,Intl Consolidated Airlines Group Sa
+WPP.L,Wpp Plc
+IHG.L,Intercontinental Hotels Group Plc
+SSE.L,Sse Plc
+BTRW.L,Barratt Redrow Plc
+SPX.L,Spirax Group Plc
+JD.L,Jd Sports Fashion Plc

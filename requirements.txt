@@ -1,0 +1,12 @@
+flask
+yfinance
+pandas
+apscheduler
+streamlit
+xlsxwriter
+Pillow
+plotly
+sqlalchemy
+psycopg2-binary
+numpy
+streamlit_autorefresh

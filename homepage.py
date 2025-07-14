@@ -490,7 +490,7 @@ st.sidebar.markdown(f"""
         <span style='font-size: 14px;'>Navigate financial sea with clarity ⚓</span><br>
         <a href='https://www.instagram.com/tuo_profilo' target='_blank' style="display: inline-block; margin-top: 20px;">
             <img src='data:image/png;base64,{instagram_icon_base64}' width='40' height='40'>
-        <a href='https://www.linkedin.com/in/tuo_profilo' target='_blank' style="display: inline-block; margin-top: 20px;">
+        <a href='https://www.linkedin.com/company/balanceship/' target='_blank' style="display: inline-block; margin-top: 20px;">
             <img src='data:image/png;base64,{linkedin_icon_base64}' width='40' height='40'>
     </div>
 

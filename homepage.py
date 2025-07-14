@@ -90,12 +90,14 @@ def cached_all_tickers(limit=500):
 tickers = cached_all_tickers(limit=100)
 
 # ---- LOAD TICKER DATA FOR BAR ----
-def load_ticker_bar_data():
-    tickers = get_all_tickers()
-    sampled = random.sample(tickers, min(limit, len(tickers)))  # genera 25
+# ---- LOAD TICKER DATA FOR BAR ----
+@st.cache_data(ttl=300)
+def load_ticker_bar_data(limit=10):
+    tickers = cached_all_tickers(limit=limit)
     years = ["2021", "2022", "2023", "2024"]
     result = []
-    for t in sampled:
+
+    for t in tickers:
         y = random.choice(years)
         data = load_from_db(t, [y])
         if data and isinstance(data[0], dict):
@@ -105,17 +107,17 @@ def load_ticker_bar_data():
             if val:
                 try:
                     val_fmt = f"{float(val):.2f}"
-                    b_metrics = ["total_revenue", "ebit", "ebitda", "free_cash_flow", "net_income", "cost_of_revenue", "total_debt", "total_assets", "operating_income", "gross_profit", "pretax_income"]
-                    if key in b_metrics:
-                        val_str = f"{val_fmt}B"
-                    else:
-                        val_str = val_fmt
-                    
+                    b_metrics = [
+                        "total_revenue", "ebit", "ebitda", "free_cash_flow", "net_income",
+                        "cost_of_revenue", "total_debt", "total_assets", "operating_income",
+                        "gross_profit", "pretax_income"
+                    ]
+                    val_str = f"{val_fmt}B" if key in b_metrics else val_fmt
                     result.append((t, y, f"{label.title()}: {val_str}"))
-                    #result.append((t, y, f"{label.title()}: {val_fmt}B"))
                 except:
                     continue
     return result
+
 
 bar_items = load_ticker_bar_data(limit=10)
 

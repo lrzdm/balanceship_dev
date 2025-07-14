@@ -347,7 +347,8 @@ st.markdown("""
     transform: rotateY(180deg);
 }
 
-.profile-front, .profile-back {
+.profile-front,
+.profile-back {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -360,32 +361,26 @@ st.markdown("""
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 0 1rem;
+    padding: 1rem;
+    box-sizing: border-box;
 }
 
 .profile-front {
     background-color: #0173C4;
     color: white;
-    padding-top: 1rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    flex: 1;
-    padding: 0.5rem;
 }
 
 .profile-front i {
-    font-size: 2.8rem;
-    margin-bottom: 0.4rem;
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
     line-height: 1;
+    display: block;
 }
 
 .profile-front h4 {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     margin: 0;
     font-weight: 600;
-    text-align: center;
     line-height: 1.2;
 }
 
@@ -395,7 +390,6 @@ st.markdown("""
     transform: rotateY(180deg);
     font-size: 2.2rem;
     font-weight: bold;
-    display: flex;
     justify-content: center;
     align-items: center;
     padding: 1rem;

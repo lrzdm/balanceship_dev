@@ -1,3 +1,4 @@
+
 import streamlit as st
 import os, base64
 from PIL import Image
@@ -54,46 +55,38 @@ for path, cls in [("images/logo1.png","logo-large"),("images/logo2.png","logo-sm
 st.markdown(f"<div class='logo-container'>{logo_html}</div>", unsafe_allow_html=True)
 
 # --- Startup Info + About us Side by Side ---
-st.markdown("""
-<div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; align-items: stretch; min-height: 400px; margin: 40px 0;">
-  <div class='startup-box' style="max-width: 600px; width: 100%; margin: 0; text-align: center; height: 100%; box-sizing: border-box;">
-    <h2>🚀 Our Startup</h2>
-    <ul style='list-style:none; padding-left:0; margin: 0; text-align: left;'>
-      <li><strong>Founded:</strong> 2025</li>
-      <li><strong>Sector:</strong> Finance & Data Analytics</li>
-      <li><strong>HQ:</strong> Rome, Italy</li>
-      <li><strong>Mission:</strong> Empower businesses with intelligent financial tools</li>
-      <li><strong style="color:#f5f5f5;">XXX</li>
-      <li><strong style="color:#f5f5f5;">XXX</li>
-      <li><strong style="color:#f5f5f5;">XXX</li>
-      <li><strong style="color:#f5f5f5;">XXX</li>
-      <li><strong style="color:#f5f5f5;">XXX</li>
-      <li><strong style="color:#f5f5f5;">XXX</li>
-    </ul>
-  </div>
-  
-  <div class='description-block' style="max-width: 600px; width: 100%; margin: 0; text-align: center; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-start; color: black">
-    <h2>🏢 About Us</h2>
-    <p><strong>Balanceship</strong> means clarity and control over financial data. Just like steering a well-balanced ship, our tools help you navigate company financials with ease and confidence.</p>
-    <p>We believe financial analysis should be intuitive, actionable, and beautiful. That’s why we design tools that speak the language of business professionals—clear dashboards, strong KPIs, and powerful benchmarking.</p>
-    <div style='margin-top: auto; font-weight: bold; color: #0173C4;'>
-        Navigate the financial sea with clarity ⚓
+st.markdown(""" 
+  <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; align-items: stretch; min-height: 400px; margin: 40px 0;">
+  <div class='credo-box' style="max-width: 1200px; width: 100%; margin: 0; height: 100%; box-sizing: border-box; display: flex; background-color: #f9f9f9; border-left: 6px solid #0173C4; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+    <div style="width: 100%;">
+    <h2 style="text-align:center;">🌟 Our Credo</h2>
+
+    <p><strong>🧭</strong><br/>
+    At BalanceShip, we believe that financial data should be accessible, understandable, and actionable for everyone. We exist to remove the barriers to financial information, enabling smarter decisions through clarity and transparency. Our purpose is to make financial information open, visual, and comparable.</p>
+
+    <p><strong>🌍</strong><br/>
+    We aim to become the go-to platform for financial comparison, insight, and monitoring — empowering anyone to see and understand the financial world. Democratizing access to high-quality financial data is our main objective.</p>
+
+    <p><strong>🚀</strong><br/>
+    Our mission is to provide a smart, user-friendly dashboard to explore, compare, and visualize financial KPIs across companies worldwide. By combining accuracy, clarity, and intuitive design, we help investors, analysts, and finance enthusiasts turn data into insight.</p>
+
+    <div style='margin-top: 30px; text-align: center; font-weight: bold; font-size: 1.1em; color: #0173C4;'>
+      Navigate the financial sea with clarity ⚓
     </div>
   </div>
-</div>
 """, unsafe_allow_html=True)
 
 
 # --- Team Profiles ---
-st.markdown("<h2 style='text-align:center; margin-top:40px;'>👥 Our Team</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align:center; margin-top:40px;'>👥 About Us</h2>", unsafe_allow_html=True)
 profiles = [
   ("Lorenzo De Meo","Professional with an engineering background and an MBA, specializing in financial reporting, internal audit, and risk management.\
  Experienced in financial analysis, accounting, and managing financial risks to support strategic decision-making. Proficient in Power BI and \
 Python.","images/Lorenzo De Meo_01.jpg"),
   ("William Herbert Gazzo","Professional with a solid business background and a professional training from SDA Bocconi. \
-Specializing in project management and business planning. He boasts extensive experience in consulting firms \
+Specialized in project management and business planning. He boasts extensive experience in consulting firms \
 and multinational companies, where he has held managerial roles.","images/William H Gazzo_01.jpg"),
-  ("Gabriele Schininà","Professional with a solid financial background and training from SDA Bocconi. Specializing in financial modelling, \
+  ("Gabriele Schininà","Professional with a solid financial background and training from SDA Bocconi. Specialized in financial modelling, \
   strategic planning, and budget management. He boasts extensive experience in listed and non-listed multinational companies, with roles in \
 business controlling.","images/Gabriele Schinina_01.jpg"),
   ("Giovanni Serusi","Multidisciplinary business professional with a neuroscience background and executive pharma management training from SDA Bocconi. \
@@ -123,26 +116,26 @@ st.markdown("""
 <div class='timeline'>
     <div class='timeline-box left'>
         <div class='timeline-content'>
-            <h4>2025 – Foundation</h4>
-            <p>Balanceship is born in Rome with the goal of making financial insights accessible.</p>
+            <h4>Q3 2025 – MVP Launch</h4>
+            <p>Released the first version of our data platform for financial analysis and visualization.</p>
         </div>
     </div>
     <div class='timeline-box right'>
         <div class='timeline-content'>
-            <h4>2026 – MVP Launch</h4>
-            <p>Released the first version of our data platform for financial ratio visualization.</p>
+            <h4>Q4 2025 – Worldwide data</h4>
+            <p>Global Stock Exchanges full coverage.</p>
         </div>
     </div>
     <div class='timeline-box left'>
         <div class='timeline-content'>
-            <h4>2027 – Strategic Clients</h4>
-            <p>Onboarded early enterprise clients and improved benchmarking features.</p>
+            <h4>Q3 2026 – AI Implementation</h4>
+            <p>Expansion of our core team with experts in AI, engineering, and finance.</p>
         </div>
     </div>
     <div class='timeline-box right'>
         <div class='timeline-content'>
-            <h4>2028 – Team Expansion</h4>
-            <p>We expanded our core team with experts in AI, engineering, and finance.</p>
+            <h4>Q2 2027 – Strategic partnerships</h4>
+            <p>Onboarding early enterprise clients and impementation of data collection to boost our features.</p>
         </div>
     </div>
 </div>
@@ -177,7 +170,7 @@ st.sidebar.markdown(f"""
         <span style='font-size: 14px;'>Navigate financial sea with clarity ⚓</span><br>
         <a href='https://www.instagram.com/tuo_profilo' target='_blank' style="display: inline-block; margin-top: 20px;">
             <img src='data:image/png;base64,{instagram_icon_base64}' width='40' height='40'>
-        <a href='https://www.linkedin.com/in/tuo_profilo' target='_blank' style="display: inline-block; margin-top: 20px;">
+        <a href='https://www.linkedin.com/company/balanceship/' target='_blank' style="display: inline-block; margin-top: 20px;">
             <img src='data:image/png;base64,{linkedin_icon_base64}' width='40' height='40'>
     </div>
 

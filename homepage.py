@@ -118,7 +118,7 @@ def load_ticker_bar_data(limit=10):
     return result
 
 
-bar_items = load_ticker_bar_data(limit=25)
+bar_items = load_ticker_bar_data(limit=16)
 
 def get_random_color():
     return random.choice(["#00ff00", "#ff0000", "#00ffff", "#ffa500", "#ff69b4", "#ffffff"])

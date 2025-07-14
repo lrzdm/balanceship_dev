@@ -76,9 +76,18 @@ def get_all_tickers():
                 tickers.append(c['ticker'])
     return list(set(tickers))
     
-@st.cache_data
-def cached_all_tickers():
-    return get_all_tickers()
+@st.cache_data(ttl=3600)
+def cached_all_tickers(limit=500):
+    exchanges = read_exchanges("exchanges.txt")
+    tickers = []
+    for ex in exchanges.values():
+        companies = read_companies(ex)
+        for c in companies:
+            if 'ticker' in c:
+                tickers.append(c['ticker'])
+    return random.sample(list(set(tickers)), min(limit, len(tickers)))
+
+tickers = cached_all_tickers(limit=100)
 
 # ---- LOAD TICKER DATA FOR BAR ----
 def load_ticker_bar_data():

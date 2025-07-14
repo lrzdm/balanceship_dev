@@ -90,7 +90,6 @@ def cached_all_tickers(limit=500):
 tickers = cached_all_tickers(limit=100)
 
 # ---- LOAD TICKER DATA FOR BAR ----
-# ---- LOAD TICKER DATA FOR BAR ----
 @st.cache_data(ttl=300)
 def load_ticker_bar_data(limit=10):
     tickers = cached_all_tickers(limit=limit)
@@ -119,7 +118,7 @@ def load_ticker_bar_data(limit=10):
     return result
 
 
-bar_items = load_ticker_bar_data(limit=10)
+bar_items = load_ticker_bar_data(limit=25)
 
 def get_random_color():
     return random.choice(["#00ff00", "#ff0000", "#00ffff", "#ffa500", "#ff69b4", "#ffffff"])
@@ -214,7 +213,7 @@ html_code = f"""
   .ticker-content {{
     display: inline-block;
     white-space: nowrap;
-    animation: ticker 60s linear infinite;
+    animation: ticker 40s linear infinite;
   }}
   @keyframes ticker {{
     from {{ transform: translateX(0%); }}

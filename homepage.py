@@ -361,40 +361,29 @@ st.markdown("""
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 1rem;
     box-sizing: border-box;
 }
 
 .profile-front {
     background-color: #0173C4;
     color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
     padding: 1rem;
-    flex: 1;
 }
 
 .profile-front i {
     font-size: 3rem;
-    margin-bottom: 0.5rem;
     line-height: 1;
+    height: 60px;
     display: flex;
-    justify-content: center;
     align-items: center;
-    height: 60px;              /* 🔧 forza tutte le icone a occupare lo stesso spazio */
-    width: 60px;
+    justify-content: center;
 }
 
 .profile-front h4 {
     font-size: 1.1rem;
-    margin: 0;
     font-weight: 600;
-    text-align: center;
-    line-height: 1.2;
-    min-width: 120px;
-    display: inline-block;
+    margin-top: 0.5rem;
+    min-height: 1.2em;
 }
 
 .profile-back {
@@ -407,6 +396,7 @@ st.markdown("""
     align-items: center;
     padding: 1rem;
 }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -429,6 +419,7 @@ cards = f"""
       </div>
     </div>
   </div>
+
   <div class='profile-card'>
     <div class='profile-inner'>
       <div class='profile-front'>
@@ -440,6 +431,7 @@ cards = f"""
       </div>
     </div>
   </div>
+
   <div class='profile-card'>
     <div class='profile-inner'>
       <div class='profile-front'>
@@ -451,6 +443,7 @@ cards = f"""
       </div>
     </div>
   </div>
+
   <div class='profile-card'>
     <div class='profile-inner'>
       <div class='profile-front'>

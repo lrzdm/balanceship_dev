@@ -412,7 +412,7 @@ cards = f"""
     <div class='profile-inner'>
       <div class='profile-front'>
         <i class='fas fa-building'></i>
-        <h4>  Companies</h4>
+        <h4>Companies</h4>
       </div>
       <div class='profile-back'>
         {n_companies_fmt}
@@ -424,7 +424,7 @@ cards = f"""
     <div class='profile-inner'>
       <div class='profile-front'>
         <i class='fas fa-database'></i>
-        <h4> Records</h4>
+        <h4>Records</h4>
       </div>
       <div class='profile-back'>
         {n_records_fmt}
@@ -436,7 +436,7 @@ cards = f"""
     <div class='profile-inner'>
       <div class='profile-front'>
         <i class='fas fa-calendar-alt'></i>
-        <h4>  Years</h4>
+        <h4>Years</h4>
       </div>
       <div class='profile-back'>
         {n_years_fmt}
@@ -448,7 +448,7 @@ cards = f"""
     <div class='profile-inner'>
       <div class='profile-front'>
         <i class='fas fa-chart-line'></i>
-        <h4> Stock Exchanges</h4>
+        <h4>Stock Exchanges</h4>
       </div>
       <div class='profile-back'>
         {stock_exchanges_fmt}

@@ -393,6 +393,8 @@ st.markdown("""
     font-weight: 600;
     text-align: center;
     line-height: 1.2;
+    min-width: 120px;
+    display: inline-block;
 }
 
 .profile-back {

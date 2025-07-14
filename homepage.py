@@ -118,7 +118,7 @@ def load_ticker_bar_data(limit=10):
     return result
 
 
-bar_items = load_ticker_bar_data(limit=16)
+bar_items = load_ticker_bar_data(limit=14)
 
 def get_random_color():
     return random.choice(["#00ff00", "#ff0000", "#00ffff", "#ffa500", "#ff69b4", "#ffffff"])
@@ -366,21 +366,27 @@ st.markdown("""
 .profile-front {
     background-color: #0173C4;
     color: white;
-    padding-top: 1.2rem;
+    padding-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    padding: 0.5rem;
 }
 
 .profile-front i {
-    font-size: 3rem;
-    margin-bottom: 0.6rem;
-    display: block;
+    font-size: 2.8rem;
+    margin-bottom: 0.4rem;
+    line-height: 1;
 }
 
 .profile-front h4 {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     margin: 0;
     font-weight: 600;
-    line-height: 1.3;
     text-align: center;
+    line-height: 1.2;
 }
 
 .profile-back {

@@ -96,8 +96,8 @@ and multinational companies, where he has held managerial roles.","images/Willia
   ("Gabriele Schininà","Professional with a solid financial background and training from SDA Bocconi. Specializing in financial modelling, \
   strategic planning, and budget management. He boasts extensive experience in listed and non-listed multinational companies, with roles in \
 business controlling.","images/Gabriele Schinina_01.jpg"),
-  ("Giovanni Serusi","Professional with a solid scientific background, specializing in clinical and cognitive neuroscience and with economic training\
-from SDA Bocconi. Specializing in competitive intelligence and scouting new investment opportunities with a focus on the life-science sector.","images/Giovanni Serusi_01.jpg"),
+  ("Giovanni Serusi","Multidisciplinary business professional with a neuroscience background and executive pharma management training from SDA Bocconi. \
+  Specialized in competitive intelligence and scouting of new investment opportunities with a focus on the life science sector.","images/Giovanni Serusi_01.jpg"),
 ]
 cards = ""
 for name, desc, img in profiles:

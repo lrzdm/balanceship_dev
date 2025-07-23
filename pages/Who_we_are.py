@@ -49,7 +49,7 @@ body {
   margin: 20px auto;
 }
 
-/* ---------- DESCRIZIONE ---------- */
+/* ---------- DESCRIZIONE / CREDO BLOCK ---------- */
 .description-block {
   background: #fff;
   color: #263238 !important;
@@ -67,86 +67,79 @@ body {
 /* ---------- GRIGLIA PROFILI ---------- */
 .profile-grid {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 30px;
-  margin: 30px;
-  flex-wrap: nowrap;
+  gap: 2rem;
+  margin: 3rem auto;
 }
 
 /* ---------- CARD PROFILO ---------- */
 .profile-card {
-  background: #fff;
-  color: #263238 !important;
-  width: 260px;
-  height: 360px;
-  border-radius: 12px;
+  width: 220px;
+  height: 280px;
   perspective: 1000px;
-  box-shadow: 0 4px 12px rgba(1, 115, 196, 0.3);
 }
+
 .profile-inner {
-  position: relative;
   width: 100%;
   height: 100%;
-  text-align: center;
   transition: transform 0.8s;
   transform-style: preserve-3d;
+  position: relative;
 }
-.profile-card:hover .profile-inner {
+
+.profile-card:hover .profile-inner,
+.profile-card:active .profile-inner {
   transform: rotateY(180deg);
 }
 
-/* ---------- CARD FRONTE ---------- */
-.profile-front {
-  background: #0173C4;
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(1, 115, 196, 0.7);
+.profile-front,
+.profile-back {
   position: absolute;
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
-  border-radius: 12px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(1, 115, 196, 0.2);
+  font-family: 'Open Sans', sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px;
-}
-.profile-front img {
-  border-radius: 50%;
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
-  margin-bottom: 30px;
+  text-align: center;
+  box-sizing: border-box;
+  padding: 1rem;
 }
 
-/* ---------- CARD RETRO ---------- */
+.profile-front {
+  background-color: #0173C4;
+  color: white;
+}
+
+.profile-front img {
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+.profile-front h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  min-height: 1.2em;
+}
+
 .profile-back {
-  background: #fff;
+  background-color: #fff;
   color: #263238;
   transform: rotateY(180deg);
-  box-shadow: 0 4px 12px rgba(1, 115, 196, 0.3);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  padding: 20px;
-  text-align: left;
-  gap: 12px;
-  height: 100%;
-  box-sizing: border-box;
-  backface-visibility: hidden;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-.profile-back h4 {
-  margin: 0 0 10px 0;
-  flex-shrink: 0;
-}
-.profile-back p {
-  font-size: 14px;
-  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 400;
+  justify-content: flex-start;
+  align-items: flex-start;
   overflow-y: auto;
-  max-height: calc(100% - 40px);
 }
 
 /* ---------- TIMELINE ---------- */
@@ -205,30 +198,13 @@ body {
 /* ---------- RESPONSIVE MOBILE ---------- */
 @media screen and (max-width: 768px) {
   .profile-grid {
-    flex-wrap: wrap;
     flex-direction: column;
     align-items: center;
   }
 
   .profile-card {
     width: 90%;
-    height: auto;
-  }
-
-  .profile-inner {
-    height: auto;
-  }
-
-  .profile-front,
-  .profile-back {
-    position: relative;
-    height: auto;
-    transform: none !important;
-    backface-visibility: visible;
-  }
-
-  .profile-card:hover .profile-inner {
-    transform: none;
+    height: 280px;
   }
 
   .timeline::after {
@@ -259,6 +235,7 @@ body {
 }
 </style>
 """, unsafe_allow_html=True)
+
 
 # --- Logo Top ---
 logo_html = ""

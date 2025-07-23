@@ -22,7 +22,6 @@ body { background-color: #eceff1; color: #263238; }
 .logo-container { display: flex; justify-content: center; gap: 30px; margin: 30px auto; flex-wrap: wrap; }
 .logo-large { height: 90px; }
 .logo-small { height: 60px; }
-st.markdown("""
 <style>
 /* ---------- TEMA BASE ---------- */
 body { background-color: #eceff1; color: #263238; }

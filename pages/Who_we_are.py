@@ -44,7 +44,7 @@ body { background-color: #eceff1; color: #263238; }
 .timeline-box.right::after { left: -10px; }
 .timeline-content { background-color: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(1, 115, 196, 0.2); }
 .timeline-content h4 { margin-top: 0; }
-</style>
+/* --- MEDIA QUERY PER RESPONSIVE --- */
 @media screen and (max-width: 768px) {
   .profile-grid {
     flex-direction: column;
@@ -96,6 +96,7 @@ body { background-color: #eceff1; color: #263238; }
     padding: 20px !important;
   }
 }
+</style>
 """, unsafe_allow_html=True)
 
 # --- Logo Top ---

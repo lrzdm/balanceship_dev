@@ -45,6 +45,57 @@ body { background-color: #eceff1; color: #263238; }
 .timeline-content { background-color: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(1, 115, 196, 0.2); }
 .timeline-content h4 { margin-top: 0; }
 </style>
+@media screen and (max-width: 768px) {
+  .profile-grid {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .profile-card {
+    width: 90%;
+    height: auto;
+    margin-bottom: 20px;
+  }
+
+  .profile-back p {
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  .timeline::after {
+    left: 10px;
+  }
+
+  .timeline-box {
+    width: 100%;
+    padding-left: 30px;
+    padding-right: 20px;
+  }
+
+  .timeline-box.left,
+  .timeline-box.right {
+    left: 0;
+  }
+
+  .timeline-box::after,
+  .timeline-box.right::after {
+    left: 0;
+    margin-left: -10px;
+  }
+
+  .timeline-content {
+    margin-left: 20px;
+  }
+
+  .credo-box {
+    flex-direction: column !important;
+    padding: 20px !important;
+  }
+
+  .startup-box {
+    padding: 20px !important;
+  }
+}
 """, unsafe_allow_html=True)
 
 # --- Logo Top ---

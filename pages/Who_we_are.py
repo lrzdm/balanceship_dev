@@ -18,219 +18,121 @@ def get_base64_of_bin_file(bin_file):
 # --- CSS ---
 st.markdown("""
 <style>
-/* ---------- BASE ---------- */
-body {
-  background-color: #eceff1;
-  color: #263238;
-}
-
-/* ---------- LOGHI ---------- */
-.logo-container {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  margin: 30px auto;
-  flex-wrap: wrap;
-}
+body { background-color: #eceff1; color: #263238; }
+.logo-container { display: flex; justify-content: center; gap: 30px; margin: 30px auto; flex-wrap: wrap; }
 .logo-large { height: 90px; }
 .logo-small { height: 60px; }
+.startup-box { background: #f5f5f5; border-left: 6px solid #0173C4; border-radius: 10px; padding: 30px; flex: 1; box-shadow: 0 4px 15px rgba(1, 115, 196, 0.3); max-width: 760px; width: 100%; margin: 20px auto; }
+.description-block { background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(1, 115, 196, 0.3); padding: 40px; margin: 20px; }
+.description-block div { margin-top: 30px; font-weight: bold; text-align: center; }
+.profile-grid { display: flex; justify-content: center; gap: 30px; margin: 30px; flex-wrap: nowrap; }
+.profile-card { background: #fff; width: 260px; height: 360px; border-radius: 12px; perspective: 1000px; box-shadow: 0 4px 12px rgba(1, 115, 196, 0.3); }
+.profile-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.8s; transform-style: preserve-3d; }
+.profile-card:hover .profile-inner { transform: rotateY(180deg); }
+.profile-front, .profile-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+.profile-front { background: #0173C4; color: #fff; box-shadow: 0 4px 12px rgba(1, 115, 196, 0.7); }
+.profile-back { background: #fff; color: #263238; transform: rotateY(180deg); box-shadow: 0 4px 12px rgba(1, 115, 196, 0.3); display: flex; flex-direction: column; align-items: flex-end; padding: 20px; text-align: left; gap: 12px; height: 100%; box-sizing: border-box; }
+.profile-back h4 { margin: 0; margin-bottom: 10px; flex-shrink: 0; }
+.profile-back p { font-size: 14px; margin: 0; overflow-y: auto; max-height: calc(100% - 40px); }
+.profile-front img { border-radius: 50%; width: 120px; height: 120px; object-fit: cover; margin-bottom: 30px; }
+.timeline { position: relative; max-width: 800px; margin: 60px auto; }
+.timeline::after { content: ''; position: absolute; width: 6px; background-color: #0173C4; top: 0; bottom: 0; left: 50%; margin-left: -3px; }
+.timeline-box { padding: 20px 40px; position: relative; width: 50%; }
+.timeline-box.left { left: 0; }
+.timeline-box.right { left: 50%; }
+.timeline-box::after { content: ''; position: absolute; width: 20px; height: 20px; right: -10px; background-color: #0173C4; border: 4px solid #fff; top: 15px; border-radius: 50%; z-index: 1; }
+.timeline-box.right::after { left: -10px; }
+.timeline-content { background-color: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(1, 115, 196, 0.2); }
+.timeline-content h4 { margin-top: 0; }
 
-/* ---------- STARTUP BOX ---------- */
-.startup-box {
-  background: #f5f5f5;
-  color: #263238 !important;
-  border-left: 6px solid #0173C4;
-  border-radius: 10px;
-  padding: 30px;
-  flex: 1;
-  box-shadow: 0 4px 15px rgba(1, 115, 196, 0.3);
-  max-width: 760px;
-  width: 100%;
-  margin: 20px auto;
-}
-
-/* ---------- DESCRIZIONE / CREDO BLOCK ---------- */
+/* ---------------- DARK MODE VISIBILITY FIX ---------------- */
+.startup-box,
+.timeline-content,
+.contact-box,
 .description-block {
-  background: #fff;
+  color: #263238 !important;          /* testo leggibile */
+}
+.startup-box a,
+.timeline-content a,
+.contact-box a,
+.description-block a {
+  color: #0173C4 !important;          /* link leggibili sul chiaro */
+  text-decoration: underline;
+}
+
+/* Se hai il box finale contatti senza classe, aggiungi questa regola globale
+   che prende i markdown chiari con sfondo f5f5f5 / #fff */
+div[style*="background:#f5f5f5"],
+div[style*="background: #f5f5f5"],
+div[style*="background:#fff"],
+div[style*="background: #fff"] {
   color: #263238 !important;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(1, 115, 196, 0.3);
-  padding: 40px;
-  margin: 20px;
-}
-.description-block div {
-  margin-top: 30px;
-  font-weight: bold;
-  text-align: center;
 }
 
-/* ---------- GRIGLIA PROFILI ---------- */
-.profile-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 2rem;
-  margin: 3rem auto;
+/* ---------------- CARD: FLIP ALSO ON TOUCH ---------------- */
+/* Manteniamo hover desktop; aggiungiamo focus/active per tap */
+.profile-card:active .profile-inner,
+.profile-card:focus-within .profile-inner {
+  transform: rotateY(180deg);
+  outline: none;
 }
 
-/* ---------- CARD PROFILO ---------- */
+/* Rendi la card focusabile (dovrai aggiungere tabindex="0" nell'HTML card) */
 .profile-card {
-  width: 220px;
-  height: 280px;
-  perspective: 1000px;
+  outline: none;
+}
+.profile-card:focus {
+  outline: 2px solid rgba(1,115,196,0.5);
+  outline-offset: 4px;
 }
 
-.profile-inner {
-  width: 100%;
-  height: 100%;
-  transition: transform 0.8s;
-  transform-style: preserve-3d;
-  position: relative;
-}
-
-.profile-card:hover .profile-inner,
-.profile-card:active .profile-inner {
-  transform: rotateY(180deg);
-}
-
-.profile-front,
-.profile-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(1, 115, 196, 0.2);
-  font-family: 'Open Sans', sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  box-sizing: border-box;
-  padding: 1rem;
-}
-
-.profile-front {
-  background-color: #0173C4;
-  color: white;
-}
-
-.profile-front img {
-  border-radius: 50%;
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  margin-bottom: 10px;
-}
-
-.profile-front h4 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-top: 0.5rem;
-  min-height: 1.2em;
-}
-
-.profile-back {
-  background-color: #fff;
-  color: #263238;
-  transform: rotateY(180deg);
-  font-size: 0.95rem;
-  font-weight: 400;
-  justify-content: flex-start;
-  align-items: flex-start;
-  overflow-y: auto;
-}
-
-/* ---------- TIMELINE ---------- */
-.timeline {
-  position: relative;
-  max-width: 800px;
-  margin: 60px auto;
-}
-.timeline::after {
-  content: '';
-  position: absolute;
-  width: 6px;
-  background-color: #0173C4;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  margin-left: -3px;
-}
-.timeline-box {
-  padding: 20px 40px;
-  position: relative;
-  width: 50%;
-}
-.timeline-box.left {
-  left: 0;
-}
-.timeline-box.right {
-  left: 50%;
-}
-.timeline-box::after {
-  content: '';
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  right: -10px;
-  background-color: #0173C4;
-  border: 4px solid #fff;
-  top: 15px;
-  border-radius: 50%;
-  z-index: 1;
-}
-.timeline-box.right::after {
-  left: -10px;
-}
-.timeline-content {
-  background-color: #fff;
-  color: #263238 !important;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(1, 115, 196, 0.2);
-}
-.timeline-content h4 {
-  margin-top: 0;
-}
-
-/* ---------- RESPONSIVE MOBILE ---------- */
+/* ---------------- MOBILE LAYOUT ---------------- */
 @media screen and (max-width: 768px) {
   .profile-grid {
+    flex-wrap: wrap;
     flex-direction: column;
     align-items: center;
+    gap: 1.5rem;
+    margin: 2rem auto;
   }
 
   .profile-card {
-    width: 90%;
-    height: 280px;
+    width: 90% !important;   /* pieno schermo quasi */
+    height: 300px;           /* un po' più alta per flip leggibile */
   }
 
+  .profile-front img {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 12px;
+  }
+
+  /* manteniamo flip 3D anche mobile */
+  .profile-front,
+  .profile-back {
+    padding: 1.25rem !important;
+    font-size: 0.95rem;
+  }
+
+  /* Timeline mobile: tutta a sinistra, colonna singola */
   .timeline::after {
-    left: 8px;
+    left: 12px;
+    margin-left: 0;
   }
-
   .timeline-box {
-    width: 100%;
-    padding-left: 30px;
-    padding-right: 20px;
-    margin-bottom: 30px;
+    width: 100% !important;
+    left: 0 !important;
+    padding: 0 0 0 40px !important;
+    margin-bottom: 40px;
   }
-
-  .timeline-box.left,
-  .timeline-box.right {
-    left: 0;
-  }
-
   .timeline-box::after,
   .timeline-box.right::after {
-    left: 0;
-    margin-left: -10px;
+    left: 0 !important;
+    right: auto !important;
+    transform: translateX(-50%);
   }
-
   .timeline-content {
-    margin-left: 20px;
+    margin-left: 10px;
   }
 }
 </style>
@@ -247,7 +149,7 @@ st.markdown(f"<div class='logo-container'>{logo_html}</div>", unsafe_allow_html=
 # --- Startup Info + About us Side by Side ---
 st.markdown(""" 
   <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; align-items: stretch; min-height: 400px; margin: 40px 0;">
-  <div class='credo-box' style="max-width: 1200px; width: 100%; margin: 0; height: 100%; box-sizing: border-box; display: flex; background-color: #f9f9f9; border-left: 6px solid #0173C4; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+  <div class='startup-box' style="max-width: 1200px; width: 100%; margin: 0; height: 100%; box-sizing: border-box; display: flex; background-color: #f9f9f9; border-left: 6px solid #0173C4; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
     <div style="width: 100%;">
     <h2 style="text-align:center;">🌟 Our Credo</h2>
 
@@ -282,22 +184,20 @@ business controlling.","images/Gabriele Schinina_01.jpg"),
   ("Giovanni Serusi","Multidisciplinary business professional with a neuroscience background and executive pharma management training from SDA Bocconi. \
   Specialized in competitive intelligence and scouting of new investment opportunities with a focus on the life science sector.","images/Giovanni Serusi_01.jpg"),
 ]
-cards = ""
-for name, desc, img in profiles:
-    if not os.path.exists(img): continue
-    cards += f"""
-    <div class='profile-card'>
-      <div class='profile-inner'>
-        <div class='profile-front'>
-          <img src="data:image/jpeg;base64,{get_base64(img)}">
-          <h4>{name}</h4>
-        </div>
-        <div class='profile-back'>
-          <h4>{name}</h4>
-          <p style='font-size:14px;'>{desc}</p>
-        </div>
-      </div>
-    </div>"""
+cards += f"""
+<div class='profile-card' tabindex='0' role='button' aria-label='Toggle profile for {name}'>
+  <div class='profile-inner'>
+    <div class='profile-front'>
+      <img src="data:image/jpeg;base64,{get_base64(img)}">
+      <h4>{name}</h4>
+    </div>
+    <div class='profile-back'>
+      <h4>{name}</h4>
+      <p style='font-size:14px;'>{desc}</p>
+    </div>
+  </div>
+</div>
+"""
 st.markdown(f"<div class='profile-grid'>{cards}</div>", unsafe_allow_html=True)
 
 # --- TIMELINE ---

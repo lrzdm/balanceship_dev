@@ -236,6 +236,7 @@ st.markdown("""
 # --- Contacts ---
 insta, lin = get_base64("images/IG.png"), get_base64("images/LIN.png")
 st.markdown(f"""
+<div class='contact-box'>
 <div style='background:#f5f5f5;padding:40px;border-radius:12px; text-align:center; box-shadow:0 3px 10px rgba(0,0,0,0.05); margin:30px'>
   <h3>📬 Contact Us</h3>
   <p>Interested in collaborating? <a href='mailto:your-email@example.com'>Send us an email</a></p>
@@ -269,6 +270,7 @@ st.sidebar.markdown(f"""
 """, unsafe_allow_html=True)
 
 st.markdown("""
+<div class='contact-box'> 
 <div style="
     margin: 40px auto 20px auto;
     max-width: 800px;

@@ -188,19 +188,18 @@ cards = ""
 for name, desc, img in profiles:
     if not os.path.exists(img): continue
     cards += f"""
-    <div class='profile-card' tabindex='0' role='button' aria-label='Toggle profile for {name}'>
+    <div class='profile-card' tabindex="0">
       <div class='profile-inner'>
         <div class='profile-front'>
-          <img src="data:image/jpeg;base64,{get_base64(img)}">
+          <img src="data:image/jpeg;base64,{get_base64(img)}" alt="{name} photo">
           <h4>{name}</h4>
         </div>
         <div class='profile-back'>
           <h4>{name}</h4>
-          <p style='font-size:14px;'>{desc}</p>
+          <p>{desc}</p>
         </div>
       </div>
-    </div>
-    """
+    </div>"""
 st.markdown(f"<div class='profile-grid'>{cards}</div>", unsafe_allow_html=True)
 
 # --- TIMELINE ---

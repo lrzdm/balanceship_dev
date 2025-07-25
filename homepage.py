@@ -213,7 +213,7 @@ html_code = f"""
   .ticker-content {{
     display: inline-block;
     white-space: nowrap;
-    animation: ticker 10s linear infinite;
+    animation: ticker 16s linear infinite;
   }}
   @keyframes ticker {{
     from {{ transform: translateX(0%); }}

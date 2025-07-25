@@ -118,7 +118,7 @@ def load_ticker_bar_data(limit=10):
     return result
 
 
-bar_items = load_ticker_bar_data(limit=6)
+bar_items = load_ticker_bar_data(limit=5)
 
 def get_random_color():
     return random.choice(["#00ff00", "#ff0000", "#00ffff", "#ffa500", "#ff69b4", "#ffffff"])
@@ -213,7 +213,7 @@ html_code = f"""
   .ticker-content {{
     display: inline-block;
     white-space: nowrap;
-    animation: ticker 40s linear infinite;
+    animation: ticker 60s linear infinite;
   }}
   @keyframes ticker {{
     from {{ transform: translateX(0%); }}

@@ -2,13 +2,14 @@ import streamlit as st
 import pandas as pd
 import os
 import base64
+import io
 from data_utils import read_exchanges, read_companies, get_or_fetch_data, compute_kpis
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import A4
 import matplotlib.pyplot as plt
 
-# ---------------- CONFIG ----------------
+# ---------------- CONFIGURAZIONE ----------------
 st.set_page_config(page_title="📑 Report Generator", layout="wide")
 st.title("📑 Report Generator")
 
@@ -35,28 +36,20 @@ if os.path.exists(logo_path):
 exchanges = read_exchanges("exchanges.txt")
 exchange_names = list(exchanges.keys())
 years_available = ["2021", "2022", "2023", "2024"]
-sectors_available = [
-    "Communication Services",
-    "Consumer Cyclical",
-    "Consumer Defensive",
-    "Energy",
-    "Finance Services",
-    "Healthcare",
-    "Industrials",
-    "Real Estate",
-    "Technology",
-    "Utilities",
-]
 
-col1, col2, col3 = st.columns([1.2, 1.5, 1.8])
+col1, col2, col3 = st.columns([1.2, 1.5, 2])
+
 with col1:
     selected_year = st.selectbox("Year", years_available, index=2)
 with col2:
     selected_exchange = st.selectbox("Exchange", exchange_names, index=0)
 with col3:
-    selected_sector = st.selectbox("Sector", options=["All"] + sectors_available)
+    # Carica aziende e determina le industry disponibili
+    companies = read_companies(exchanges[selected_exchange])
+    industries_available = sorted(list(set([c.get("industry", "Unknown") for c in companies if c.get("industry")])))
+    selected_industry = st.selectbox("Industry", options=industries_available)
 
-# ---------------- FUNZIONE GRAFICO ----------------
+# ---------------- FUNZIONI ----------------
 def save_kpi_chart(median_values, filename):
     plt.figure(figsize=(6,4))
     median_values.plot(kind='bar', color="#0173C4")
@@ -74,67 +67,58 @@ def save_kpi_chart(median_values, filename):
 if st.button("📄 Generate Report"):
     st.info("Generating report...")
 
-    companies = read_companies(exchanges[selected_exchange])
-    data = []
+    # Filtra aziende per industry
+    filtered_companies = [c for c in companies if c.get("industry") == selected_industry]
 
-    for company in companies:
-        company_sector = company.get("sector", "").strip().lower()
-        if selected_sector != "All" and company_sector != selected_sector.strip().lower():
-            continue
+    financial_data = []
+    for company in filtered_companies:
         comp_data = get_or_fetch_data(
             company["ticker"], [selected_year], company.get("description", ""), selected_exchange
         )
-        data.extend(comp_data)
+        financial_data.extend(comp_data)
 
-    if not data:
+    if not financial_data:
         st.warning("No data found for the selected filters.")
         st.stop()
 
-    # Dataframe e KPI
-    df = pd.DataFrame(data)
-    df_kpi = compute_kpis(data)
+    df = pd.DataFrame(financial_data)
+    df_kpi = compute_kpis(financial_data)
+    df_kpi = df_kpi[df_kpi["year"] == int(selected_year)]
 
-    # Normalizza anno
-    df_kpi['year'] = df_kpi['year'].astype(str)
-    df_kpi = df_kpi[df_kpi['year'] == selected_year]
+    # Rinomina colonne coerenti
+    df_kpi.rename(columns={"Debt/Equity": "Debt to Equity", "basic_eps": "EPS"}, inplace=True)
 
-    # Rinominazioni coerenti
-    df_kpi = df_kpi.rename(columns={"Debt/Equity": "Debt to Equity", "basic_eps": "EPS"})
-
-    # Controllo colonne disponibili
     kpi_candidates = ["EBITDA Margin", "Debt to Equity", "FCF Margin", "EPS"]
     available_cols = [col for col in kpi_candidates if col in df_kpi.columns]
-
     if not available_cols:
-        st.error("❌ Nessuna delle colonne KPI attese è presente nel dataframe.")
-        st.write("Colonne trovate:", df_kpi.columns.tolist())
+        st.error("❌ Nessuna delle colonne KPI attese è presente.")
+        st.write("Colonne disponibili:", df_kpi.columns.tolist())
         st.stop()
 
-    st.write("✅ Colonne KPI disponibili per la mediana:", available_cols)
     median_values = df_kpi[available_cols].median()
 
     # ---------------- COMMENTI DINAMICI ----------------
     comments = []
     if "EBITDA Margin" in median_values:
         ebitda = median_values["EBITDA Margin"]
-        comments.append(
-            "Strong EBITDA" if ebitda > 20 else "Healthy EBITDA" if ebitda > 10 else "Low EBITDA"
-        )
+        if ebitda > 20: comments.append("Strong profitability with EBITDA margin above 20%.")
+        elif ebitda > 10: comments.append("Healthy profitability with double-digit EBITDA margin.")
+        else: comments.append("Profitability is relatively low (EBITDA margin).")
     if "Debt to Equity" in median_values:
-        de_ratio = median_values["Debt to Equity"]
-        comments.append(
-            "High leverage" if de_ratio > 2 else "Moderate leverage" if de_ratio > 1 else "Low leverage"
-        )
+        de = median_values["Debt to Equity"]
+        if de > 2: comments.append("High leverage, strong reliance on debt financing.")
+        elif de > 1: comments.append("Moderate leverage: balance between debt and equity.")
+        else: comments.append("Low leverage, generally equity-financed sector.")
     if "FCF Margin" in median_values:
         fcf = median_values["FCF Margin"]
-        comments.append(
-            "Strong cash generation" if fcf > 15 else "Moderate cash flow" if fcf > 5 else "Weak cash flow"
-        )
+        if fcf > 15: comments.append("Strong cash generation capacity.")
+        elif fcf > 5: comments.append("Moderate Free Cash Flow margins.")
+        else: comments.append("Weak Free Cash Flow margins, potential concern.")
     if "EPS" in median_values:
         eps = median_values["EPS"]
-        comments.append(
-            "Solid earnings" if eps > 5 else "Moderate earnings" if eps > 1 else "Low earnings"
-        )
+        if eps > 5: comments.append("Strong earnings per share at company level.")
+        elif eps > 1: comments.append("Moderate EPS performance.")
+        else: comments.append("Low EPS, weak earnings generation.")
 
     # ---------------- CREAZIONE PDF ----------------
     pdf_filename = "report.pdf"
@@ -146,7 +130,7 @@ if st.button("📄 Generate Report"):
     story.append(Spacer(1, 12))
     story.append(Paragraph(f"<b>Exchange:</b> {selected_exchange}", styles["Normal"]))
     story.append(Paragraph(f"<b>Year:</b> {selected_year}", styles["Normal"]))
-    story.append(Paragraph(f"<b>Sector:</b> {selected_sector}", styles["Normal"]))
+    story.append(Paragraph(f"<b>Industry:</b> {selected_industry}", styles["Normal"]))
     story.append(Spacer(1, 12))
 
     story.append(Paragraph("<b>Median KPIs:</b>", styles["Heading2"]))
@@ -168,7 +152,7 @@ if st.button("📄 Generate Report"):
 
     doc.build(story)
 
-    # ---------------- DOWNLOAD PDF ----------------
+    # Download link
     with open(pdf_filename, "rb") as f:
         pdf_bytes = f.read()
     b64_pdf = base64.b64encode(pdf_bytes).decode()

@@ -104,23 +104,41 @@ color_palette = [
 
 
 # Lettura borse e aziende
+# --- Exchanges disponibili ---
 exchanges = read_exchanges("exchanges.txt")
 exchange_names = list(exchanges.keys())
-years_available = ['2021', '2022', '2023', '2024']
-sectors_available = ['Communication Services', 'Consumer Cyclical', 'Consumer Defensive', 'Energy', 'Finance Services', 'Healthcare', 'Industrials', 'Real Estate', 'Technology', 'Utilities']
+exchange_names = ["All"] + exchange_names   # aggiungo opzione All
 
-# --- Layout filtri in riga ---
+years_available = ['2021', '2022', '2023', '2024']
+sectors_available = [
+    'Communication Services', 'Consumer Cyclical', 'Consumer Defensive',
+    'Energy', 'Finance Services', 'Healthcare', 'Industrials',
+    'Real Estate', 'Technology', 'Utilities'
+]
+
+# --- Layout filtri ---
 col1, col2, col3, col4 = st.columns([1.2, 1.5, 2.2, 2])
 with col1:
     selected_year = st.selectbox("Year", years_available, index=2)
 with col2:
     selected_exchange = st.selectbox("Exchange", exchange_names, index=0)
-with col3:
+
+# --- Carico lista aziende ---
+if selected_exchange == "All":
+    companies = []
+    for exch in exchanges.values():
+        companies.extend(read_companies(exch))
+else:
     companies = read_companies(exchanges[selected_exchange])
-    symbol_to_name = {c["ticker"]: c["description"] for c in companies}
-    name_to_symbol = {v: k for k, v in symbol_to_name.items()}
-    company_names = list(symbol_to_name.values())
-    selected_company_names = st.multiselect("Companies (up to 10)", options=company_names, max_selections=10)
+
+symbol_to_name = {c["ticker"]: c["description"] for c in companies}
+name_to_symbol = {v: k for k, v in symbol_to_name.items()}
+company_names = list(symbol_to_name.values())
+
+with col3:
+    selected_company_names = st.multiselect(
+        "Companies (up to 10)", options=company_names, max_selections=10
+    )
     selected_symbols = [name_to_symbol[name] for name in selected_company_names]
 with col4:
     selected_sector = st.selectbox("Sector", options=["All"] + sectors_available)
@@ -129,17 +147,23 @@ with col4:
 financial_data = []
 for symbol in selected_symbols:
     desc = symbol_to_name.get(symbol, "")
-    data = get_or_fetch_data(symbol, [selected_year], desc, selected_exchange)
-    financial_data.extend(data)
+    # se All → ciclo su tutte le borse, altrimenti solo quella selezionata
+    exchanges_to_use = exchanges.keys() if selected_exchange == "All" else [selected_exchange]
+    for exch in exchanges_to_use:
+        data = get_or_fetch_data(symbol, [selected_year], desc, exch)
+        financial_data.extend(data)
 
-# --- Se settore selezionato, carico anche tutti i dati del settore ---
+# --- Se settore selezionato, includo tutto il settore ---
 sector_data = []
 if selected_sector != "All":
-    for company in read_companies(exchanges[selected_exchange]):
-        if company["ticker"] not in selected_symbols:
-            desc = company.get("description", "")
-            data = get_or_fetch_data(company["ticker"], [selected_year], desc, selected_exchange)
-            sector_data.extend(d for d in data if d.get("sector") == selected_sector)
+    exchanges_to_use = exchanges.keys() if selected_exchange == "All" else [selected_exchange]
+    for exch in exchanges_to_use:
+        for company in read_companies(exchanges[exch]):
+            if company["ticker"] not in selected_symbols:
+                desc = company.get("description", "")
+                data = get_or_fetch_data(company["ticker"], [selected_year], desc, exch)
+                sector_data.extend(d for d in data if d.get("sector") == selected_sector)
+
 
 
 # --- Se non c'è nulla, stop ---
@@ -476,3 +500,4 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+

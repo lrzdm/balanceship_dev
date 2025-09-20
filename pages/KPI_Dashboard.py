@@ -291,24 +291,28 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
             sector_median = sector_median_raw * (100 if is_percent else 1)
 
     # --- Delta frecce ---
-    if not np.isnan(global_median):
-        offset = max(y_values.max() - y_values.min(), 1e-6) * 0.05
-        for i, val in enumerate(y_values):
-            if np.isnan(val):
-                continue
-            delta = val - global_median
-            if delta == 0:
-                continue
-            arrow = "▲" if delta > 0 else "▼"
-            color = "green" if delta > 0 else "red"
-            fig.add_trace(go.Scatter(
-                x=[company_names_raw[i]],
-                y=[val + offset],
-                mode="text",
-                text=[f"{arrow}{abs(delta):.1f}{'%' if is_percent else ''}"],
-                textfont=dict(size=10, color=color),
-                showlegend=False
-            ))
+    bar_texts = []
+    for i, val in enumerate(y_values):
+        if np.isnan(val):
+            bar_texts.append("")
+            continue
+        delta = val - global_median if not np.isnan(global_median) else 0
+        arrow = ""
+        if delta > 0:
+            arrow = f" ▲{delta:.1f}%"
+        elif delta < 0:
+            arrow = f" ▼{abs(delta):.1f}%"
+        bar_texts.append(f"{val:.1f}%{arrow}")
+    
+    fig.add_trace(go.Bar(
+        x=company_names_raw,
+        y=y_values,
+        marker_color=[company_colors[name] for name in company_names_raw],
+        text=bar_texts,
+        textposition="auto",
+        showlegend=False
+    ))
+
 
     # --- Linee mediane ---
     if not np.isnan(global_median):
@@ -496,6 +500,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

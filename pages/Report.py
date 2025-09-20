@@ -123,7 +123,7 @@ if st.button("📄 Generate Report"):
     story = []
     
     # Logo
-    logo_path = "images/image.png"
+    logo_path = "images/logo2.png"
     if os.path.exists(logo_path):
         story.append(Image(logo_path, width=120, height=50))
         story.append(Spacer(1, 12))
@@ -169,4 +169,5 @@ if st.button("📄 Generate Report"):
     with open(pdf_file, "rb") as f:
         b64_pdf = base64.b64encode(f.read()).decode()
     st.markdown(f'<a href="data:application/pdf;base64,{b64_pdf}" download="BalanceShip_Report.pdf">📥 Download Report</a>', unsafe_allow_html=True)
+
 

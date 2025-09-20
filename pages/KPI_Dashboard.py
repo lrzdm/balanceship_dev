@@ -1,10 +1,59 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates, compute_kpis
+from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates, compute_kpis, add_meta_tags
 from data_utils import get_or_fetch_data 
 import os
 import base64
+import requests
+import uuid
+import textwrap
+import numpy as np
+
+MEASUREMENT_ID = "G-Q5FDX0L1H2" # Il tuo ID GA4 
+API_SECRET = "kRfQwfxDQ0aACcjkJNENPA" # Quello creato in GA4 
+
+if "client_id" not in st.session_state:
+    st.session_state["client_id"] = str(uuid.uuid4())
+
+# --------------- Client-side GA4 -----------------
+st.markdown(f"""
+<!-- GA4 tracking client-side -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={MEASUREMENT_ID}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+  gtag('config', '{MEASUREMENT_ID}');
+</script>
+""", unsafe_allow_html=True)
+
+def send_pageview():
+    url = f"https://www.google-analytics.com/mp/collect?measurement_id={MEASUREMENT_ID}&api_secret={API_SECRET}"
+    payload = {
+        "client_id": st.session_state["client_id"],
+        "events": [
+            {
+                "name": "page_view",
+                "params": {
+                    "page_title": "KPI_Dashboard",
+                    "page_location": "https://www.balanceship.net/KPI_Dashboard",
+                    "engagement_time_msec": 1
+                }
+            }
+        ]
+    }
+    requests.post(url, json=payload)
+
+send_pageview()
+
+#Google tag:
+add_meta_tags(
+    title="KPI Dashboard",
+    description="Explore company dashboards with smart insights",
+    url_path="/KPI_Dashboard"
+)
+
 
 st.set_page_config(page_title="KPI Dashboard", layout="wide")
 st.title("📊 KPI Dashboard")
@@ -13,6 +62,7 @@ def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f:
         data = f.read()
     return base64.b64encode(data).decode()
+
 
 # --- SIDEBAR ---
 logo_path = os.path.join("images", "logo4.png")
@@ -116,7 +166,6 @@ df_kpi_all = pd.merge(
     how="left"
 )
 
-
 # Rinomina chiara
 df_kpi_all.rename(columns={
     "EBITDA Margin": "EBITDA Margin",
@@ -137,13 +186,13 @@ def legend_chart():
         x=[None], y=[None],
         mode="lines",
         line=dict(color="red", dash="dash"),
-        name="Companies Avg"
+        name="Companies Median"
     ))
     fig.add_trace(go.Scatter(
         x=[None], y=[None],
         mode="lines",
         line=dict(color="blue", dash="dot"),
-        name="Sector Avg"
+        name="Sector Median"
     ))
     fig.update_layout(
         height=50,
@@ -161,101 +210,105 @@ def legend_chart():
 # Mostro legenda sotto filtri, sopra grafici
 st.plotly_chart(legend_chart(), use_container_width=True)
 
+def _safe_median(df, col):
+    """Restituisce la mediana sicura (gestisce NaN, inf, col mancanti)."""
+    if df is None or df.empty or col not in df.columns:
+        return np.nan
+    series = pd.to_numeric(df[col], errors="coerce").replace([np.inf, -np.inf], np.nan).dropna()
+    if series.empty:
+        return np.nan
+    return float(series.median())
+
 
 # Funzione grafico (GO con legenda e formattazione)
-def kpi_chart(df_visible, df_full, metric, title):
-    import plotly.graph_objects as go
+def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
+              selected_year=None, selected_sector=None):
 
     fig = go.Figure()
+    # --- Preparazioni ---
+    company_names_raw = df_visible["company_name"].tolist()
+    company_names_wrapped = [textwrap.fill(label, width=12) for label in company_names_raw]
+    company_colors = {name: color_palette[i % len(color_palette)] for i, name in enumerate(company_names_raw)}
 
-    company_names = df_visible["company_name"].tolist()
-    company_colors = {name: color_palette[i % len(color_palette)] for i, name in enumerate(company_names)}
+    # valori y per il grafico (converti in % se richiesto)
+    y_series = pd.to_numeric(df_visible[metric], errors="coerce")
+    y_values = y_series.values.astype(float)
+    if is_percent:
+        y_values = y_values * 100
 
-    # BAR per le aziende selezionate
+    # --- Bar principale ---
     fig.add_trace(go.Bar(
-        x=company_names,
-        y=df_visible[metric].round(3),
-        marker_color=[company_colors[name] for name in company_names],
-        text=df_visible[metric].round(3),
+        x=company_names_wrapped,
+        y=y_values,
+        marker_color=[company_colors[name] for name in company_names_raw],
+        text=[f"{v:.1f}{'%' if is_percent else ''}" if not np.isnan(v) else "" for v in y_values],
         textposition="auto",
         showlegend=False
     ))
 
-    # Calcola medie
-    global_avg = df_visible[metric].mean()
-    sector_avg = None
-    if selected_sector != "All":
-        sector_df = df_full[df_full["sector"] == selected_sector]
-        if not sector_df.empty:
-            sector_avg = sector_df[metric].mean()
+    # --- Global median (solo sulle aziende visibili) ---
+    global_median_raw = _safe_median(df_visible, metric)
+    global_median = np.nan if np.isnan(global_median_raw) else (global_median_raw * (100 if is_percent else 1))
 
-    # --- LINEA: Market Avg ---
-    if not pd.isna(global_avg):
-        global_avg = round(global_avg, 3)
-        fig.add_shape(
-            type="line",
-            xref="paper", yref="y",
-            x0=0, x1=1, y0=global_avg, y1=global_avg,
-            line=dict(color="red", dash="dash")
-        )
-        # Dummy trace per legenda + label
-        fig.add_trace(go.Scatter(
-            x=[company_names[-1]],
-            y=[global_avg],
-            mode="text",
-            text=[f"{global_avg}"],
-            textposition="top right",
-            textfont=dict(color="red"),
-            showlegend=False
-        ))
-        fig.add_trace(go.Scatter(
-            x=[None], y=[None],
-            mode="lines",
+    # --- Sector median: filtro coerente su anno + sector (no exchange) ---
+    sector_median = np.nan
+    if selected_sector and selected_sector != "All" and "sector" in df_kpi_all.columns:
+        df_temp = df_kpi_all.copy()
+        if "year" in df_temp.columns:
+            df_temp["year"] = df_temp["year"].astype(str)
+            sel_year = str(selected_year)
+            df_sector = df_temp[(df_temp["sector"] == selected_sector) & (df_temp["year"] == sel_year)]
+        else:
+            df_sector = df_temp[df_temp["sector"] == selected_sector]
+
+        sector_median_raw = _safe_median(df_sector, metric)
+        if not np.isnan(sector_median_raw):
+            sector_median = sector_median_raw * (100 if is_percent else 1)
+
+    # --- Delta rispetto alla global median ---
+    if not np.isnan(global_median):
+        offset = max(y_values.max() - y_values.min(), 1e-6) * 0.05
+        for i, val in enumerate(y_values):
+            if np.isnan(val):
+                continue
+            delta = val - global_median
+            arrow = "▲" if delta > 0 else ("▼" if delta < 0 else "")
+            color = "green" if delta > 0 else ("red" if delta < 0 else "black")
+            fig.add_trace(go.Scatter(
+                x=[company_names_wrapped[i]],
+                y=[val + offset],
+                mode="text",
+                text=[f"{arrow}{abs(delta):.1f}{'%' if is_percent else ''}"],
+                textfont=dict(size=10, color=color),
+                showlegend=False
+            ))
+
+    # --- Linea global median (rosso) ---
+    if not np.isnan(global_median):
+        fig.add_hline(
+            y=global_median,
             line=dict(color="red", dash="dash"),
-            showlegend=False,
-            name="Companies Avg"
-        ))
-
-    # --- LINEA: Sector Avg ---
-    if sector_avg is not None and not pd.isna(sector_avg):
-        sector_avg = round(sector_avg, 3)
-        fig.add_shape(
-            type="line",
-            xref="paper", yref="y",
-            x0=0, x1=1, y0=sector_avg, y1=sector_avg,
-            line=dict(color="blue", dash="dot")
+            annotation_text=f"Companies Median: {global_median:.1f}{'%' if is_percent else ''}",
+            annotation_position="top left",
+            annotation_font_color="red"
         )
-        fig.add_trace(go.Scatter(
-            x=[company_names[-1]],
-            y=[sector_avg],
-            mode="text",
-            text=[f"{sector_avg}"],
-            textposition="bottom right",
-            textfont=dict(color="blue"),
-            showlegend=False
-        ))
-        fig.add_trace(go.Scatter(
-            x=[None], y=[None],
-            mode="lines",
-            line=dict(color="blue", dash="dot"),
-            showlegend=False,
-            name="Sector Avg"
-        ))
 
-    # Layout generale
+    # --- Linea sector median (blu) ---
+    if not np.isnan(sector_median):
+        fig.add_hline(
+            y=sector_median,
+            line=dict(color="blue", dash="dot"),
+            annotation_text=f"Sector Median: {sector_median:.1f}{'%' if is_percent else ''}",
+            annotation_position="bottom right",
+            annotation_font_color="blue"
+        )
+
+    # --- Layout ---
     fig.update_layout(
         title=title,
-        yaxis_title=metric,
-        barmode="group",
-        height=280,
-        margin=dict(t=28, b=28, l=20, r=20),
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="center",
-            x=0.5
-        )
+        yaxis_title=f"{metric}{' (%)' if is_percent else ''}",
+        height=320,
+        margin=dict(t=40, b=40, l=40, r=20),
     )
 
     return fig
@@ -264,15 +317,19 @@ def kpi_chart(df_visible, df_full, metric, title):
 # I grafici ora senza legenda interna (già fatto nel kpi_chart)
 col1, col2 = st.columns(2)
 with col1:
-    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "EBITDA Margin", "EBITDA Margin"), use_container_width=True)
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "EBITDA Margin", "EBITDA Margin", is_percent=True, selected_year=selected_year,
+              selected_sector=selected_sector), use_container_width=True)
 with col2:
-    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "Debt to Equity", "Debt/Equity"), use_container_width=True)
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "Debt to Equity", "Debt / Equity", is_percent=False, selected_year=selected_year,
+              selected_sector=selected_sector), use_container_width=True)
 
 col3, col4 = st.columns(2)
 with col3:
-    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "FCF Margin", "Free Cash Flow Margin"), use_container_width=True)
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "FCF Margin", "Free Cash Flow Margin", is_percent=True, selected_year=selected_year,
+              selected_sector=selected_sector), use_container_width=True)
 with col4:
-    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "EPS", "Earnings Per Share (EPS)"), use_container_width=True)
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "EPS", "Earnings Per Share (EPS)", is_percent=False, selected_year=selected_year,
+              selected_sector=selected_sector), use_container_width=True)
 
 #-----BOX INSIGHTS------
 from random import shuffle
@@ -299,21 +356,46 @@ for index, row in df_visible.iterrows():
 
     # EBITDA Margin
     if not pd.isna(ebitda_margin):
-        if ebitda_margin > avg_ebitda * 1.2:
-            insight_list.append(f"**{company}** demonstrates operational efficiency well above the sector norm, with an EBITDA margin of {ebitda_margin:.2f}%.")
-            insight_list.append(f"The EBITDA margin of **{company}** ({ebitda_margin:.2f}%) exceeds its industry average.")
-        elif ebitda_margin < avg_ebitda * 0.8:
-            insight_list.append(f"**{company}** struggles to convert revenue into operating profit, with an EBITDA margin of only {ebitda_margin:.2f}%.")
-            insight_list.append(f"The EBITDA performance of **{company}** ({ebitda_margin:.2f}%) lags well behind sector peers.")
-
+        ebitda_margin_pct = ebitda_margin * 100
+        if ebitda_margin_pct > avg_ebitda * 1.2:
+            insight_list.append(
+                f"**{company}** demonstrates operational efficiency well above the sector norm, "
+                f"with an EBITDA margin of {ebitda_margin_pct:.1f}%."
+            )
+            insight_list.append(
+                f"The EBITDA margin of **{company}** ({ebitda_margin_pct:.1f}%) exceeds its industry average."
+            )
+        elif ebitda_margin_pct < avg_ebitda * 0.8:
+            insight_list.append(
+                f"**{company}** struggles to convert revenue into operating profit, "
+                f"with an EBITDA margin of only {ebitda_margin_pct:.1f}%."
+            )
+            insight_list.append(
+                f"The EBITDA performance of **{company}** ({ebitda_margin_pct:.1f}%) lags well behind sector peers."
+            )
+    
     # FCF Margin
     if not pd.isna(fcf_margin):
-        if fcf_margin > avg_fcf * 1.2:
-            insight_list.append(f"**{company}** stands out for its excellent cash flow generation, posting a FCF margin of {fcf_margin:.2f}%.")
-            insight_list.append(f"With a FCF margin of {fcf_margin:.2f}%, **{company}** ranks among the top in cash conversion.")
-        elif fcf_margin < avg_fcf * 0.8:
-            insight_list.append(f"**{company}** underperforms in turning revenue into free cash flow, with a margin of {fcf_margin:.2f}%.")
-            insight_list.append(f"**{company}** shows weakness in FCF efficiency compared to the sector (only {fcf_margin:.2f}%).")
+        fcf_margin_pct = fcf_margin * 100
+        if fcf_margin_pct > avg_fcf * 1.2:
+            insight_list.append(
+                f"**{company}** stands out for its excellent cash flow generation, "
+                f"posting a FCF margin of {fcf_margin_pct:.1f}%."
+            )
+            insight_list.append(
+                f"With a FCF margin of {fcf_margin_pct:.1f}%, **{company}** ranks among the top in cash conversion."
+            )
+        elif fcf_margin_pct < avg_fcf * 0.8:
+            insight_list.append(
+                f"**{company}** underperforms in turning revenue into free cash flow, "
+                f"with a margin of {fcf_margin_pct:.1f}%."
+            )
+            insight_list.append(
+                f"**{company}** shows weakness in FCF efficiency compared to the sector "
+                f"(only {fcf_margin_pct:.1f}%)."
+            )
+
+
 
     # Debt to Equity
     if not pd.isna(debt_equity):
@@ -342,15 +424,23 @@ if insight_list:
     st.markdown("---")
     st.subheader("💡 Key Insights")
 
+    # Detect dark or light mode
+    is_dark_mode = st.get_option("theme.base") == "dark"
+
     # Convert **text** to real <b>text</b> without style
     def markdown_to_html(text):
         import re
         return re.sub(r"\*\*(.*?)\*\*", r"<b>\1</b>", text)
 
+    # Set colors based on theme
+    bg_color = "#1e1e1e" if is_dark_mode else "#f8f9fa"
+    text_color = "#f1f1f1" if is_dark_mode else "#000000"
+    border_color = "#0173C4"  # blu acceso, rimane lo stesso
+
     for insight in insight_list[:30]:
         html = markdown_to_html(insight)
 
-        # Emoji logica (positivi/negativi neutri)
+        # Emoji logica (positivi/negativi/neutri)
         if any(x in insight.lower() for x in ["strong", "above", "leads", "efficient", "outpacing", "robust", "solid", "positive"]):
             icon = "📈"
         elif any(x in insight.lower() for x in ["below", "weak", "underperform", "negative", "lag", "risk", "fall", "short"]):
@@ -361,11 +451,12 @@ if insight_list:
         st.markdown(
             f"""
             <div style="
-                background-color: #f8f9fa;
+                background-color: {bg_color};
+                color: {text_color};
                 padding: 10px 14px;
                 border-radius: 8px;
                 margin-bottom: 8px;
-                border-left: 4px solid #0173C4;
+                border-left: 4px solid {border_color};
                 font-size: 15px;
                 line-height: 1.5;">
                 <span style="margin-right: 6px;">{icon}</span>{html}
@@ -376,7 +467,6 @@ if insight_list:
 
 else:
     st.info("No insights available for the current filters.")
-
 
 
 #-----footer-------

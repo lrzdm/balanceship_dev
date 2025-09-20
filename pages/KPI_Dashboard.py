@@ -264,14 +264,15 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
     if is_percent:
         y_values = y_values * 100
 
-    # --- Barre ---
+    # --- Barre (RIMUOVI IL PARAMETRO TEXT PER EVITARE DUPLICATI) ---
     fig.add_trace(go.Bar(
         x=company_names_raw,
         y=y_values,
         marker_color=[company_colors[name] for name in company_names_raw],
-        text=[f"{v:.1f}{'%' if is_percent else ''}" if not np.isnan(v) else "" for v in y_values],
-        textposition="auto",
-        showlegend=False
+        # RIMUOVO: text=[f"{v:.1f}{'%' if is_percent else ''}" if not np.isnan(v) else "" for v in y_values],
+        # RIMUOVO: textposition="auto",
+        showlegend=False,
+        hovertemplate='<b>%{x}</b><br>%{y:.1f}' + ('%' if is_percent else '') + '<extra></extra>'
     ))
 
     # --- Median ---
@@ -290,47 +291,72 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
         if not np.isnan(sector_median_raw):
             sector_median = sector_median_raw * (100 if is_percent else 1)
 
-    # --- Delta frecce ---
-    bar_texts = []
-    for i, val in enumerate(y_values):
-        if np.isnan(val):
-            bar_texts.append("")
-            continue
-        delta = val - global_median if not np.isnan(global_median) else 0
-        arrow = ""
-        if delta > 0:
-            arrow = f" ▲{delta:.1f}%"
-        elif delta < 0:
-            arrow = f" ▼{abs(delta):.1f}%"
-        bar_texts.append(f"{val:.1f}%{arrow}")
-    
-    fig.add_trace(go.Bar(
-        x=company_names_raw,
-        y=y_values,
-        marker_color=[company_colors[name] for name in company_names_raw],
-        text=bar_texts,
-        textposition="auto",
-        showlegend=False
-    ))
+    # --- AGGIUNGI I VALORI COME ANNOTAZIONI SEPARATE (OPZIONALE) ---
+    for i, (name, val) in enumerate(zip(company_names_raw, y_values)):
+        if not np.isnan(val):
+            fig.add_annotation(
+                x=name,
+                y=val,
+                text=f"{val:.1f}{'%' if is_percent else ''}",
+                showarrow=False,
+                yshift=10,  # Sposta il testo sopra la barra
+                font=dict(size=10, color="black")
+            )
 
+    # --- Delta frecce (RIDOTTO PER EVITARE SOVRAPPOSIZIONI) ---
+    if not np.isnan(global_median):
+        offset = max(y_values.max() - y_values.min(), 1e-6) * 0.15  # Aumentato offset
+        for i, val in enumerate(y_values):
+            if np.isnan(val):
+                continue
+            delta = val - global_median
+            if abs(delta) < 0.1:  # Soglia minima per mostrare delta
+                continue
+            arrow = "▲" if delta > 0 else "▼"
+            color = "green" if delta > 0 else "red"
+            fig.add_annotation(
+                x=company_names_raw[i],
+                y=val + offset,
+                text=f"{arrow}{abs(delta):.1f}{'%' if is_percent else ''}",
+                showarrow=False,
+                font=dict(size=9, color=color)
+            )
 
     # --- Linee mediane ---
     if not np.isnan(global_median):
-        fig.add_hline(y=global_median, line=dict(color="red", dash="dash"),
-                      annotation_text=f"Companies Median: {global_median:.1f}{'%' if is_percent else ''}",
-                      annotation_position="top left", annotation_font_color="red")
+        fig.add_hline(
+            y=global_median, 
+            line=dict(color="red", dash="dash", width=2),
+            annotation_text=f"Companies Median: {global_median:.1f}{'%' if is_percent else ''}",
+            annotation_position="top left", 
+            annotation_font_color="red",
+            annotation_font_size=10
+        )
     if not np.isnan(sector_median):
-        fig.add_hline(y=sector_median, line=dict(color="blue", dash="dot"),
-                      annotation_text=f"Sector Median: {sector_median:.1f}{'%' if is_percent else ''}",
-                      annotation_position="bottom right", annotation_font_color="blue")
+        fig.add_hline(
+            y=sector_median, 
+            line=dict(color="blue", dash="dot", width=2),
+            annotation_text=f"Sector Median: {sector_median:.1f}{'%' if is_percent else ''}",
+            annotation_position="bottom right", 
+            annotation_font_color="blue",
+            annotation_font_size=10
+        )
 
     # --- Layout finale ---
     fig.update_layout(
-        title=title,
+        title=dict(text=title, font_size=14),
         yaxis_title=f"{metric}{' (%)' if is_percent else ''}",
-        xaxis=dict(tickmode="array", tickvals=company_names_raw, ticktext=company_names_wrapped, tickangle=-45),
+        xaxis=dict(
+            tickmode="array", 
+            tickvals=company_names_raw, 
+            ticktext=company_names_wrapped, 
+            tickangle=-45
+        ),
         height=320,
-        margin=dict(t=40, b=40, l=40, r=20)
+        margin=dict(t=50, b=60, l=50, r=30),
+        showlegend=False,
+        plot_bgcolor='rgba(0,0,0,0)',  # Sfondo trasparente
+        paper_bgcolor='rgba(0,0,0,0)'
     )
 
     return fig
@@ -500,6 +526,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

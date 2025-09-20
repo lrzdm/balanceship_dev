@@ -8,6 +8,8 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import A4
 import plotly.graph_objects as go
 import plotly.io as pio
+import matplotlib.pyplot as plt
+
 
 # ---------------- CONFIGURAZIONE ----------------
 st.set_page_config(page_title="📑 Report Generator", layout="wide")
@@ -57,6 +59,8 @@ with col2:
     selected_exchange = st.selectbox("Exchange", exchange_names, index=0)
 with col3:
     selected_sector = st.selectbox("Sector", options=["All"] + sectors_available)
+
+
 
 # ---------------- GENERA REPORT ----------------
 if st.button("📄 Generate Report"):
@@ -161,19 +165,19 @@ if st.button("📄 Generate Report"):
         story.append(Paragraph("<b>KPI Charts</b>", styles["Heading1"]))
         story.append(Spacer(1, 12))
 
-        # Funzione per generare grafico mediana
         def save_kpi_chart(median_values, filename):
-            fig = go.Figure(
-                data=[go.Bar(
-                    x=median_values.index,
-                    y=median_values.values,
-                    text=median_values.round(2),
-                    textposition="auto",
-                )]
-            )
-            fig.update_layout(title="Median KPIs", height=400)
-            pio.write_image(fig, filename)
+            plt.figure(figsize=(6,4))
+            median_values.plot(kind='bar', color="#0173C4")
+            plt.title("Median KPIs")
+            plt.ylabel("Value")
+            plt.xticks(rotation=45, ha='right')
+            for i, v in enumerate(median_values.values):
+                plt.text(i, v + 0.5, f"{v:.2f}", ha='center')
+            plt.tight_layout()
+            plt.savefig(filename)
+            plt.close()
             return filename
+
 
         chart_path = save_kpi_chart(median_values, "median_kpis.png")
         story.append(Image(chart_path, width=400, height=250))
@@ -204,3 +208,4 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
+

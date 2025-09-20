@@ -2,13 +2,60 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
-from data_utils import read_exchanges, read_companies, get_financial_data, compute_kpis
+from data_utils import read_exchanges, read_companies, get_financial_data, compute_kpis, add_meta_tags
 from cache_db import load_kpis_for_symbol_year, save_kpis_to_db, KPICache, Session
 import json
 import io
 import os
 import base64
 import logging
+import requests
+import uuid
+
+MEASUREMENT_ID = "G-Q5FDX0L1H2" # Il tuo ID GA4 
+API_SECRET = "kRfQwfxDQ0aACcjkJNENPA" # Quello creato in GA4 
+
+if "client_id" not in st.session_state:
+    st.session_state["client_id"] = str(uuid.uuid4())
+
+# --------------- Client-side GA4 -----------------
+st.markdown(f"""
+<!-- GA4 tracking client-side -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={MEASUREMENT_ID}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+  gtag('config', '{MEASUREMENT_ID}');
+</script>
+""", unsafe_allow_html=True)
+
+def send_pageview():
+    url = f"https://www.google-analytics.com/mp/collect?measurement_id={MEASUREMENT_ID}&api_secret={API_SECRET}"
+    payload = {
+        "client_id": st.session_state["client_id"],
+        "events": [
+            {
+                "name": "page_view",
+                "params": {
+                    "page_title": "Graph",
+                    "page_location": "https://www.balanceship.net/Graph",
+                    "engagement_time_msec": 1
+                }
+            }
+        ]
+    }
+    requests.post(url, json=payload)
+
+send_pageview()
+
+#Google tag:
+add_meta_tags(
+    title="Graph",
+    description="Visualize company KPIs and financial data",
+    url_path="/Graph"
+)
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Graph.py")
@@ -140,7 +187,7 @@ def render_kpis(exchanges_dict):
     except ValueError:
         default_index = 0
 
-    selected_exchange = st.selectbox("Seleziona Exchange", exchange_options, index=default_index)
+    selected_exchange = st.selectbox("Select Exchange", exchange_options, index=default_index)
 
     # Caricamento dati
     if selected_exchange != "All":
@@ -177,12 +224,12 @@ def render_kpis(exchanges_dict):
     descriptions_available = sorted(k for k in descriptions_dict if k is not None)
     years_available = sorted(df_all_kpis["year"].astype(str).unique())
 
-    selected_desc = st.multiselect("Seleziona aziende", descriptions_available, default=descriptions_available[:1])
+    selected_desc = st.multiselect("Select Companies", descriptions_available, default=descriptions_available[:1])
     default_years_selection = ['2024'] if '2024' in years_available else years_available[-1:]
-    selected_years = st.multiselect("Seleziona anni", years_available, default=default_years_selection)
+    selected_years = st.multiselect("Select Years", years_available, default=default_years_selection)
 
     if not selected_desc or not selected_years:
-        st.warning("Seleziona almeno un'azienda e un anno.")
+        st.warning("Please select at least one company.")
         return
 
     selected_symbols = []
@@ -196,7 +243,7 @@ def render_kpis(exchanges_dict):
     ]
 
     if df_filtered.empty:
-        st.warning("Nessun dato trovato per i filtri selezionati.")
+        st.warning("No data found.")
         return
 
     # Pivot per visualizzazione tabellare
@@ -210,7 +257,7 @@ def render_kpis(exchanges_dict):
     df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
     df_clean = df_pivot.fillna(np.nan)
 
-    st.subheader("📋 Elenco KPI")
+    st.subheader("📋 KPIs List")
     num_cols = df_clean.select_dtypes(include=['number']).columns
     styled = df_clean.style.format({col: "{:.2%}" for col in num_cols})
     st.dataframe(styled, height=600)
@@ -221,7 +268,7 @@ def render_kpis(exchanges_dict):
     with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
         df_filtered_clean.to_excel(writer, index=False, sheet_name='KPI')
     st.download_button(
-        label="📥 Scarica Excel",
+        label="📥 Download Excel",
         data=buffer.getvalue(),
         file_name="kpi_filtered.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -280,7 +327,7 @@ def render_sector_average_chart():
     )
     
     if df_sector.empty:
-        st.warning("Nessun dato disponibile per l'exchange selezionato.")
+        st.warning("Please select at least one exchange.")
         return
 
     df_sector['year'] = df_sector['year'].astype(str)
@@ -289,7 +336,7 @@ def render_sector_average_chart():
     df_sector = df_sector.dropna(subset=["sector", metric_sector])
 
     if df_sector.empty:
-        st.warning("Nessun dato valido per il grafico.")
+        st.warning("No data found.")
         return
 
     sector_avg = df_sector.groupby("sector")[metric_sector].mean().reset_index()
@@ -443,3 +490,4 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+

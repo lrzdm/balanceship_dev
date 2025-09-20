@@ -105,6 +105,7 @@ color_palette = [
 
 
 # Lettura borse e aziende
+# Lettura borse e aziende
 exchanges = read_exchanges("exchanges.txt")
 exchange_names = list(exchanges.keys())
 exchange_names = ["All"] + exchange_names   # aggiungo opzione All
@@ -137,6 +138,43 @@ with col3:
 with col4:
     selected_sector = st.selectbox("Sector", options=["All"] + sectors_available)
 
+# --- Cache per evitare ricaricamenti ---
+@st.cache_data(ttl=3600)  # Cache per 1 ora
+def load_sector_data_cached(sector, exchanges_list, year, excluded_symbols, max_companies=50):
+    """Carica dati settore con cache"""
+    sector_data = []
+    companies_processed = 0
+    
+    for exch_name in exchanges_list:
+        if companies_processed >= max_companies:
+            break
+            
+        try:
+            exch_file = exchanges[exch_name]
+            companies_in_exchange = read_companies(exch_file)
+            
+            # Filtra aziende già selezionate
+            companies_to_process = [c for c in companies_in_exchange 
+                                  if c["ticker"] not in excluded_symbols][:20]  # Max 20 per borsa
+            
+            for company in companies_to_process:
+                if companies_processed >= max_companies:
+                    break
+                    
+                desc = company.get("description", "")
+                try:
+                    data = get_or_fetch_data(company["ticker"], [year], desc, exch_name)
+                    sector_matches = [d for d in data if d.get("sector") == sector]
+                    if sector_matches:
+                        sector_data.extend(sector_matches)
+                        companies_processed += len(sector_matches)
+                except:
+                    continue
+        except:
+            continue
+    
+    return sector_data
+
 # --- Caricamento dati aziende selezionate ---
 financial_data = []
 used_exchanges = set()  # Traccia le borse effettivamente usate
@@ -161,35 +199,36 @@ for symbol in selected_symbols:
             financial_data.extend(data)
             used_exchanges.add(selected_exchange)  # Traccia borsa usata
 
-# --- Se settore selezionato, carico dati settore SOLO dalle borse usate ---
+# --- Se settore selezionato, carico dati settore OTTIMIZZATO ---
 sector_data = []
 if selected_sector != "All":
-    if selected_exchange == "All":
-        # Usa solo le borse dove abbiamo trovato le aziende selezionate
-        for exch_name in used_exchanges:
-            exch_file = exchanges[exch_name]
-            for company in read_companies(exch_file):
-                if company["ticker"] not in selected_symbols:
-                    desc = company.get("description", "")
-                    try:
-                        data = get_or_fetch_data(company["ticker"], [selected_year], desc, exch_name)
-                        sector_data.extend(d for d in data if d.get("sector") == selected_sector)
-                    except:
-                        continue
+    with st.spinner(f"Loading {selected_sector} sector data..."):
+        if selected_exchange == "All":
+            sector_data = load_sector_data_cached(
+                selected_sector, 
+                list(used_exchanges), 
+                selected_year,
+                selected_symbols
+            )
+        else:
+            sector_data = load_sector_data_cached(
+                selected_sector, 
+                [selected_exchange], 
+                selected_year,
+                selected_symbols
+            )
+    
+    if sector_data:
+        st.success(f"✅ Loaded {len(sector_data)} companies from {selected_sector} sector for comparison")
     else:
-        # Logica originale per borsa specifica
-        for company in read_companies(exchanges[selected_exchange]):
-            if company["ticker"] not in selected_symbols:
-                desc = company.get("description", "")
-                data = get_or_fetch_data(company["ticker"], [selected_year], desc, selected_exchange)
-                sector_data.extend(d for d in data if d.get("sector") == selected_sector)
+        st.warning(f"⚠️ No companies found in {selected_sector} sector for comparison")
 
 # --- Se non c'è nulla, stop ---
 if not financial_data:
     st.warning("No data available for the selected companies.")
     st.stop()
 
-# --- Info per l'utente (opzionale - puoi rimuoverlo) ---
+# --- Info per l'utente ---
 if selected_exchange == "All" and selected_sector != "All" and used_exchanges:
     exchanges_used_str = ", ".join(sorted(used_exchanges))
     st.info(f"🔍 Sector median calculated from: {exchanges_used_str}")
@@ -581,6 +620,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

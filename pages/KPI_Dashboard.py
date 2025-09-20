@@ -260,6 +260,7 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
               selected_year=None, selected_sector=None):
 
     fig = go.Figure()
+    
     # --- Preparazioni ---
     company_names_raw = df_visible["company_name"].tolist()
     company_names_wrapped = [textwrap.fill(label, width=12) for label in company_names_raw]
@@ -271,21 +272,29 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
     if is_percent:
         y_values = y_values * 100
 
+    # --- Calcolo range per posizionamento smart ---
+    valid_values = y_values[~np.isnan(y_values)]
+    if len(valid_values) > 0:
+        y_min, y_max = valid_values.min(), valid_values.max()
+        y_range = y_max - y_min
+        if y_range == 0:
+            y_range = abs(y_max) * 0.1 if y_max != 0 else 1
+    else:
+        y_min, y_max, y_range = 0, 1, 1
+
     # --- Bar principale ---
     fig.add_trace(go.Bar(
         x=company_names_wrapped,
         y=y_values,
         marker_color=[company_colors[name] for name in company_names_raw],
-        text=[f"{v:.1f}{'%' if is_percent else ''}" if not np.isnan(v) else "" for v in y_values],
-        textposition="auto",
-        showlegend=False
+        showlegend=False,
+        hovertemplate='<b>%{x}</b><br>%{y:.1f}' + ('%' if is_percent else '') + '<extra></extra>'
     ))
 
-    # --- Global median (solo sulle aziende visibili) ---
+    # --- Calcolo mediane ---
     global_median_raw = _safe_median(df_visible, metric)
     global_median = np.nan if np.isnan(global_median_raw) else (global_median_raw * (100 if is_percent else 1))
 
-    # --- Sector median: filtro coerente su anno + sector (no exchange) ---
     sector_median = np.nan
     if selected_sector and selected_sector != "All" and "sector" in df_kpi_all.columns:
         df_temp = df_kpi_all.copy()
@@ -300,50 +309,104 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
         if not np.isnan(sector_median_raw):
             sector_median = sector_median_raw * (100 if is_percent else 1)
 
-    # --- Delta rispetto alla global median ---
+    # --- Aggiungi valori sopra le barre (più controllato) ---
+    for i, (name, val) in enumerate(zip(company_names_wrapped, y_values)):
+        if not np.isnan(val):
+            fig.add_annotation(
+                x=name,
+                y=val,
+                text=f"{val:.1f}{'%' if is_percent else ''}",
+                showarrow=False,
+                yshift=8,  # Sposta sopra la barra
+                font=dict(size=9, color="black"),
+                bgcolor="rgba(255,255,255,0.8)",  # Sfondo semi-trasparente
+                bordercolor="rgba(0,0,0,0.1)",
+                borderwidth=1
+            )
+
+    # --- Delta frecce con posizionamento smart ---
     if not np.isnan(global_median):
-        offset = max(y_values.max() - y_values.min(), 1e-6) * 0.05
         for i, val in enumerate(y_values):
             if np.isnan(val):
                 continue
             delta = val - global_median
-            arrow = "▲" if delta > 0 else ("▼" if delta < 0 else "")
-            color = "green" if delta > 0 else ("red" if delta < 0 else "black")
-            fig.add_trace(go.Scatter(
-                x=[company_names_wrapped[i]],
-                y=[val + offset],
-                mode="text",
-                text=[f"{arrow}{abs(delta):.1f}{'%' if is_percent else ''}"],
-                textfont=dict(size=10, color=color),
-                showlegend=False
-            ))
+            if abs(delta) < 0.05:  # Soglia per evitare frecce troppo piccole
+                continue
+                
+            arrow = "▲" if delta > 0 else "▼"
+            color = "#28a745" if delta > 0 else "#dc3545"  # Verde/Rosso più definiti
+            
+            # Posizionamento dinamico
+            y_position = val + (y_range * 0.12)  # Più in alto
+            
+            fig.add_annotation(
+                x=company_names_wrapped[i],
+                y=y_position,
+                text=f"{arrow}{abs(delta):.1f}{'%' if is_percent else ''}",
+                showarrow=False,
+                font=dict(size=8, color=color, family="Arial Black"),
+                bgcolor="rgba(255,255,255,0.9)",
+                bordercolor=color,
+                borderwidth=1
+            )
 
-    # --- Linea global median (rosso) ---
+    # --- Posizionamento smart delle linee mediane ---
+    annotation_positions = []
+    
+    # Companies Median
     if not np.isnan(global_median):
+        # Posiziona in alto a sinistra se possibile
+        companies_pos = "top left"
+        companies_y_pos = y_max + (y_range * 0.05)
+        
         fig.add_hline(
             y=global_median,
-            line=dict(color="red", dash="dash"),
-            annotation_text=f"Companies Median: {global_median:.1f}{'%' if is_percent else ''}",
-            annotation_position="top left",
-            annotation_font_color="red"
+            line=dict(color="#dc3545", dash="dash", width=2),
+            annotation_text=f"Companies: {global_median:.1f}{'%' if is_percent else ''}",
+            annotation_position=companies_pos,
+            annotation_font=dict(color="#dc3545", size=10),
+            annotation_bgcolor="rgba(255,255,255,0.9)",
+            annotation_bordercolor="#dc3545",
+            annotation_borderwidth=1
         )
+        annotation_positions.append(("companies", companies_pos, companies_y_pos))
 
-    # --- Linea sector median (blu) ---
+    # Sector Median
     if not np.isnan(sector_median):
+        # Scegli posizione in base a dove non c'è Companies Median
+        if any(pos[1] == "top left" for pos in annotation_positions):
+            sector_pos = "top right"
+        else:
+            sector_pos = "bottom right"
+            
         fig.add_hline(
             y=sector_median,
-            line=dict(color="blue", dash="dot"),
-            annotation_text=f"Sector Median: {sector_median:.1f}{'%' if is_percent else ''}",
-            annotation_position="bottom right",
-            annotation_font_color="blue"
+            line=dict(color="#007bff", dash="dot", width=2),
+            annotation_text=f"Sector: {sector_median:.1f}{'%' if is_percent else ''}",
+            annotation_position=sector_pos,
+            annotation_font=dict(color="#007bff", size=10),
+            annotation_bgcolor="rgba(255,255,255,0.9)",
+            annotation_bordercolor="#007bff",
+            annotation_borderwidth=1
         )
 
-    # --- Layout ---
+    # --- Layout ottimizzato ---
     fig.update_layout(
-        title=title,
+        title=dict(text=title, font=dict(size=14, family="Arial")),
         yaxis_title=f"{metric}{' (%)' if is_percent else ''}",
-        height=320,
-        margin=dict(t=40, b=40, l=40, r=20),
+        height=350,  # Leggermente più alto per dare spazio
+        margin=dict(t=60, b=70, l=50, r=50),  # Margini più bilanciati
+        showlegend=False,
+        plot_bgcolor='rgba(248,249,250,0.8)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(family="Arial", size=10),
+        # Aggiusta il range Y per dare più spazio
+        yaxis=dict(
+            range=[
+                y_min - (y_range * 0.1),  # Spazio sotto
+                y_max + (y_range * 0.25)   # Più spazio sopra per annotazioni
+            ]
+        )
     )
 
     return fig
@@ -513,6 +576,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

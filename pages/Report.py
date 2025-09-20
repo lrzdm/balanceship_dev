@@ -131,9 +131,9 @@ if st.button("📄 Generate Report"):
     # Lista delle immagini da mettere nella stessa riga
     logos = []
     if os.path.exists(logo1_path):
-        logos.append(Image(logo1_path, width=80, height=50))  # dimensione adattata per A4
+        logos.append(Image(logo1_path, width=80, height=70))  # dimensione adattata per A4
     if os.path.exists(logo2_path):
-        logos.append(Image(logo2_path, width=120, height=40))   # dimensione adattata per A4
+        logos.append(Image(logo2_path, width=150, height=40))   # dimensione adattata per A4
     
     if logos:
         # Creiamo una tabella con una riga e due colonne per affiancare le immagini
@@ -190,6 +190,7 @@ if st.button("📄 Generate Report"):
     with open(pdf_file, "rb") as f:
         b64_pdf = base64.b64encode(f.read()).decode()
     st.markdown(f'<a href="data:application/pdf;base64,{b64_pdf}" download="BalanceShip_Report.pdf">📥 Download Report</a>', unsafe_allow_html=True)
+
 
 
 

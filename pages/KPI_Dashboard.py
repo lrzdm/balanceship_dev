@@ -104,26 +104,21 @@ color_palette = [
 
 
 # Lettura borse e aziende
-# --- Exchanges disponibili ---
 exchanges = read_exchanges("exchanges.txt")
 exchange_names = list(exchanges.keys())
 exchange_names = ["All"] + exchange_names   # aggiungo opzione All
 
 years_available = ['2021', '2022', '2023', '2024']
-sectors_available = [
-    'Communication Services', 'Consumer Cyclical', 'Consumer Defensive',
-    'Energy', 'Finance Services', 'Healthcare', 'Industrials',
-    'Real Estate', 'Technology', 'Utilities'
-]
+sectors_available = ['Communication Services', 'Consumer Cyclical', 'Consumer Defensive', 'Energy', 'Finance Services', 'Healthcare', 'Industrials', 'Real Estate', 'Technology', 'Utilities']
 
-# --- Layout filtri ---
+# --- Layout filtri in riga ---
 col1, col2, col3, col4 = st.columns([1.2, 1.5, 2.2, 2])
 with col1:
     selected_year = st.selectbox("Year", years_available, index=2)
 with col2:
     selected_exchange = st.selectbox("Exchange", exchange_names, index=0)
 
-# --- Carico lista aziende ---
+# --- Carico lista aziende basata sulla selezione exchange ---
 if selected_exchange == "All":
     companies = []
     for exch in exchanges.values():
@@ -136,9 +131,7 @@ name_to_symbol = {v: k for k, v in symbol_to_name.items()}
 company_names = list(symbol_to_name.values())
 
 with col3:
-    selected_company_names = st.multiselect(
-        "Companies (up to 10)", options=company_names, max_selections=10
-    )
+    selected_company_names = st.multiselect("Companies (up to 10)", options=company_names, max_selections=10)
     selected_symbols = [name_to_symbol[name] for name in selected_company_names]
 with col4:
     selected_sector = st.selectbox("Sector", options=["All"] + sectors_available)
@@ -148,23 +141,40 @@ financial_data = []
 for symbol in selected_symbols:
     desc = symbol_to_name.get(symbol, "")
     # se All → ciclo su tutte le borse, altrimenti solo quella selezionata
-    exchanges_to_use = exchanges.keys() if selected_exchange == "All" else [selected_exchange]
-    for exch in exchanges_to_use:
-        data = get_or_fetch_data(symbol, [selected_year], desc, exch)
+    if selected_exchange == "All":
+        # ciclo su tutte le borse per trovare l'azienda
+        for exch_name, exch_file in exchanges.items():
+            try:
+                data = get_or_fetch_data(symbol, [selected_year], desc, exch_name)
+                if data:  # se trovo dati, li aggiungo e passo al prossimo symbol
+                    financial_data.extend(data)
+                    break
+            except:
+                continue
+    else:
+        data = get_or_fetch_data(symbol, [selected_year], desc, selected_exchange)
         financial_data.extend(data)
 
-# --- Se settore selezionato, includo tutto il settore ---
+# --- Se settore selezionato, carico anche tutti i dati del settore ---
 sector_data = []
 if selected_sector != "All":
-    exchanges_to_use = exchanges.keys() if selected_exchange == "All" else [selected_exchange]
-    for exch in exchanges_to_use:
-        for company in read_companies(exchanges[exch]):
+    if selected_exchange == "All":
+        # ciclo su tutte le borse
+        for exch_name, exch_file in exchanges.items():
+            for company in read_companies(exch_file):
+                if company["ticker"] not in selected_symbols:
+                    desc = company.get("description", "")
+                    try:
+                        data = get_or_fetch_data(company["ticker"], [selected_year], desc, exch_name)
+                        sector_data.extend(d for d in data if d.get("sector") == selected_sector)
+                    except:
+                        continue
+    else:
+        for company in read_companies(exchanges[selected_exchange]):
             if company["ticker"] not in selected_symbols:
                 desc = company.get("description", "")
-                data = get_or_fetch_data(company["ticker"], [selected_year], desc, exch)
+                data = get_or_fetch_data(company["ticker"], [selected_year], desc, selected_exchange)
                 sector_data.extend(d for d in data if d.get("sector") == selected_sector)
-
-
 
 # --- Se non c'è nulla, stop ---
 if not financial_data:
@@ -182,7 +192,7 @@ df_kpi_all = df_kpi_all[df_kpi_all["year"] == int(selected_year)]
 df_raw = pd.DataFrame(combined_data)
 if "ticker" in df_raw.columns and "symbol" not in df_raw.columns:
     df_raw.rename(columns={"ticker": "symbol"}, inplace=True)
-#df_kpi_all = pd.merge(df_kpi_all, df_raw[["symbol", "basic_eps", "sector"]], on="symbol", how="left")
+
 df_kpi_all = pd.merge(
     df_kpi_all,
     df_raw[["symbol", "basic_eps", "sector"]],
@@ -245,122 +255,98 @@ def _safe_median(df, col):
 
 
 # Funzione grafico (GO con legenda e formattazione)
-import random
-
 def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
-              selected_year=None, selected_sector=None, max_companies=10):
-
-    # --- Limita a max_companies ---
-    df_visible = df_visible.head(max_companies)
+              selected_year=None, selected_sector=None):
 
     fig = go.Figure()
+    # --- Preparazioni ---
     company_names_raw = df_visible["company_name"].tolist()
-    company_names_wrapped = [textwrap.fill(name, width=12) for name in company_names_raw]
+    company_names_wrapped = [textwrap.fill(label, width=12) for label in company_names_raw]
     company_colors = {name: color_palette[i % len(color_palette)] for i, name in enumerate(company_names_raw)}
 
-    # --- valori Y ---
+    # valori y per il grafico (converti in % se richiesto)
     y_series = pd.to_numeric(df_visible[metric], errors="coerce")
     y_values = y_series.values.astype(float)
     if is_percent:
         y_values = y_values * 100
 
-    # --- Barre (RIMUOVI IL PARAMETRO TEXT PER EVITARE DUPLICATI) ---
+    # --- Bar principale ---
     fig.add_trace(go.Bar(
-        x=company_names_raw,
+        x=company_names_wrapped,
         y=y_values,
         marker_color=[company_colors[name] for name in company_names_raw],
-        # RIMUOVO: text=[f"{v:.1f}{'%' if is_percent else ''}" if not np.isnan(v) else "" for v in y_values],
-        # RIMUOVO: textposition="auto",
-        showlegend=False,
-        hovertemplate='<b>%{x}</b><br>%{y:.1f}' + ('%' if is_percent else '') + '<extra></extra>'
+        text=[f"{v:.1f}{'%' if is_percent else ''}" if not np.isnan(v) else "" for v in y_values],
+        textposition="auto",
+        showlegend=False
     ))
 
-    # --- Median ---
+    # --- Global median (solo sulle aziende visibili) ---
     global_median_raw = _safe_median(df_visible, metric)
-    global_median = np.nan if np.isnan(global_median_raw) else global_median_raw * (100 if is_percent else 1)
+    global_median = np.nan if np.isnan(global_median_raw) else (global_median_raw * (100 if is_percent else 1))
 
+    # --- Sector median: filtro coerente su anno + sector (no exchange) ---
     sector_median = np.nan
     if selected_sector and selected_sector != "All" and "sector" in df_kpi_all.columns:
         df_temp = df_kpi_all.copy()
-        if "year" in df_temp.columns and selected_year is not None:
+        if "year" in df_temp.columns:
             df_temp["year"] = df_temp["year"].astype(str)
-            df_sector = df_temp[(df_temp["sector"] == selected_sector) & (df_temp["year"] == str(selected_year))]
+            sel_year = str(selected_year)
+            df_sector = df_temp[(df_temp["sector"] == selected_sector) & (df_temp["year"] == sel_year)]
         else:
             df_sector = df_temp[df_temp["sector"] == selected_sector]
+
         sector_median_raw = _safe_median(df_sector, metric)
         if not np.isnan(sector_median_raw):
             sector_median = sector_median_raw * (100 if is_percent else 1)
 
-    # --- AGGIUNGI I VALORI COME ANNOTAZIONI SEPARATE (OPZIONALE) ---
-    for i, (name, val) in enumerate(zip(company_names_raw, y_values)):
-        if not np.isnan(val):
-            fig.add_annotation(
-                x=name,
-                y=val,
-                text=f"{val:.1f}{'%' if is_percent else ''}",
-                showarrow=False,
-                yshift=10,  # Sposta il testo sopra la barra
-                font=dict(size=10, color="black")
-            )
-
-    # --- Delta frecce (RIDOTTO PER EVITARE SOVRAPPOSIZIONI) ---
+    # --- Delta rispetto alla global median ---
     if not np.isnan(global_median):
-        offset = max(y_values.max() - y_values.min(), 1e-6) * 0.15  # Aumentato offset
+        offset = max(y_values.max() - y_values.min(), 1e-6) * 0.05
         for i, val in enumerate(y_values):
             if np.isnan(val):
                 continue
             delta = val - global_median
-            if abs(delta) < 0.1:  # Soglia minima per mostrare delta
-                continue
-            arrow = "▲" if delta > 0 else "▼"
-            color = "green" if delta > 0 else "red"
-            fig.add_annotation(
-                x=company_names_raw[i],
-                y=val + offset,
-                text=f"{arrow}{abs(delta):.1f}{'%' if is_percent else ''}",
-                showarrow=False,
-                font=dict(size=9, color=color)
-            )
+            arrow = "▲" if delta > 0 else ("▼" if delta < 0 else "")
+            color = "green" if delta > 0 else ("red" if delta < 0 else "black")
+            fig.add_trace(go.Scatter(
+                x=[company_names_wrapped[i]],
+                y=[val + offset],
+                mode="text",
+                text=[f"{arrow}{abs(delta):.1f}{'%' if is_percent else ''}"],
+                textfont=dict(size=10, color=color),
+                showlegend=False
+            ))
 
-    # --- Linee mediane ---
+    # --- Linea global median (rosso) ---
     if not np.isnan(global_median):
         fig.add_hline(
-            y=global_median, 
-            line=dict(color="red", dash="dash", width=2),
+            y=global_median,
+            line=dict(color="red", dash="dash"),
             annotation_text=f"Companies Median: {global_median:.1f}{'%' if is_percent else ''}",
-            annotation_position="top left", 
-            annotation_font_color="red",
-            annotation_font_size=10
-        )
-    if not np.isnan(sector_median):
-        fig.add_hline(
-            y=sector_median, 
-            line=dict(color="blue", dash="dot", width=2),
-            annotation_text=f"Sector Median: {sector_median:.1f}{'%' if is_percent else ''}",
-            annotation_position="bottom right", 
-            annotation_font_color="blue",
-            annotation_font_size=10
+            annotation_position="top left",
+            annotation_font_color="red"
         )
 
-    # --- Layout finale ---
+    # --- Linea sector median (blu) ---
+    if not np.isnan(sector_median):
+        fig.add_hline(
+            y=sector_median,
+            line=dict(color="blue", dash="dot"),
+            annotation_text=f"Sector Median: {sector_median:.1f}{'%' if is_percent else ''}",
+            annotation_position="bottom right",
+            annotation_font_color="blue"
+        )
+
+    # --- Layout ---
     fig.update_layout(
-        title=dict(text=title, font_size=14),
+        title=title,
         yaxis_title=f"{metric}{' (%)' if is_percent else ''}",
-        xaxis=dict(
-            tickmode="array", 
-            tickvals=company_names_raw, 
-            ticktext=company_names_wrapped, 
-            tickangle=-45
-        ),
         height=320,
-        margin=dict(t=50, b=60, l=50, r=30),
-        showlegend=False,
-        plot_bgcolor='rgba(0,0,0,0)',  # Sfondo trasparente
-        paper_bgcolor='rgba(0,0,0,0)'
+        margin=dict(t=40, b=40, l=40, r=20),
     )
 
     return fig
-
+                  
 col1, col2 = st.columns(2)
 
 with col1:
@@ -526,6 +512,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

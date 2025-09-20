@@ -264,13 +264,28 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
 
     # --- Barre principali ---
     fig.add_trace(go.Bar(
-        x=company_names_raw,  # qui senza wrap
+        x=company_names_raw,  # valori “puliti” per Plotly
         y=y_values,
         marker_color=[company_colors[name] for name in company_names_raw],
         text=[f"{v:.1f}{'%' if is_percent else ''}" if not np.isnan(v) else "" for v in y_values],
         textposition="auto",
         showlegend=False
     ))
+    
+    # --- Layout asse X con wrap solo visivo ---
+    fig.update_layout(
+        xaxis=dict(
+            tickmode="array",
+            tickvals=company_names_raw,
+            ticktext=company_names_wrapped,  # qui applichi il wrap
+            tickangle=-45
+        ),
+        yaxis_title=f"{metric}{' (%)' if is_percent else ''}",
+        title=title,
+        height=320,
+        margin=dict(t=40, b=40, l=40, r=20)
+    )
+
 
     # --- Median global e sector ---
     global_median_raw = _safe_median(df_visible, metric)
@@ -500,6 +515,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

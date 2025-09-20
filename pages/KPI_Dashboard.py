@@ -139,6 +139,8 @@ with col4:
 
 # --- Caricamento dati aziende selezionate ---
 financial_data = []
+used_exchanges = set()  # Traccia le borse effettivamente usate
+
 for symbol in selected_symbols:
     desc = symbol_to_name.get(symbol, "")
     # se All → ciclo su tutte le borse, altrimenti solo quella selezionata
@@ -149,19 +151,23 @@ for symbol in selected_symbols:
                 data = get_or_fetch_data(symbol, [selected_year], desc, exch_name)
                 if data:  # se trovo dati, li aggiungo e passo al prossimo symbol
                     financial_data.extend(data)
+                    used_exchanges.add(exch_name)  # Traccia borsa usata
                     break
             except:
                 continue
     else:
         data = get_or_fetch_data(symbol, [selected_year], desc, selected_exchange)
-        financial_data.extend(data)
+        if data:
+            financial_data.extend(data)
+            used_exchanges.add(selected_exchange)  # Traccia borsa usata
 
-# --- Se settore selezionato, carico anche tutti i dati del settore ---
+# --- Se settore selezionato, carico dati settore SOLO dalle borse usate ---
 sector_data = []
 if selected_sector != "All":
     if selected_exchange == "All":
-        # ciclo su tutte le borse
-        for exch_name, exch_file in exchanges.items():
+        # Usa solo le borse dove abbiamo trovato le aziende selezionate
+        for exch_name in used_exchanges:
+            exch_file = exchanges[exch_name]
             for company in read_companies(exch_file):
                 if company["ticker"] not in selected_symbols:
                     desc = company.get("description", "")
@@ -171,6 +177,7 @@ if selected_sector != "All":
                     except:
                         continue
     else:
+        # Logica originale per borsa specifica
         for company in read_companies(exchanges[selected_exchange]):
             if company["ticker"] not in selected_symbols:
                 desc = company.get("description", "")
@@ -181,6 +188,11 @@ if selected_sector != "All":
 if not financial_data:
     st.warning("No data available for the selected companies.")
     st.stop()
+
+# --- Info per l'utente (opzionale - puoi rimuoverlo) ---
+if selected_exchange == "All" and selected_sector != "All" and used_exchanges:
+    exchanges_used_str = ", ".join(sorted(used_exchanges))
+    st.info(f"🔍 Sector median calculated from: {exchanges_used_str}")
 
 # --- Unisco dati selezionati e settore (per calcolo media) ---
 combined_data = financial_data + sector_data
@@ -254,8 +266,7 @@ def _safe_median(df, col):
         return np.nan
     return float(series.median())
 
-
-# Funzione grafico (GO con legenda e formattazione)
+# Funzione grafico ottimizzata (senza sovrapposizioni)
 def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
               selected_year=None, selected_sector=None):
 
@@ -309,7 +320,7 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
         if not np.isnan(sector_median_raw):
             sector_median = sector_median_raw * (100 if is_percent else 1)
 
-    # --- Aggiungi valori sopra le barre (più controllato) ---
+    # --- Aggiungi valori sopra le barre ---
     for i, (name, val) in enumerate(zip(company_names_wrapped, y_values)):
         if not np.isnan(val):
             fig.add_annotation(
@@ -317,9 +328,9 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
                 y=val,
                 text=f"{val:.1f}{'%' if is_percent else ''}",
                 showarrow=False,
-                yshift=8,  # Sposta sopra la barra
+                yshift=8,
                 font=dict(size=9, color="black"),
-                bgcolor="rgba(255,255,255,0.8)",  # Sfondo semi-trasparente
+                bgcolor="rgba(255,255,255,0.8)",
                 bordercolor="rgba(0,0,0,0.1)",
                 borderwidth=1
             )
@@ -330,14 +341,12 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
             if np.isnan(val):
                 continue
             delta = val - global_median
-            if abs(delta) < 0.05:  # Soglia per evitare frecce troppo piccole
+            if abs(delta) < 0.05:
                 continue
                 
             arrow = "▲" if delta > 0 else "▼"
-            color = "#28a745" if delta > 0 else "#dc3545"  # Verde/Rosso più definiti
-            
-            # Posizionamento dinamico
-            y_position = val + (y_range * 0.12)  # Più in alto
+            color = "#28a745" if delta > 0 else "#dc3545"
+            y_position = val + (y_range * 0.12)
             
             fig.add_annotation(
                 x=company_names_wrapped[i],
@@ -350,12 +359,10 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
                 borderwidth=1
             )
 
-    # --- Posizionamento smart delle linee mediane ---
+    # --- Linee mediane con posizionamento smart ---
     annotation_positions = []
     
-    # Companies Median
     if not np.isnan(global_median):
-        # Posiziona in alto a sinistra se possibile
         companies_pos = "top left"
         companies_y_pos = y_max + (y_range * 0.05)
         
@@ -371,9 +378,7 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
         )
         annotation_positions.append(("companies", companies_pos, companies_y_pos))
 
-    # Sector Median
     if not np.isnan(sector_median):
-        # Scegli posizione in base a dove non c'è Companies Median
         if any(pos[1] == "top left" for pos in annotation_positions):
             sector_pos = "top right"
         else:
@@ -394,23 +399,23 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
     fig.update_layout(
         title=dict(text=title, font=dict(size=14, family="Arial")),
         yaxis_title=f"{metric}{' (%)' if is_percent else ''}",
-        height=350,  # Leggermente più alto per dare spazio
-        margin=dict(t=60, b=70, l=50, r=50),  # Margini più bilanciati
+        height=350,
+        margin=dict(t=60, b=70, l=50, r=50),
         showlegend=False,
         plot_bgcolor='rgba(248,249,250,0.8)',
         paper_bgcolor='rgba(0,0,0,0)',
         font=dict(family="Arial", size=10),
-        # Aggiusta il range Y per dare più spazio
         yaxis=dict(
             range=[
-                y_min - (y_range * 0.1),  # Spazio sotto
-                y_max + (y_range * 0.25)   # Più spazio sopra per annotazioni
+                y_min - (y_range * 0.1),
+                y_max + (y_range * 0.25)
             ]
         )
     )
 
     return fig
-                  
+
+
 col1, col2 = st.columns(2)
 
 with col1:
@@ -576,6 +581,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

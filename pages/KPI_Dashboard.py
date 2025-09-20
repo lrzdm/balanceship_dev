@@ -339,6 +339,27 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
 
     return fig
 
+col1, col2 = st.columns(2)
+
+with col1:
+    st.plotly_chart(
+        kpi_chart(df_visible, df_kpi_all, "EBITDA Margin", "EBITDA Margin", is_percent=True, selected_year=selected_year, selected_sector=selected_sector),
+        use_container_width=True
+    )
+    st.plotly_chart(
+        kpi_chart(df_visible, df_kpi_all, "FCF Margin", "FCF Margin", is_percent=True, selected_year=selected_year, selected_sector=selected_sector),
+        use_container_width=True
+    )
+
+with col2:
+    st.plotly_chart(
+        kpi_chart(df_visible, df_kpi_all, "Debt to Equity", "Debt to Equity", is_percent=False, selected_year=selected_year, selected_sector=selected_sector),
+        use_container_width=True
+    )
+    st.plotly_chart(
+        kpi_chart(df_visible, df_kpi_all, "EPS", "Earnings per Share (EPS)", is_percent=False, selected_year=selected_year, selected_sector=selected_sector),
+        use_container_width=True
+    )
 
 # --- INSIGHT CLEAN (niente duplicati) ---
 insight_list = []
@@ -422,6 +443,7 @@ for index, row in df_visible.iterrows():
             insight_list.append(random.choice(options))
 
 # Shuffle e massimo 30
+unique_insights = list(dict.fromkeys(insight_list))
 random.shuffle(insight_list)
 insight_list = insight_list[:30]
 
@@ -482,5 +504,6 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 

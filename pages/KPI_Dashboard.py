@@ -248,46 +248,33 @@ def _safe_median(df, col):
 import random
 
 def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
-              selected_year=None, selected_sector=None):
+              selected_year=None, selected_sector=None, max_companies=10):
+
+    # --- Limita a max_companies ---
+    df_visible = df_visible.head(max_companies)
 
     fig = go.Figure()
     company_names_raw = df_visible["company_name"].tolist()
-    # Wrappiamo solo per visualizzazione asse X
-    company_names_wrapped = [textwrap.fill(label, width=12) for label in company_names_raw]
+    company_names_wrapped = [textwrap.fill(name, width=12) for name in company_names_raw]
     company_colors = {name: color_palette[i % len(color_palette)] for i, name in enumerate(company_names_raw)}
 
-    # valori y
+    # --- valori Y ---
     y_series = pd.to_numeric(df_visible[metric], errors="coerce")
     y_values = y_series.values.astype(float)
     if is_percent:
         y_values = y_values * 100
 
-    # --- Barre principali ---
+    # --- Barre ---
     fig.add_trace(go.Bar(
-        x=company_names_raw,  # valori “puliti” per Plotly
+        x=company_names_raw,
         y=y_values,
         marker_color=[company_colors[name] for name in company_names_raw],
         text=[f"{v:.1f}{'%' if is_percent else ''}" if not np.isnan(v) else "" for v in y_values],
         textposition="auto",
         showlegend=False
     ))
-    
-    # --- Layout asse X con wrap solo visivo ---
-    fig.update_layout(
-        xaxis=dict(
-            tickmode="array",
-            tickvals=company_names_raw,
-            ticktext=company_names_wrapped,  # qui applichi il wrap
-            tickangle=-45
-        ),
-        yaxis_title=f"{metric}{' (%)' if is_percent else ''}",
-        title=title,
-        height=320,
-        margin=dict(t=40, b=40, l=40, r=20)
-    )
 
-
-    # --- Median global e sector ---
+    # --- Median ---
     global_median_raw = _safe_median(df_visible, metric)
     global_median = np.nan if np.isnan(global_median_raw) else global_median_raw * (100 if is_percent else 1)
 
@@ -299,12 +286,11 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
             df_sector = df_temp[(df_temp["sector"] == selected_sector) & (df_temp["year"] == str(selected_year))]
         else:
             df_sector = df_temp[df_temp["sector"] == selected_sector]
-
         sector_median_raw = _safe_median(df_sector, metric)
         if not np.isnan(sector_median_raw):
             sector_median = sector_median_raw * (100 if is_percent else 1)
 
-    # --- Delta frecce rispetto global median ---
+    # --- Delta frecce ---
     if not np.isnan(global_median):
         offset = max(y_values.max() - y_values.min(), 1e-6) * 0.05
         for i, val in enumerate(y_values):
@@ -326,19 +312,15 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
 
     # --- Linee mediane ---
     if not np.isnan(global_median):
-        fig.add_hline(y=global_median,
-                      line=dict(color="red", dash="dash"),
+        fig.add_hline(y=global_median, line=dict(color="red", dash="dash"),
                       annotation_text=f"Companies Median: {global_median:.1f}{'%' if is_percent else ''}",
-                      annotation_position="top left",
-                      annotation_font_color="red")
+                      annotation_position="top left", annotation_font_color="red")
     if not np.isnan(sector_median):
-        fig.add_hline(y=sector_median,
-                      line=dict(color="blue", dash="dot"),
+        fig.add_hline(y=sector_median, line=dict(color="blue", dash="dot"),
                       annotation_text=f"Sector Median: {sector_median:.1f}{'%' if is_percent else ''}",
-                      annotation_position="bottom right",
-                      annotation_font_color="blue")
+                      annotation_position="bottom right", annotation_font_color="blue")
 
-    # --- Layout ---
+    # --- Layout finale ---
     fig.update_layout(
         title=title,
         yaxis_title=f"{metric}{' (%)' if is_percent else ''}",
@@ -348,7 +330,6 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
     )
 
     return fig
-
 
 col1, col2 = st.columns(2)
 
@@ -515,6 +496,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

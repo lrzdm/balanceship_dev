@@ -80,8 +80,17 @@ if st.button("📄 Generate Report"):
         df_kpi = compute_kpis(data)
         df_kpi = df_kpi[df_kpi["year"] == int(selected_year)]
 
+        # Assicura che le colonne siano rinominate in modo coerente
+        df_kpi.rename(columns={
+            "Debt/Equity": "Debt to Equity",
+            "basic_eps": "EPS"
+        }, inplace=True)
+
+        # Ora calcola le mediane
+        median_values = df_kpi[["EBITDA Margin", "Debt to Equity", "FCF Margin", "EPS"]].median()
+
         # Calcolo mediana dei KPI
-        median_values = df_kpi[["EBITDA Margin", "Debt/Equity", "FCF Margin", "EPS"]].median()
+        #median_values = df_kpi[["EBITDA Margin", "Debt/Equity", "FCF Margin", "EPS"]].median()
 
         # ---------------- COMMENTI DINAMICI ----------------
         comments = []
@@ -188,3 +197,4 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
+

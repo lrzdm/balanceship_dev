@@ -268,7 +268,8 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
         y=y_values,
         marker_color=[company_colors[name] for name in company_names_raw],
         text=[f"{v:.1f}{'%' if is_percent else ''}" if not np.isnan(v) else "" for v in y_values],
-        textposition="auto",
+        textposition="inside",
+        insidetextanchor="end",
         showlegend=False
     ))
 
@@ -444,8 +445,8 @@ for index, row in df_visible.iterrows():
 
 # Shuffle e massimo 30
 unique_insights = list(dict.fromkeys(insight_list))
-random.shuffle(insight_list)
-insight_list = insight_list[:30]
+random.shuffle(unique_insights)
+insight_list = unique_insights[:30]
 
 # Output nel frontend
 if insight_list:
@@ -504,6 +505,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

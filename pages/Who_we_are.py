@@ -1,8 +1,55 @@
-
 import streamlit as st
 import os, base64
 from PIL import Image
-    
+from data_utils import add_meta_tags
+import requests
+import uuid
+
+MEASUREMENT_ID = "G-Q5FDX0L1H2" # Il tuo ID GA4 
+API_SECRET = "kRfQwfxDQ0aACcjkJNENPA" # Quello creato in GA4 
+
+if "client_id" not in st.session_state:
+    st.session_state["client_id"] = str(uuid.uuid4())
+
+# --------------- Client-side GA4 -----------------
+st.markdown(f"""
+<!-- GA4 tracking client-side -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={MEASUREMENT_ID}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+  gtag('config', '{MEASUREMENT_ID}');
+</script>
+""", unsafe_allow_html=True)
+
+def send_pageview():
+    url = f"https://www.google-analytics.com/mp/collect?measurement_id={MEASUREMENT_ID}&api_secret={API_SECRET}"
+    payload = {
+        "client_id": st.session_state["client_id"],
+        "events": [
+            {
+                "name": "page_view",
+                "params": {
+                    "page_title": "Who_we_are",
+                    "page_location": "https://www.balanceship.net/Who_we_are",
+                    "engagement_time_msec": 1
+                }
+            }
+        ]
+    }
+    requests.post(url, json=payload)
+
+send_pageview()
+
+#Google tag:
+add_meta_tags(
+    title="Who we are",
+    description="This is our team! Support us!",
+    url_path="/Who_we_are"
+)
+
+
 st.set_page_config(page_title="Who We Are", layout="wide")
     
 # Base64 helper
@@ -170,37 +217,37 @@ st.markdown("""
 
 
 # --- Team Profiles ---
-st.markdown("<h2 style='text-align:center; margin-top:40px;'>👥 About Us</h2>", unsafe_allow_html=True)
-profiles = [
-  ("Lorenzo De Meo","Professional with an engineering background and an MBA, specializing in financial reporting, internal audit, and risk management.\
- Experienced in financial analysis, accounting, and managing financial risks to support strategic decision-making. Proficient in Power BI and \
-Python.","images/Lorenzo De Meo_01.jpg"),
-  ("William Herbert Gazzo","Professional with a solid business background and a professional training from SDA Bocconi. \
-Specialized in project management and business planning. He boasts extensive experience in consulting firms \
-and multinational companies, where he has held managerial roles.","images/William H Gazzo_01.jpg"),
-  ("Gabriele Schininà","Professional with a solid financial background and training from SDA Bocconi. Specialized in financial modelling, \
-  strategic planning, and budget management. He boasts extensive experience in listed and non-listed multinational companies, with roles in \
-business controlling.","images/Gabriele Schinina_01.jpg"),
-  ("Giovanni Serusi","Multidisciplinary business professional with a neuroscience background and executive pharma management training from SDA Bocconi. \
-  Specialized in competitive intelligence and scouting of new investment opportunities with a focus on the life science sector.","images/Giovanni Serusi_01.jpg"),
-]
-cards = ""
-for name, desc, img in profiles:
-    if not os.path.exists(img): continue
-    cards += f"""
-    <div class='profile-card' tabindex="0">
-      <div class='profile-inner'>
-        <div class='profile-front'>
-          <img src="data:image/jpeg;base64,{get_base64(img)}" alt="{name} photo">
-          <h4>{name}</h4>
-        </div>
-        <div class='profile-back'>
-          <h4>{name}</h4>
-          <p>{desc}</p>
-        </div>
-      </div>
-    </div>"""
-st.markdown(f"<div class='profile-grid'>{cards}</div>", unsafe_allow_html=True)
+#st.markdown("<h2 style='text-align:center; margin-top:40px;'>👥 About Us</h2>", unsafe_allow_html=True)
+#profiles = [
+#  ("Lorenzo De Meo","Professional with an engineering background and an MBA, specialized in financial reporting, internal audit, and risk management.\
+# Experienced in financial analysis, accounting, and managing financial risks to support strategic decision-making. Proficient in Power BI and \
+#Python.","images/Lorenzo De Meo_01.jpg"),
+#  ("William Herbert Gazzo","Professional with a solid business background and a professional training from SDA Bocconi. \
+#Specialized in project management and business planning. He boasts extensive experience in consulting firms \
+#and multinational companies, where he has held managerial roles.","images/William H Gazzo_01.jpg"),
+#  ("Gabriele Schininà","Professional with a solid financial background and training from SDA Bocconi. Specialized in financial modelling, \
+#  strategic planning, and budget management. He boasts extensive experience in listed and non-listed multinational companies, with roles in \
+#business controlling.","images/Gabriele Schinina_01.jpg"),
+#  ("Giovanni Serusi","Multidisciplinary business professional with a neuroscience background and executive pharma management training from SDA Bocconi. \
+#  Specialized in competitive intelligence and scouting of new investment opportunities with a focus on the life science sector.","images/Giovanni Serusi_01.jpg"),
+#]
+#cards = ""
+#for name, desc, img in profiles:
+#    if not os.path.exists(img): continue
+#    cards += f"""
+#    <div class='profile-card' tabindex="0">
+#      <div class='profile-inner'>
+#        <div class='profile-front'>
+#          <img src="data:image/jpeg;base64,{get_base64(img)}" alt="{name} photo">
+#          <h4>{name}</h4>
+#        </div>
+#        <div class='profile-back'>
+#          <h4>{name}</h4>
+#          <p>{desc}</p>
+#        </div>
+#      </div>
+#    </div>"""
+#st.markdown(f"<div class='profile-grid'>{cards}</div>", unsafe_allow_html=True)
 
 # --- TIMELINE ---
 st.markdown("<h2 style='text-align: center;'>📈 Our Journey</h2>", unsafe_allow_html=True)
@@ -239,7 +286,7 @@ st.markdown(f"""
 <div class='contact-box'>
 <div style='background:#f5f5f5;padding:40px;border-radius:12px; text-align:center; box-shadow:0 3px 10px rgba(0,0,0,0.05); margin:30px'>
   <h3>📬 Contact Us</h3>
-  <p>Interested in collaborating? <a href='mailto:your-email@example.com'>Send us an email</a></p>
+  <p>Interested in collaborating? <a href='mailto:balanceship12@gmail.com'>Send us an email</a></p>
   <a href='#'><img src='data:image/png;base64,{insta}' width='40' style='margin:10px'></a>
   <a href='#'><img src='data:image/png;base64,{lin}' width='40' style='margin:10px'></a>
 </div>
@@ -295,3 +342,5 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
+

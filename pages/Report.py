@@ -6,12 +6,9 @@ from data_utils import read_exchanges, read_companies, get_or_fetch_data, comput
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import A4
-import plotly.graph_objects as go
-import plotly.io as pio
 import matplotlib.pyplot as plt
 
-
-# ---------------- CONFIGURAZIONE ----------------
+# ---------------- CONFIG ----------------
 st.set_page_config(page_title="📑 Report Generator", layout="wide")
 st.title("📑 Report Generator")
 
@@ -52,7 +49,6 @@ sectors_available = [
 ]
 
 col1, col2, col3 = st.columns([1.2, 1.5, 1.8])
-
 with col1:
     selected_year = st.selectbox("Year", years_available, index=2)
 with col2:
@@ -60,17 +56,30 @@ with col2:
 with col3:
     selected_sector = st.selectbox("Sector", options=["All"] + sectors_available)
 
-
+# ---------------- FUNZIONE GRAFICO ----------------
+def save_kpi_chart(median_values, filename):
+    plt.figure(figsize=(6,4))
+    median_values.plot(kind='bar', color="#0173C4")
+    plt.title("Median KPIs")
+    plt.ylabel("Value")
+    plt.xticks(rotation=45, ha='right')
+    for i, v in enumerate(median_values.values):
+        plt.text(i, v + 0.5, f"{v:.2f}", ha='center')
+    plt.tight_layout()
+    plt.savefig(filename)
+    plt.close()
+    return filename
 
 # ---------------- GENERA REPORT ----------------
 if st.button("📄 Generate Report"):
     st.info("Generating report...")
 
-    # Carica aziende
     companies = read_companies(exchanges[selected_exchange])
     data = []
+
     for company in companies:
-        if selected_sector != "All" and company.get("sector", "") != selected_sector:
+        company_sector = company.get("sector", "").strip().lower()
+        if selected_sector != "All" and company_sector != selected_sector.strip().lower():
             continue
         comp_data = get_or_fetch_data(
             company["ticker"], [selected_year], company.get("description", ""), selected_exchange
@@ -79,124 +88,92 @@ if st.button("📄 Generate Report"):
 
     if not data:
         st.warning("No data found for the selected filters.")
-    else:
-        df = pd.DataFrame(data)
-        df_kpi = compute_kpis(data)
-        df_kpi = df_kpi[df_kpi["year"] == int(selected_year)]
+        st.stop()
 
-        # Assicura coerenza nei nomi
-        df_kpi = df_kpi.rename(columns={
-            "Debt/Equity": "Debt to Equity",
-            "basic_eps": "EPS"
-        })
+    # Dataframe e KPI
+    df = pd.DataFrame(data)
+    df_kpi = compute_kpis(data)
 
-        # Colonne KPI attese
-        kpi_candidates = ["EBITDA Margin", "Debt to Equity", "FCF Margin", "EPS"]
+    # Normalizza anno
+    df_kpi['year'] = df_kpi['year'].astype(str)
+    df_kpi = df_kpi[df_kpi['year'] == selected_year]
 
-        # Filtra solo quelle disponibili
-        available_cols = [col for col in kpi_candidates if col in df_kpi.columns]
+    # Rinominazioni coerenti
+    df_kpi = df_kpi.rename(columns={"Debt/Equity": "Debt to Equity", "basic_eps": "EPS"})
 
-        if not available_cols:
-            st.error("❌ Nessuna delle colonne KPI attese è presente nel dataframe.")
-            st.write("Colonne trovate:", df_kpi.columns.tolist())
-            st.stop()
+    # Controllo colonne disponibili
+    kpi_candidates = ["EBITDA Margin", "Debt to Equity", "FCF Margin", "EPS"]
+    available_cols = [col for col in kpi_candidates if col in df_kpi.columns]
 
-        st.write("✅ Colonne KPI disponibili per la mediana:", available_cols)
+    if not available_cols:
+        st.error("❌ Nessuna delle colonne KPI attese è presente nel dataframe.")
+        st.write("Colonne trovate:", df_kpi.columns.tolist())
+        st.stop()
 
-        median_values = df_kpi[available_cols].median()
+    st.write("✅ Colonne KPI disponibili per la mediana:", available_cols)
+    median_values = df_kpi[available_cols].median()
 
-        # ---------------- COMMENTI DINAMICI ----------------
-        comments = []
+    # ---------------- COMMENTI DINAMICI ----------------
+    comments = []
+    if "EBITDA Margin" in median_values:
+        ebitda = median_values["EBITDA Margin"]
+        comments.append(
+            "Strong EBITDA" if ebitda > 20 else "Healthy EBITDA" if ebitda > 10 else "Low EBITDA"
+        )
+    if "Debt to Equity" in median_values:
+        de_ratio = median_values["Debt to Equity"]
+        comments.append(
+            "High leverage" if de_ratio > 2 else "Moderate leverage" if de_ratio > 1 else "Low leverage"
+        )
+    if "FCF Margin" in median_values:
+        fcf = median_values["FCF Margin"]
+        comments.append(
+            "Strong cash generation" if fcf > 15 else "Moderate cash flow" if fcf > 5 else "Weak cash flow"
+        )
+    if "EPS" in median_values:
+        eps = median_values["EPS"]
+        comments.append(
+            "Solid earnings" if eps > 5 else "Moderate earnings" if eps > 1 else "Low earnings"
+        )
 
-        if "EBITDA Margin" in median_values:
-            ebitda = median_values["EBITDA Margin"]
-            if ebitda > 20:
-                comments.append("The sector shows strong profitability, with a robust EBITDA margin above 20%.")
-            elif ebitda > 10:
-                comments.append("The sector has a healthy profitability, with EBITDA margin in double digits.")
-            else:
-                comments.append("The sector struggles with profitability, as EBITDA margin is relatively low.")
+    # ---------------- CREAZIONE PDF ----------------
+    pdf_filename = "report.pdf"
+    doc = SimpleDocTemplate(pdf_filename, pagesize=A4)
+    styles = getSampleStyleSheet()
+    story = []
 
-        if "Debt to Equity" in median_values:
-            de_ratio = median_values["Debt to Equity"]
-            if de_ratio > 2:
-                comments.append("High leverage is evident, indicating strong reliance on debt financing.")
-            elif de_ratio > 1:
-                comments.append("Moderate leverage: companies balance equity with a fair amount of debt.")
-            else:
-                comments.append("Low leverage: the sector is generally equity-financed and less risky.")
+    story.append(Paragraph("<b>BalanceShip Report</b>", styles["Title"]))
+    story.append(Spacer(1, 12))
+    story.append(Paragraph(f"<b>Exchange:</b> {selected_exchange}", styles["Normal"]))
+    story.append(Paragraph(f"<b>Year:</b> {selected_year}", styles["Normal"]))
+    story.append(Paragraph(f"<b>Sector:</b> {selected_sector}", styles["Normal"]))
+    story.append(Spacer(1, 12))
 
-        if "FCF Margin" in median_values:
-            fcf = median_values["FCF Margin"]
-            if fcf > 15:
-                comments.append("Strong cash generation capacity with high Free Cash Flow margins.")
-            elif fcf > 5:
-                comments.append("The sector shows positive but moderate Free Cash Flow margins.")
-            else:
-                comments.append("Weak Free Cash Flow margins may raise concerns about cash sustainability.")
+    story.append(Paragraph("<b>Median KPIs:</b>", styles["Heading2"]))
+    for kpi, val in median_values.items():
+        story.append(Paragraph(f"{kpi}: {val:.2f}", styles["Normal"]))
 
-        if "EPS" in median_values:
-            eps = median_values["EPS"]
-            if eps > 5:
-                comments.append("Solid earnings per share indicate strong profitability at company level.")
-            elif eps > 1:
-                comments.append("Moderate EPS performance suggests steady but not outstanding earnings.")
-            else:
-                comments.append("Low EPS reflects weak earnings generation within the sector.")
+    story.append(PageBreak())
+    story.append(Paragraph("<b>KPI Charts</b>", styles["Heading1"]))
+    story.append(Spacer(1, 12))
 
-        # ---------------- CREAZIONE PDF ----------------
-        pdf_filename = "report.pdf"
-        doc = SimpleDocTemplate(pdf_filename, pagesize=A4)
-        styles = getSampleStyleSheet()
-        story = []
+    chart_path = save_kpi_chart(median_values, "median_kpis.png")
+    story.append(Image(chart_path, width=400, height=250))
 
-        story.append(Paragraph("<b>BalanceShip Report</b>", styles["Title"]))
-        story.append(Spacer(1, 12))
-        story.append(Paragraph(f"<b>Exchange:</b> {selected_exchange}", styles["Normal"]))
-        story.append(Paragraph(f"<b>Year:</b> {selected_year}", styles["Normal"]))
-        story.append(Paragraph(f"<b>Sector:</b> {selected_sector}", styles["Normal"]))
-        story.append(Spacer(1, 12))
+    story.append(PageBreak())
+    story.append(Paragraph("<b>Automated Insights</b>", styles["Heading1"]))
+    story.append(Spacer(1, 12))
+    for c in comments:
+        story.append(Paragraph(f"- {c}", styles["Normal"]))
 
-        story.append(Paragraph("<b>Median KPIs:</b>", styles["Heading2"]))
-        for kpi, val in median_values.items():
-            story.append(Paragraph(f"{kpi}: {val:.2f}", styles["Normal"]))
+    doc.build(story)
 
-        story.append(PageBreak())
-        story.append(Paragraph("<b>KPI Charts</b>", styles["Heading1"]))
-        story.append(Spacer(1, 12))
-
-        def save_kpi_chart(median_values, filename):
-            plt.figure(figsize=(6,4))
-            median_values.plot(kind='bar', color="#0173C4")
-            plt.title("Median KPIs")
-            plt.ylabel("Value")
-            plt.xticks(rotation=45, ha='right')
-            for i, v in enumerate(median_values.values):
-                plt.text(i, v + 0.5, f"{v:.2f}", ha='center')
-            plt.tight_layout()
-            plt.savefig(filename)
-            plt.close()
-            return filename
-
-
-        chart_path = save_kpi_chart(median_values, "median_kpis.png")
-        story.append(Image(chart_path, width=400, height=250))
-
-        story.append(PageBreak())
-        story.append(Paragraph("<b>Automated Insights</b>", styles["Heading1"]))
-        story.append(Spacer(1, 12))
-        for c in comments:
-            story.append(Paragraph(f"- {c}", styles["Normal"]))
-
-        # Build PDF
-        doc.build(story)
-
-        # Download link
-        with open(pdf_filename, "rb") as f:
-            pdf_bytes = f.read()
-        b64_pdf = base64.b64encode(pdf_bytes).decode()
-        href = f'<a href="data:application/pdf;base64,{b64_pdf}" download="BalanceShip_Report.pdf">📥 Download Report</a>'
-        st.markdown(href, unsafe_allow_html=True)
+    # ---------------- DOWNLOAD PDF ----------------
+    with open(pdf_filename, "rb") as f:
+        pdf_bytes = f.read()
+    b64_pdf = base64.b64encode(pdf_bytes).decode()
+    href = f'<a href="data:application/pdf;base64,{b64_pdf}" download="BalanceShip_Report.pdf">📥 Download Report</a>'
+    st.markdown(href, unsafe_allow_html=True)
 
 # ---------------- FOOTER ----------------
 st.markdown(
@@ -208,4 +185,3 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
-

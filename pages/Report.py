@@ -80,56 +80,65 @@ if st.button("📄 Generate Report"):
         df_kpi = compute_kpis(data)
         df_kpi = df_kpi[df_kpi["year"] == int(selected_year)]
 
-        # Assicura che le colonne siano rinominate in modo coerente
-        df_kpi.rename(columns={
+        # Assicura coerenza nei nomi
+        df_kpi = df_kpi.rename(columns={
             "Debt/Equity": "Debt to Equity",
             "basic_eps": "EPS"
-        }, inplace=True)
+        })
 
-        # Ora calcola le mediane
-        median_values = df_kpi[["EBITDA Margin", "Debt to Equity", "FCF Margin", "EPS"]].median()
+        # Colonne KPI attese
+        kpi_candidates = ["EBITDA Margin", "Debt to Equity", "FCF Margin", "EPS"]
 
-        # Calcolo mediana dei KPI
-        #median_values = df_kpi[["EBITDA Margin", "Debt/Equity", "FCF Margin", "EPS"]].median()
+        # Filtra solo quelle disponibili
+        available_cols = [col for col in kpi_candidates if col in df_kpi.columns]
+
+        if not available_cols:
+            st.error("❌ Nessuna delle colonne KPI attese è presente nel dataframe.")
+            st.write("Colonne trovate:", df_kpi.columns.tolist())
+            st.stop()
+
+        st.write("✅ Colonne KPI disponibili per la mediana:", available_cols)
+
+        median_values = df_kpi[available_cols].median()
 
         # ---------------- COMMENTI DINAMICI ----------------
         comments = []
 
-        # EBITDA Margin
-        ebitda = median_values["EBITDA Margin"]
-        if ebitda > 20:
-            comments.append("The sector shows strong profitability, with a robust EBITDA margin above 20%.")
-        elif ebitda > 10:
-            comments.append("The sector has a healthy profitability, with EBITDA margin in double digits.")
-        else:
-            comments.append("The sector struggles with profitability, as EBITDA margin is relatively low.")
+        if "EBITDA Margin" in median_values:
+            ebitda = median_values["EBITDA Margin"]
+            if ebitda > 20:
+                comments.append("The sector shows strong profitability, with a robust EBITDA margin above 20%.")
+            elif ebitda > 10:
+                comments.append("The sector has a healthy profitability, with EBITDA margin in double digits.")
+            else:
+                comments.append("The sector struggles with profitability, as EBITDA margin is relatively low.")
 
-        # Debt/Equity
-        de_ratio = median_values["Debt/Equity"]
-        if de_ratio > 2:
-            comments.append("High leverage is evident, indicating strong reliance on debt financing.")
-        elif de_ratio > 1:
-            comments.append("Moderate leverage: companies balance equity with a fair amount of debt.")
-        else:
-            comments.append("Low leverage: the sector is generally equity-financed and less risky.")
+        if "Debt to Equity" in median_values:
+            de_ratio = median_values["Debt to Equity"]
+            if de_ratio > 2:
+                comments.append("High leverage is evident, indicating strong reliance on debt financing.")
+            elif de_ratio > 1:
+                comments.append("Moderate leverage: companies balance equity with a fair amount of debt.")
+            else:
+                comments.append("Low leverage: the sector is generally equity-financed and less risky.")
 
-        # FCF Margin
-        fcf = median_values["FCF Margin"]
-        if fcf > 15:
-            comments.append("Strong cash generation capacity with high Free Cash Flow margins.")
-        elif fcf > 5:
-            comments.append("The sector shows positive but moderate Free Cash Flow margins.")
-        else:
-            comments.append("Weak Free Cash Flow margins may raise concerns about cash sustainability.")
+        if "FCF Margin" in median_values:
+            fcf = median_values["FCF Margin"]
+            if fcf > 15:
+                comments.append("Strong cash generation capacity with high Free Cash Flow margins.")
+            elif fcf > 5:
+                comments.append("The sector shows positive but moderate Free Cash Flow margins.")
+            else:
+                comments.append("Weak Free Cash Flow margins may raise concerns about cash sustainability.")
 
-        # EPS
-        eps = median_values["EPS"]
-        if eps > 5:
-            comments.append("Solid earnings per share indicate strong profitability at company level.")
-        elif eps > 1:
-            comments.append("Moderate EPS performance suggests steady but not outstanding earnings.")
-        else:
-            comments.append("Low EPS reflects weak earnings generation within the sector.")
+        if "EPS" in median_values:
+            eps = median_values["EPS"]
+            if eps > 5:
+                comments.append("Solid earnings per share indicate strong profitability at company level.")
+            elif eps > 1:
+                comments.append("Moderate EPS performance suggests steady but not outstanding earnings.")
+            else:
+                comments.append("Low EPS reflects weak earnings generation within the sector.")
 
         # ---------------- CREAZIONE PDF ----------------
         pdf_filename = "report.pdf"
@@ -155,14 +164,12 @@ if st.button("📄 Generate Report"):
         # Funzione per generare grafico mediana
         def save_kpi_chart(median_values, filename):
             fig = go.Figure(
-                data=[
-                    go.Bar(
-                        x=median_values.index,
-                        y=median_values.values,
-                        text=median_values.round(2),
-                        textposition="auto",
-                    )
-                ]
+                data=[go.Bar(
+                    x=median_values.index,
+                    y=median_values.values,
+                    text=median_values.round(2),
+                    textposition="auto",
+                )]
             )
             fig.update_layout(title="Median KPIs", height=400)
             pio.write_image(fig, filename)
@@ -197,4 +204,3 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
-

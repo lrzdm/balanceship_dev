@@ -10,3 +10,5 @@ sqlalchemy
 psycopg2-binary
 numpy
 streamlit_autorefresh
+reportlab
+kaleido

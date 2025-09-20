@@ -269,7 +269,7 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
         marker_color=[company_colors[name] for name in company_names_raw],
         text=[f"{v:.1f}{'%' if is_percent else ''}" if not np.isnan(v) else "" for v in y_values],
         textposition="inside",
-        insidetextanchor="end",
+        insidetextanchor="middle",
         showlegend=False
     ))
 
@@ -505,6 +505,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

@@ -110,10 +110,24 @@ if st.button("📄 Generate Report"):
 
     # ---------------- CREAZIONE PDF ----------------
     pdf_file = "report.pdf"
-    doc = SimpleDocTemplate(pdf_file, pagesize=A4)
+    doc = SimpleDocTemplate(
+        pdf_file,
+        pagesize=A4,
+        title="BalanceShip Report",
+        author="BalanceShip",
+        subject="Financial report",
+        creator="BalanceShip Platform"
+    )
+
     styles = getSampleStyleSheet()
     story = []
-
+    
+    # Logo
+    logo_path = "images/image.png"
+    if os.path.exists(logo_path):
+        story.append(Image(logo_path, width=120, height=50))
+        story.append(Spacer(1, 12))
+   
     story.append(Paragraph("<b>BalanceShip Report</b>", styles["Title"]))
     story.append(Spacer(1, 12))
     story.append(Paragraph(f"<b>Exchange:</b> {selected_exchange}", styles["Normal"]))
@@ -155,3 +169,4 @@ if st.button("📄 Generate Report"):
     with open(pdf_file, "rb") as f:
         b64_pdf = base64.b64encode(f.read()).decode()
     st.markdown(f'<a href="data:application/pdf;base64,{b64_pdf}" download="BalanceShip_Report.pdf">📥 Download Report</a>', unsafe_allow_html=True)
+

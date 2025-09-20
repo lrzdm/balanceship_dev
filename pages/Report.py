@@ -2,11 +2,12 @@ import streamlit as st
 import pandas as pd
 import os
 import base64
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, PageBreak
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, PageBreak, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import A4
 import matplotlib.pyplot as plt
 from data_utils import read_exchanges, read_companies, get_or_fetch_data, compute_kpis
+from reportlab.lib import colors
 
 # ---------------- CONFIGURAZIONE ----------------
 st.set_page_config(page_title="📑 Report Generator", layout="wide")
@@ -189,6 +190,7 @@ if st.button("📄 Generate Report"):
     with open(pdf_file, "rb") as f:
         b64_pdf = base64.b64encode(f.read()).decode()
     st.markdown(f'<a href="data:application/pdf;base64,{b64_pdf}" download="BalanceShip_Report.pdf">📥 Download Report</a>', unsafe_allow_html=True)
+
 
 
 

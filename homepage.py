@@ -10,8 +10,153 @@ import base64
 import os
 from PIL import Image
 import random
+from urllib.parse import urlparse
+import requests
+import uuid
 
-st.set_page_config(layout="wide")
+MEASUREMENT_ID = "G-Q5FDX0L1H2" # Il tuo ID GA4 
+API_SECRET = "kRfQwfxDQ0aACcjkJNENPA" # Quello creato in GA4 
+
+if "client_id" not in st.session_state:
+    st.session_state["client_id"] = str(uuid.uuid4())
+
+# --------------- Client-side GA4 -----------------
+st.markdown(f"""
+<!-- GA4 tracking client-side -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={MEASUREMENT_ID}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+  gtag('config', '{MEASUREMENT_ID}');
+</script>
+""", unsafe_allow_html=True)
+
+def send_pageview():
+    url = f"https://www.google-analytics.com/mp/collect?measurement_id={MEASUREMENT_ID}&api_secret={API_SECRET}"
+    payload = {
+        "client_id": st.session_state["client_id"],
+        "events": [
+            {
+                "name": "page_view",
+                "params": {
+                    "page_title": "Homepage",
+                    "page_location": "https://www.balanceship.net/",
+                    "engagement_time_msec": 1
+                }
+            }
+        ]
+    }
+    requests.post(url, json=payload)
+
+send_pageview()
+
+
+st.set_page_config(
+    page_title="Balanceship – Financial Dashboard",
+    page_icon="📊",
+    layout="wide"
+)
+
+
+# ✅ SEO & LinkedIn metadata
+st.markdown("""
+<meta name="description" content="Explore company KPIs and financial data on BalanceShip. Use AI-powered insights to guide smart investment decisions.">
+<meta property="og:title" content="Balanceship – Global Financial Dashboard">
+<meta property="og:description" content="Explore KPIs, revenue, and financial ratios for thousands of companies.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://balanceship.net">
+<meta property="og:image" content="https://balanceship.net/images/icon.png">
+<meta property="og:site_name" content="Balanceship">
+""", unsafe_allow_html=True)
+
+
+if "robots" in st.query_params:
+    st.markdown("User-agent: *\nAllow: /\n\nSitemap: https://sitemap.balanceship.net/sitemap.xml", unsafe_allow_html=True)
+    st.stop()
+
+st.markdown("""
+<style>
+  /* Sfondo trasparente */
+  html, body, .stApp, .stApp > div, .main {
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Contenitore principale con margini adattivi */
+  .block-container {
+    max-width: 95% !important;   /* Desktop */
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  /* Tablet */
+  @media (max-width: 1024px) {
+    .block-container {
+      max-width: 90% !important;
+    }
+  }
+
+  /* Mobile */
+  @media (max-width: 640px) {
+    .block-container {
+      max-width: 100% !important;
+      padding-left: 5% !important;
+      padding-right: 5% !important;
+    }
+  }
+
+  /* Blocca flex nel blocco "bianco" */
+  .st-emotion-cache-1u02ojh {
+    display: block !important;
+    flex: none !important;
+    background: transparent !important;
+    width: 100% !important;
+  }
+
+  /* Video & logo ridimensionabili */
+  .st-emotion-cache-1u02ojh video,
+  .st-emotion-cache-1u02ojh img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Tablet - riduci un po' */
+  @media (max-width: 1024px) {
+    .st-emotion-cache-1u02ojh video,
+    .st-emotion-cache-1u02ojh img {
+      max-width: 80% !important;
+    }
+  }
+
+  /* Mobile - riduci di più */
+  @media (max-width: 640px) {
+    .st-emotion-cache-1u02ojh video,
+    .st-emotion-cache-1u02ojh img {
+      max-width: 60% !important;
+    }
+  }
+
+  /* Ripristino flex per l'header */
+  header.stAppHeader [class^="st-emotion-cache-"] {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    background: transparent !important;
+  }
+
+  /* Elementi iframe */
+  .stElementContainer, .stIFrame {
+    width: 100% !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+</style>
+""", unsafe_allow_html=True)
+
 
 quotes = [
     "Success is not final, failure is not fatal: It is the courage to continue that counts.",
@@ -76,27 +221,17 @@ def get_all_tickers():
                 tickers.append(c['ticker'])
     return list(set(tickers))
     
-@st.cache_data(ttl=3600)
-def cached_all_tickers(limit=500):
-    exchanges = read_exchanges("exchanges.txt")
-    tickers = []
-    for ex in exchanges.values():
-        companies = read_companies(ex)
-        for c in companies:
-            if 'ticker' in c:
-                tickers.append(c['ticker'])
-    return random.sample(list(set(tickers)), min(limit, len(tickers)))
-
-tickers = cached_all_tickers(limit=100)
+@st.cache_data
+def cached_all_tickers():
+    return get_all_tickers()
 
 # ---- LOAD TICKER DATA FOR BAR ----
-@st.cache_data(ttl=300)
-def load_ticker_bar_data(limit=10):
-    tickers = cached_all_tickers(limit=limit)
+def load_ticker_bar_data():
+    tickers = get_all_tickers()
+    sampled = random.sample(tickers, min(25, len(tickers)))  # genera 25
     years = ["2021", "2022", "2023", "2024"]
     result = []
-
-    for t in tickers:
+    for t in sampled:
         y = random.choice(years)
         data = load_from_db(t, [y])
         if data and isinstance(data[0], dict):
@@ -106,19 +241,19 @@ def load_ticker_bar_data(limit=10):
             if val:
                 try:
                     val_fmt = f"{float(val):.2f}"
-                    b_metrics = [
-                        "total_revenue", "ebit", "ebitda", "free_cash_flow", "net_income",
-                        "cost_of_revenue", "total_debt", "total_assets", "operating_income",
-                        "gross_profit", "pretax_income"
-                    ]
-                    val_str = f"{val_fmt}B" if key in b_metrics else val_fmt
+                    b_metrics = ["total_revenue", "ebit", "ebitda", "free_cash_flow", "net_income", "cost_of_revenue", "total_debt", "total_assets", "operating_income", "gross_profit", "pretax_income"]
+                    if key in b_metrics:
+                        val_str = f"{val_fmt}B"
+                    else:
+                        val_str = val_fmt
+                    
                     result.append((t, y, f"{label.title()}: {val_str}"))
+                    #result.append((t, y, f"{label.title()}: {val_fmt}B"))
                 except:
                     continue
     return result
 
-
-bar_items = load_ticker_bar_data(limit=10)
+bar_items = load_ticker_bar_data()
 
 def get_random_color():
     return random.choice(["#00ff00", "#ff0000", "#00ffff", "#ffa500", "#ff69b4", "#ffffff"])
@@ -143,16 +278,21 @@ html_code = f"""
     font-family: 'Open Sans', sans-serif !important;
     font-size: 16px !important;
     color: black;
+    margin: 0 !important;        /* rimuove margini */
+    padding: 0 !important;       /* rimuove padding */
+    background-color: transparent !important;  /* sfondo trasparente */
   }}
   body, .block-container {{
     padding-left: 0 !important;
     padding-right: 0 !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
+    background-color: transparent !important; /* aggiunto per sicurezza */
   }}
   .stApp, .main, .block-container {{
-    background-color: rgba(0, 0, 0, 0) !important;
+    background-color: transparent !important; /* già presente */
     background: transparent !important;
+    overflow: hidden !important; /* evita scroll indesiderati */
   }}
   .navbar {{
     position: fixed;
@@ -213,7 +353,7 @@ html_code = f"""
   .ticker-content {{
     display: inline-block;
     white-space: nowrap;
-    animation: ticker 25s linear infinite;
+    animation: ticker 60s linear infinite;
   }}
   @keyframes ticker {{
     from {{ transform: translateX(0%); }}
@@ -237,7 +377,7 @@ html_code = f"""
     opacity: 0.8;
     background-color: black;
     pointer-events: none;
-  }}
+}}
   @media (max-width: 768px) {{
     .navbar-right {{ flex-wrap: wrap; margin-left: 0; }}
     .profile-grid {{ flex-direction: column; align-items: center; }}
@@ -245,10 +385,11 @@ html_code = f"""
   }}
 </style>
 
-<video autoplay muted loop class="video-background">
+<video autoplay muted loop playsinline class="video-background">
   <source src="https://www.dropbox.com/scl/fi/ua937izl1la1hh2yp0xyk/Balanceship_video.mp4?rlkey=uztuba8wh6lgsbxqk5ne37h2n&raw=1" type="video/mp4">
   Your browser does not support the video tag.
 </video>
+
 
 <div class="navbar">
   <div class="navbar-left">
@@ -347,8 +488,7 @@ st.markdown("""
     transform: rotateY(180deg);
 }
 
-.profile-front,
-.profile-back {
+.profile-front, .profile-back {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -361,29 +501,27 @@ st.markdown("""
     align-items: center;
     justify-content: center;
     text-align: center;
-    box-sizing: border-box;
+    padding: 0 1rem;
 }
 
 .profile-front {
     background-color: #0173C4;
     color: white;
-    padding: 1rem;
+    padding-top: 1.2rem;
 }
 
 .profile-front i {
     font-size: 3rem;
-    line-height: 1;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin-bottom: 0.6rem;
+    display: block;
 }
 
 .profile-front h4 {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
+    margin: 0;
     font-weight: 600;
-    margin-top: 0.5rem;
-    min-height: 1.2em;
+    line-height: 1.3;
+    text-align: center;
 }
 
 .profile-back {
@@ -392,11 +530,11 @@ st.markdown("""
     transform: rotateY(180deg);
     font-size: 2.2rem;
     font-weight: bold;
+    display: flex;
     justify-content: center;
     align-items: center;
     padding: 1rem;
 }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -419,7 +557,6 @@ cards = f"""
       </div>
     </div>
   </div>
-
   <div class='profile-card'>
     <div class='profile-inner'>
       <div class='profile-front'>
@@ -431,7 +568,6 @@ cards = f"""
       </div>
     </div>
   </div>
-
   <div class='profile-card'>
     <div class='profile-inner'>
       <div class='profile-front'>
@@ -443,7 +579,6 @@ cards = f"""
       </div>
     </div>
   </div>
-
   <div class='profile-card'>
     <div class='profile-inner'>
       <div class='profile-front'>
@@ -462,7 +597,30 @@ cards = f"""
 st.markdown(cards, unsafe_allow_html=True)
 st.markdown("<div style='height: 50px;'></div>", unsafe_allow_html=True)
 
-# Map section
+# Map
+st.markdown("""
+<style>
+  .map-box {
+    max-width: 100%;
+    padding: 10px 0;
+  }
+  .map-img {
+    display: block;
+    margin: 0 auto;
+    max-width: 90%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+
+  @media (max-width: 640px) {
+    .map-img {
+      max-width: 100%;
+    }
+  }
+</style>
+""", unsafe_allow_html=True)
+
 st.markdown(f"""
 <div class='map-box'>
   <h3 style='text-align:center; color:#0173C4;'>🌍 Stock Exchanges on our Databases</h3>
@@ -503,3 +661,48 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -245,11 +245,13 @@ def _safe_median(df, col):
 
 
 # Funzione grafico (GO con legenda e formattazione)
+import random
+
+# --- Funzione grafico ---
 def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
               selected_year=None, selected_sector=None):
 
     fig = go.Figure()
-    # --- Preparazioni ---
     company_names_raw = df_visible["company_name"].tolist()
     company_names_wrapped = [textwrap.fill(label, width=12) for label in company_names_raw]
     company_colors = {name: color_palette[i % len(color_palette)] for i, name in enumerate(company_names_raw)}
@@ -260,7 +262,7 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
     if is_percent:
         y_values = y_values * 100
 
-    # --- Bar principale ---
+    # --- Barre principali (solo valori, niente delta dentro) ---
     fig.add_trace(go.Bar(
         x=company_names_wrapped,
         y=y_values,
@@ -270,11 +272,11 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
         showlegend=False
     ))
 
-    # --- Global median (solo sulle aziende visibili) ---
+    # --- Global median (rosso) ---
     global_median_raw = _safe_median(df_visible, metric)
     global_median = np.nan if np.isnan(global_median_raw) else (global_median_raw * (100 if is_percent else 1))
 
-    # --- Sector median: filtro coerente su anno + sector (no exchange) ---
+    # --- Sector median (blu) ---
     sector_median = np.nan
     if selected_sector and selected_sector != "All" and "sector" in df_kpi_all.columns:
         df_temp = df_kpi_all.copy()
@@ -289,7 +291,7 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
         if not np.isnan(sector_median_raw):
             sector_median = sector_median_raw * (100 if is_percent else 1)
 
-    # --- Delta rispetto alla global median ---
+    # --- Delta frecce ▲▼ rispetto alla global median ---
     if not np.isnan(global_median):
         offset = max(y_values.max() - y_values.min(), 1e-6) * 0.05
         for i, val in enumerate(y_values):
@@ -298,14 +300,15 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
             delta = val - global_median
             arrow = "▲" if delta > 0 else ("▼" if delta < 0 else "")
             color = "green" if delta > 0 else ("red" if delta < 0 else "black")
-            fig.add_trace(go.Scatter(
-                x=[company_names_wrapped[i]],
-                y=[val + offset],
-                mode="text",
-                text=[f"{arrow}{abs(delta):.1f}{'%' if is_percent else ''}"],
-                textfont=dict(size=10, color=color),
-                showlegend=False
-            ))
+            if arrow:  # aggiungo freccia solo se c’è delta
+                fig.add_trace(go.Scatter(
+                    x=[company_names_wrapped[i]],
+                    y=[val + offset],
+                    mode="text",
+                    text=[f"{arrow}{abs(delta):.1f}{'%' if is_percent else ''}"],
+                    textfont=dict(size=10, color=color),
+                    showlegend=False
+                ))
 
     # --- Linea global median (rosso) ---
     if not np.isnan(global_median):
@@ -327,7 +330,6 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
             annotation_font_color="blue"
         )
 
-    # --- Layout ---
     fig.update_layout(
         title=title,
         yaxis_title=f"{metric}{' (%)' if is_percent else ''}",
@@ -338,29 +340,8 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
     return fig
 
 
-# I grafici ora senza legenda interna (già fatto nel kpi_chart)
-col1, col2 = st.columns(2)
-with col1:
-    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "EBITDA Margin", "EBITDA Margin", is_percent=True, selected_year=selected_year,
-              selected_sector=selected_sector), use_container_width=True)
-with col2:
-    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "Debt to Equity", "Debt / Equity", is_percent=False, selected_year=selected_year,
-              selected_sector=selected_sector), use_container_width=True)
-
-col3, col4 = st.columns(2)
-with col3:
-    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "FCF Margin", "Free Cash Flow Margin", is_percent=True, selected_year=selected_year,
-              selected_sector=selected_sector), use_container_width=True)
-with col4:
-    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "EPS", "Earnings Per Share (EPS)", is_percent=False, selected_year=selected_year,
-              selected_sector=selected_sector), use_container_width=True)
-
-#-----BOX INSIGHTS------
-from random import shuffle
-
-# Lista finale di insight
+# --- INSIGHT CLEAN (niente duplicati) ---
 insight_list = []
-
 for index, row in df_visible.iterrows():
     company = row["company_name"]
     sector = row["sector"]
@@ -369,9 +350,9 @@ for index, row in df_visible.iterrows():
     debt_equity = row["Debt to Equity"]
     eps = row["EPS"]
 
-    # Media settoriale
     if pd.isna(sector):
-        continue  # salta se manca il settore
+        continue
+
     sector_df = df_kpi_all[df_kpi_all["sector"] == sector]
     avg_ebitda = sector_df["EBITDA Margin"].mean()
     avg_fcf = sector_df["FCF Margin"].mean()
@@ -382,65 +363,66 @@ for index, row in df_visible.iterrows():
     if not pd.isna(ebitda_margin):
         ebitda_margin_pct = ebitda_margin * 100
         if ebitda_margin_pct > avg_ebitda * 1.2:
-            insight_list.append(
-                f"**{company}** demonstrates operational efficiency well above the sector norm, "
-                f"with an EBITDA margin of {ebitda_margin_pct:.1f}%."
-            )
-            insight_list.append(
+            options = [
+                f"**{company}** demonstrates operational efficiency well above the sector norm, with an EBITDA margin of {ebitda_margin_pct:.1f}%.",
                 f"The EBITDA margin of **{company}** ({ebitda_margin_pct:.1f}%) exceeds its industry average."
-            )
+            ]
+            insight_list.append(random.choice(options))
         elif ebitda_margin_pct < avg_ebitda * 0.8:
-            insight_list.append(
-                f"**{company}** struggles to convert revenue into operating profit, "
-                f"with an EBITDA margin of only {ebitda_margin_pct:.1f}%."
-            )
-            insight_list.append(
+            options = [
+                f"**{company}** struggles to convert revenue into operating profit, with an EBITDA margin of only {ebitda_margin_pct:.1f}%.",
                 f"The EBITDA performance of **{company}** ({ebitda_margin_pct:.1f}%) lags well behind sector peers."
-            )
-    
+            ]
+            insight_list.append(random.choice(options))
+
     # FCF Margin
     if not pd.isna(fcf_margin):
         fcf_margin_pct = fcf_margin * 100
         if fcf_margin_pct > avg_fcf * 1.2:
-            insight_list.append(
-                f"**{company}** stands out for its excellent cash flow generation, "
-                f"posting a FCF margin of {fcf_margin_pct:.1f}%."
-            )
-            insight_list.append(
+            options = [
+                f"**{company}** stands out for its excellent cash flow generation, posting a FCF margin of {fcf_margin_pct:.1f}%.",
                 f"With a FCF margin of {fcf_margin_pct:.1f}%, **{company}** ranks among the top in cash conversion."
-            )
+            ]
+            insight_list.append(random.choice(options))
         elif fcf_margin_pct < avg_fcf * 0.8:
-            insight_list.append(
-                f"**{company}** underperforms in turning revenue into free cash flow, "
-                f"with a margin of {fcf_margin_pct:.1f}%."
-            )
-            insight_list.append(
-                f"**{company}** shows weakness in FCF efficiency compared to the sector "
-                f"(only {fcf_margin_pct:.1f}%)."
-            )
-
-
+            options = [
+                f"**{company}** underperforms in turning revenue into free cash flow, with a margin of {fcf_margin_pct:.1f}%.",
+                f"**{company}** shows weakness in FCF efficiency compared to the sector (only {fcf_margin_pct:.1f}%)."
+            ]
+            insight_list.append(random.choice(options))
 
     # Debt to Equity
     if not pd.isna(debt_equity):
         if debt_equity > avg_debt_equity * 1.3:
-            insight_list.append(f"**{company}** is highly leveraged, with a debt-to-equity ratio of {debt_equity:.2f}, above the sector average.")
-            insight_list.append(f"Financial leverage is a concern for **{company}**, with D/E at {debt_equity:.2f}.")
+            options = [
+                f"**{company}** is highly leveraged, with a debt-to-equity ratio of {debt_equity:.2f}, above the sector average.",
+                f"Financial leverage is a concern for **{company}**, with D/E at {debt_equity:.2f}."
+            ]
+            insight_list.append(random.choice(options))
         elif debt_equity < avg_debt_equity * 0.7:
-            insight_list.append(f"**{company}** maintains a solid balance sheet with low reliance on debt (D/E: {debt_equity:.2f}).")
-            insight_list.append(f"**{company}** shows strong capital structure, with low debt levels (D/E: {debt_equity:.2f}).")
+            options = [
+                f"**{company}** maintains a solid balance sheet with low reliance on debt (D/E: {debt_equity:.2f}).",
+                f"**{company}** shows strong capital structure, with low debt levels (D/E: {debt_equity:.2f})."
+            ]
+            insight_list.append(random.choice(options))
 
     # EPS
     if not pd.isna(eps):
         if eps > avg_eps * 1.2:
-            insight_list.append(f"**{company}** delivers strong earnings per share of {eps:.2f}, outpacing its industry.")
-            insight_list.append(f"**{company}** posts robust EPS ({eps:.2f}) compared to the sector average.")
+            options = [
+                f"**{company}** delivers strong earnings per share of {eps:.2f}, outpacing its industry.",
+                f"**{company}** posts robust EPS ({eps:.2f}) compared to the sector average."
+            ]
+            insight_list.append(random.choice(options))
         elif eps < avg_eps * 0.8:
-            insight_list.append(f"**{company}** trails the sector in earnings, with an EPS of just {eps:.2f}.")
-            insight_list.append(f"Earnings per share of **{company}** ({eps:.2f}) fall short of peer performance.")
+            options = [
+                f"**{company}** trails the sector in earnings, with an EPS of just {eps:.2f}.",
+                f"Earnings per share of **{company}** ({eps:.2f}) fall short of peer performance."
+            ]
+            insight_list.append(random.choice(options))
 
-# Mescola e mostra 30 insight
-shuffle(insight_list)
+# Shuffle e massimo 30
+random.shuffle(insight_list)
 insight_list = insight_list[:30]
 
 # Output nel frontend
@@ -500,4 +482,5 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 

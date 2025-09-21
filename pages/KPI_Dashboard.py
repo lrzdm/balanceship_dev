@@ -219,13 +219,49 @@ df_kpi_all["company_name"] = df_kpi_all["symbol"].map(symbol_to_name)
 df_visible = df_kpi_all[df_kpi_all["symbol"].isin(selected_symbols)]
 
 # --- Info per l'utente (SPOSTATO QUI DOPO CREAZIONE df_kpi_all) ---
+# --- Conteggio aziende del settore (tutte, non solo selezionate) ---
 if selected_exchange != "All" and selected_sector != "All":
-    # Conta quante aziende del settore abbiamo in df_kpi_all
-    sector_count = len(df_kpi_all[df_kpi_all["sector"] == selected_sector])
-    if sector_count > 0:
-        st.info(f"🔍 Sector median calculated from {sector_count} {selected_sector} companies in {selected_exchange}")
-    else:
-        st.warning(f"⚠️ No {selected_sector} companies found in dataset for comparison")
+    try:
+        # Leggi tutte le aziende dell'exchange selezionato
+        exch_file = exchanges[selected_exchange]
+        all_companies = read_companies(exch_file)
+
+        # Carica i dati per tutte le aziende dell'exchange
+        all_data = []
+        for comp in all_companies:
+            desc = comp.get("description", "")
+            try:
+                data = get_or_fetch_data(comp["ticker"], [selected_year], desc, selected_exchange)
+                all_data.extend(data)
+            except:
+                continue
+
+        # Calcola KPI per tutte le aziende
+        df_all = compute_kpis(all_data)
+        df_all = df_all[df_all["year"] == int(selected_year)]
+
+        # Aggiungi EPS e settore
+        df_raw_all = pd.DataFrame(all_data)
+        if "ticker" in df_raw_all.columns and "symbol" not in df_raw_all.columns:
+            df_raw_all.rename(columns={"ticker": "symbol"}, inplace=True)
+
+        df_all = pd.merge(
+            df_all,
+            df_raw_all[["symbol", "basic_eps", "sector"]],
+            on="symbol",
+            how="left"
+        )
+
+        # Conta le aziende del settore corretto
+        sector_count = len(df_all[df_all["sector"] == selected_sector])
+        if sector_count > 0:
+            st.info(f"🔍 Sector median calculated from {sector_count} {selected_sector} companies in {selected_exchange}")
+        else:
+            st.warning(f"⚠️ No {selected_sector} companies found in dataset for comparison")
+
+    except Exception as e:
+        st.error(f"Error loading sector data: {e}")
+
 
 def legend_chart():
     fig = go.Figure()
@@ -306,20 +342,18 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
     global_median_raw = _safe_median(df_visible, metric)
     global_median = np.nan if np.isnan(global_median_raw) else (global_median_raw * (100 if is_percent else 1))
 
-    # --- Sector median: logica veloce originale (filtra dati già in memoria) ---
+    # --- Sector median basata su tutte le aziende dell'exchange ---
     sector_median = np.nan
-    if selected_sector and selected_sector != "All" and selected_exchange != "All" and "sector" in df_kpi_all.columns:
-        df_temp = df_kpi_all.copy()
-        if "year" in df_temp.columns:
-            df_temp["year"] = df_temp["year"].astype(str)
-            sel_year = str(selected_year)
-            df_sector = df_temp[(df_temp["sector"] == selected_sector) & (df_temp["year"] == sel_year)]
-        else:
-            df_sector = df_temp[df_temp["sector"] == selected_sector]
+    if selected_sector and selected_sector != "All" and selected_exchange != "All":
+        try:
+            # df_all deve essere passato a kpi_chart o accessibile globalmente
+            df_sector = df_all[(df_all["sector"] == selected_sector) & (df_all["year"] == int(selected_year))]
+            sector_median_raw = _safe_median(df_sector, metric)
+            if not np.isnan(sector_median_raw):
+                sector_median = sector_median_raw * (100 if is_percent else 1)
+        except Exception as e:
+            st.warning(f"⚠️ Unable to calculate sector median: {e}")
 
-        sector_median_raw = _safe_median(df_sector, metric)
-        if not np.isnan(sector_median_raw):
-            sector_median = sector_median_raw * (100 if is_percent else 1)
 
     # --- Aggiungi valori sopra le barre ---
     for i, (name, val) in enumerate(zip(company_names_wrapped, y_values)):
@@ -582,6 +616,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

@@ -87,29 +87,36 @@ symbol_to_name = {c["ticker"]: c["description"] for c in companies}
 name_to_symbol = {v: k for k, v in symbol_to_name.items()}
 company_names = list(symbol_to_name.values())
 
+from streamlit_searchbox import st_searchbox
+
 with col3:
-    # Inizializza lo stato se non esiste ancora
-    if "company_search" not in st.session_state:
-        st.session_state.company_search = ""
+    # Funzione che filtra le aziende con substring search
+    def company_search_fn(search_term: str):
+        if not search_term:
+            return sorted(company_names)
+        return sorted([name for name in company_names if search_term.lower() in name.lower()])
 
-    query = st.session_state.company_search.lower().strip()
+    # Inizializza lo stato per le selezioni
+    if "selected_companies" not in st.session_state:
+        st.session_state.selected_companies = []
 
-    if query:
-        # filtro substring case-insensitive
-        filtered_names = [name for name in company_names if query in name.lower()]
-        display_options = sorted(filtered_names)
-        label = f"Companies (up to 10) - {len(display_options)} matches"
-    else:
-        display_options = sorted(company_names)
-        label = "Companies (up to 10)"
-
-    selected_company_names = st.multiselect(
-        label,
-        options=display_options,
-        max_selections=10,
-        key="companies_multiselect"
+    # Searchbox (ritorna un singolo valore ogni volta che scegli)
+    selected_company = st_searchbox(
+        search_function=company_search_fn,
+        placeholder="Search companies (substring match)...",
+        key="company_searchbox"
     )
-    selected_symbols = [name_to_symbol[name] for name in selected_company_names]
+
+    # Aggiungo alla lista solo se non è già presente
+    if selected_company and selected_company not in st.session_state.selected_companies:
+        st.session_state.selected_companies.append(selected_company)
+
+    # Mostro le aziende selezionate
+    st.write("✅ Selected companies:", st.session_state.selected_companies)
+
+    # Converto in simboli
+    selected_symbols = [name_to_symbol[name] for name in st.session_state.selected_companies]
+
 
 
 with col4:
@@ -582,6 +589,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

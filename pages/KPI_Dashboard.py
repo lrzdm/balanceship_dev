@@ -249,11 +249,15 @@ def legend_chart():
 st.plotly_chart(legend_chart(), use_container_width=True)
 
 # --- Funzione di mediana sicura ---
-def _safe_median(series):
-    series = pd.to_numeric(series, errors="coerce").replace([np.inf, -np.inf], np.nan).dropna()
+def _safe_median(df, col):
+    """Restituisce la mediana sicura (gestisce NaN, inf, col mancanti)."""
+    if df is None or df.empty or col not in df.columns:
+        return np.nan
+    series = pd.to_numeric(df[col], errors="coerce").replace([np.inf, -np.inf], np.nan).dropna()
     if series.empty:
         return np.nan
     return float(series.median())
+
 
 # --- Pre-calcolo mediane settore per tutte le metriche ---
 metrics = ["EBITDA Margin", "FCF Margin", "Debt to Equity", "EPS"]
@@ -299,7 +303,8 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
 
     # --- Calcolo mediane ---
     global_median_raw = _safe_median(df_visible, metric)
-    global_median = np.nan if np.isnan(global_median_raw) else (global_median_raw * (100 if is_percent else 1))
+    if is_percent and not np.isnan(global_median_raw):
+        global_median_raw *= 100
 
     # --- Sector median basata su tutte le aziende dell'exchange ---
     sector_median = np.nan
@@ -565,6 +570,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

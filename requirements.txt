@@ -12,3 +12,4 @@ numpy
 streamlit_autorefresh
 reportlab
 matplotlib
+streamlit_searchbox

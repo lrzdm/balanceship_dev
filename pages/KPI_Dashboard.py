@@ -262,21 +262,33 @@ for metric in metrics:
     sector_medians[metric] = df_kpi_all.groupby("sector")[metric].apply(_safe_median).to_dict()
 
 # --- Funzione grafico KPI ottimizzata ---
-def kpi_chart(df_visible, metric, title, is_percent=True, selected_sector=None):
+def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
+              selected_year=None, selected_sector=None):
+
     fig = go.Figure()
     
+    # --- Preparazioni ---
     company_names_raw = df_visible["company_name"].tolist()
-    company_names_wrapped = [textwrap.fill(name, width=12) for name in company_names_raw]
+    company_names_wrapped = [textwrap.fill(label, width=12) for label in company_names_raw]
     company_colors = {name: color_palette[i % len(color_palette)] for i, name in enumerate(company_names_raw)}
-    
-    y_values = pd.to_numeric(df_visible[metric], errors="coerce").values.astype(float)
+
+    # valori y
+    y_series = pd.to_numeric(df_visible[metric], errors="coerce")
+    y_values = y_series.values.astype(float)
     if is_percent:
         y_values = y_values * 100
-    
-    valid_values = y_values[~np.isnan(y_values)]
-    y_min, y_max = (valid_values.min(), valid_values.max()) if len(valid_values) else (0, 1)
-    y_range = y_max - y_min if y_max - y_min != 0 else 1
 
+    # --- Calcolo range per posizionamento smart ---
+    valid_values = y_values[~np.isnan(y_values)]
+    if len(valid_values) > 0:
+        y_min, y_max = valid_values.min(), valid_values.max()
+        y_range = y_max - y_min
+        if y_range == 0:
+            y_range = abs(y_max) * 0.1 if y_max != 0 else 1
+    else:
+        y_min, y_max, y_range = 0, 1, 1
+
+    # --- Bar principale ---
     fig.add_trace(go.Bar(
         x=company_names_wrapped,
         y=y_values,
@@ -285,26 +297,30 @@ def kpi_chart(df_visible, metric, title, is_percent=True, selected_sector=None):
         hovertemplate='<b>%{x}</b><br>%{y:.1f}' + ('%' if is_percent else '') + '<extra></extra>'
     ))
 
-    # Mediane
-    global_median = _safe_median(df_visible[metric])
-    if is_percent:
-        global_median *= 100
+    # --- Calcolo mediane ---
+    global_median_raw = _safe_median(df_visible, metric)
+    global_median = np.nan if np.isnan(global_median_raw) else (global_median_raw * (100 if is_percent else 1))
 
+    # --- Sector median basata su tutte le aziende dell'exchange ---
     sector_median = np.nan
     if selected_sector and selected_sector != "All":
-        sector_median = sector_medians.get(metric, {}).get(selected_sector, np.nan)
-        if is_percent and not np.isnan(sector_median):
-            sector_median *= 100
+        try:
+            df_sector = df_kpi_all[(df_kpi_all["sector"] == selected_sector) & 
+                                   (df_kpi_all["year"] == int(selected_year))]
+            sector_median_raw = _safe_median(df_sector, metric)
+            if not np.isnan(sector_median_raw):
+                sector_median = sector_median_raw * (100 if is_percent else 1)
 
-    # Linee mediane
-    if not np.isnan(global_median):
-        fig.add_hline(y=global_median, line=dict(color="#dc3545", dash="dash", width=2),
-                      annotation_text=f"Companies: {global_median:.1f}{'%' if is_percent else ''}",
-                      annotation_position="top left")
-    if not np.isnan(sector_median):
-        fig.add_hline(y=sector_median, line=dict(color="#007bff", dash="dot", width=2),
-                      annotation_text=f"Sector: {sector_median:.1f}{'%' if is_percent else ''}",
-                      annotation_position="top right")
+            # --- Conta le aziende del settore corretto ---
+            sector_count = len(df_sector)
+            if sector_count > 0:
+                st.info(f"🔍 Sector median calculated from {sector_count} {selected_sector} companies in {selected_year}")
+            else:
+                st.warning(f"⚠️ No {selected_sector} companies found in dataset for comparison")
+
+        except Exception as e:
+            st.error(f"Error calculating sector median/count: {e}")
+
     # --- Aggiungi valori sopra le barre ---
     for i, (name, val) in enumerate(zip(company_names_wrapped, y_values)):
         if not np.isnan(val):
@@ -379,7 +395,8 @@ def kpi_chart(df_visible, metric, title, is_percent=True, selected_sector=None):
             annotation_bordercolor="#007bff",
             annotation_borderwidth=1
         )
-    
+
+    # --- Layout ottimizzato ---
     fig.update_layout(
         title=dict(text=title, font=dict(size=14, family="Arial")),
         yaxis_title=f"{metric}{' (%)' if is_percent else ''}",
@@ -391,7 +408,9 @@ def kpi_chart(df_visible, metric, title, is_percent=True, selected_sector=None):
         font=dict(family="Arial", size=10),
         yaxis=dict(range=[y_min - (y_range * 0.1), y_max + (y_range * 0.25)])
     )
+
     return fig
+
 
 # --- Mostro i grafici ---
 col1, col2 = st.columns(2)
@@ -546,6 +565,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

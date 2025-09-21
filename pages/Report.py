@@ -38,16 +38,9 @@ exchanges = read_exchanges("exchanges.txt")
 exchange_names = list(exchanges.keys())
 years_available = ["2021", "2022", "2023", "2024"]
 sectors_available = [
-    "Communication Services",
-    "Consumer Cyclical",
-    "Consumer Defensive",
-    "Energy",
-    "Finance Services",
-    "Healthcare",
-    "Industrials",
-    "Real Estate",
-    "Technology",
-    "Utilities",
+    "Communication Services","Consumer Cyclical","Consumer Defensive",
+    "Energy","Finance Services","Healthcare","Industrials","Real Estate",
+    "Technology","Utilities"
 ]
 
 col1, col2, col3 = st.columns([1.2, 1.5, 1.8])
@@ -58,14 +51,22 @@ with col2:
 with col3:
     selected_sector = st.selectbox("Sector", options=["All"] + sectors_available)
 
+# ---------------- PLACEHOLDER ----------------
+status_placeholder = st.empty()
+
+# ---------------- SESSION STATE ----------------
+if "payment_done" not in st.session_state:
+    st.session_state.payment_done = False
+if "report_generated" not in st.session_state:
+    st.session_state.report_generated = False
+
 # ---------------- GENERA REPORT ----------------
 if st.button("📄 Generate Report"):
-    st.info("Generating report...")
+    status_placeholder.info("⏳ Generating report...")
 
     # Carica aziende dell'exchange selezionato
     companies = read_companies(exchanges[selected_exchange])
     data = []
-
     for company in companies:
         comp_data = get_or_fetch_data(
             company["ticker"], [selected_year], company.get("description", ""), selected_exchange
@@ -82,18 +83,14 @@ if st.button("📄 Generate Report"):
     df_kpi = compute_kpis(data)
     df_kpi = df_kpi[df_kpi["year"] == int(selected_year)]
 
-    # Colonne KPI per mediana
     kpi_cols = ["EBITDA Margin", "Debt/Equity", "FCF Margin", "EPS"]
     available_cols = [c for c in kpi_cols if c in df_kpi.columns]
-
     if not available_cols:
         st.error("❌ Nessuna colonna KPI disponibile.")
-        st.write("Colonne presenti:", df_kpi.columns.tolist())
         st.stop()
-
     median_values = df_kpi[available_cols].median()
 
-    # ---------------- COMMENTI ----------------
+    # Commenti automatici
     comments = []
     if "EBITDA Margin" in median_values:
         ebitda = median_values["EBITDA Margin"]
@@ -110,15 +107,7 @@ if st.button("📄 Generate Report"):
 
     # ---------------- CREAZIONE PDF ----------------
     pdf_file = "report.pdf"
-    doc = SimpleDocTemplate(
-        pdf_file,
-        pagesize=A4,
-        title="BalanceShip Report",
-        author="BalanceShip",
-        subject="Financial report",
-        creator="BalanceShip Platform"
-    )
-
+    doc = SimpleDocTemplate(pdf_file, pagesize=A4)
     styles = getSampleStyleSheet()
     story = []
 
@@ -132,23 +121,21 @@ if st.button("📄 Generate Report"):
         logos.append(Image(logo2_path, width=160, height=40))
     if logos:
         table = Table([logos], hAlign='CENTER')
-        table.setStyle(TableStyle([
-            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-            ('LEFTPADDING', (0,0), (-1,-1), 0),
-            ('RIGHTPADDING', (0,0), (-1,-1), 0),
-            ('TOPPADDING', (0,0), (-1,-1), 0),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 0),
-        ]))
+        table.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'MIDDLE'),
+                                   ('ALIGN',(0,0),(-1,-1),'CENTER'),
+                                   ('LEFTPADDING',(0,0),(-1,-1),0),
+                                   ('RIGHTPADDING',(0,0),(-1,-1),0),
+                                   ('TOPPADDING',(0,0),(-1,-1),0),
+                                   ('BOTTOMPADDING',(0,0),(-1,-1),0)]))
         story.append(table)
-        story.append(Spacer(1, 12))
+        story.append(Spacer(1,12))
 
     story.append(Paragraph("<b>BalanceShip Report</b>", styles["Title"]))
-    story.append(Spacer(1, 12))
+    story.append(Spacer(1,12))
     story.append(Paragraph(f"<b>Exchange:</b> {selected_exchange}", styles["Normal"]))
     story.append(Paragraph(f"<b>Year:</b> {selected_year}", styles["Normal"]))
     story.append(Paragraph(f"<b>Sector:</b> {selected_sector}", styles["Normal"]))
-    story.append(Spacer(1, 12))
+    story.append(Spacer(1,12))
 
     story.append(Paragraph("<b>Median KPIs:</b>", styles["Heading2"]))
     for kpi, val in median_values.items():
@@ -156,9 +143,8 @@ if st.button("📄 Generate Report"):
 
     story.append(PageBreak())
     story.append(Paragraph("<b>KPI Chart</b>", styles["Heading2"]))
-    story.append(Spacer(1, 12))
+    story.append(Spacer(1,12))
 
-    # Grafico con matplotlib
     chart_file = "kpi_chart.png"
     plt.figure(figsize=(6,4))
     median_values.plot(kind="bar", color="#0173C4")
@@ -174,35 +160,29 @@ if st.button("📄 Generate Report"):
 
     story.append(PageBreak())
     story.append(Paragraph("<b>Automated Insights</b>", styles["Heading1"]))
-    story.append(Spacer(1, 12))
+    story.append(Spacer(1,12))
     for c in comments:
         story.append(Paragraph(f"- {c}", styles["Normal"]))
 
     doc.build(story)
 
-    # ---------------- FLUSSO PAGAMENTO + DOWNLOAD ----------------
+    st.session_state.report_generated = True
+    status_placeholder.success("✅ Report completato e pronto per il download")
+
 # ---------------- PAYPAL + DOWNLOAD ----------------
 paypal_url = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YOUR_BUTTON_ID"
 
-# Inizializza session_state per gestire lo stato pagamento
-if "payment_done" not in st.session_state:
-    st.session_state.payment_done = False
-
-# Pulsante PayPal
-if not st.session_state.payment_done:
-    if st.button("💳 Pay with PayPal"):
-        st.session_state.payment_done = True
-        st.success("✅ Payment simulated. You can now download your report.")
-        st.info(f"Please complete payment here: [PayPal]({paypal_url})")
-
-# Pulsante download abilitato solo dopo il pagamento
-if st.session_state.payment_done:
-    with open(pdf_file, "rb") as f:
-        st.download_button(
-            label="📥 Download Report",
-            data=f,
-            file_name="BalanceShip_Report.pdf",
-            mime="application/pdf"
-        )
-
-
+if st.session_state.report_generated:
+    if not st.session_state.payment_done:
+        if st.button("💳 Pay with PayPal"):
+            st.session_state.payment_done = True
+            st.success("✅ Payment simulated. You can now download your report.")
+            st.info(f"Please complete payment here: [PayPal]({paypal_url})")
+    if st.session_state.payment_done:
+        with open(pdf_file, "rb") as f:
+            st.download_button(
+                label="📥 Download Report",
+                data=f,
+                file_name="BalanceShip_Report.pdf",
+                mime="application/pdf"
+            )

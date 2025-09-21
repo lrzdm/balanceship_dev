@@ -265,6 +265,220 @@ def _safe_median(df, col):
         return np.nan
     return float(series.median())
 
+# Lettura borse e aziende
+exchanges = read_exchanges("exchanges.txt")
+exchange_names = list(exchanges.keys())
+exchange_names = ["All"] + exchange_names   # aggiungo opzione All
+
+years_available = ['2021', '2022', '2023', '2024']
+sectors_available = ['Communication Services', 'Consumer Cyclical', 'Consumer Defensive', 'Energy', 'Finance Services', 'Healthcare', 'Industrials', 'Real Estate', 'Technology', 'Utilities']
+
+# --- Layout filtri in riga ---
+col1, col2, col3, col4 = st.columns([1.2, 1.5, 2.2, 2])
+with col1:
+    selected_year = st.selectbox("Year", years_available, index=2)
+with col2:
+    selected_exchange = st.selectbox("Exchange", exchange_names, index=0)
+
+# --- Carico lista aziende basata sulla selezione exchange ---
+if selected_exchange == "All":
+    companies = []
+    for exch in exchanges.values():
+        companies.extend(read_companies(exch))
+else:
+    companies = read_companies(exchanges[selected_exchange])
+
+symbol_to_name = {c["ticker"]: c["description"] for c in companies}
+name_to_symbol = {v: k for k, v in symbol_to_name.items()}
+company_names = list(symbol_to_name.values())
+
+with col3:
+    # Stato per il filtro di ricerca (nascosto nell'interfaccia)
+    if "company_search" not in st.session_state:
+        st.session_state.company_search = ""
+    
+    # Campo di ricerca nascosto che si aggiorna automaticamente
+    search_placeholder = st.empty()
+    
+    # Se c'è una ricerca attiva, filtra le aziende
+    if st.session_state.company_search:
+        filtered_names = [name for name in company_names 
+                         if st.session_state.company_search.lower() in name.lower()]
+        display_options = sorted(filtered_names)
+        label = f"Companies (up to 10) - {len(display_options)} matches"
+    else:
+        display_options = sorted(company_names)
+        label = "Companies (up to 10)"
+    
+    # Aggiunge campo di ricerca solo se ci sono molte aziende
+    if len(company_names) > 20:
+        st.session_state.company_search = search_placeholder.text_input(
+            "Search:", 
+            value=st.session_state.company_search,
+            placeholder="Type to filter companies...",
+            key="search_companies"
+        )
+    
+    selected_company_names = st.multiselect(
+        label,
+        options=display_options,
+        max_selections=10
+    )
+    selected_symbols = [name_to_symbol[name] for name in selected_company_names]
+with col4:
+    if selected_exchange == "All":
+        selected_sector = st.selectbox("Sector", options=["All"], disabled=True, 
+                                     help="Sector filter is disabled when 'All' exchanges are selected")
+    else:
+        selected_sector = st.selectbox("Sector", options=["All"] + sectors_available)
+
+# --- Cache semplificata per singola borsa ---
+@st.cache_data(ttl=3600)  # Cache per 1 ora
+def load_sector_data_cached(sector, exchange_name, year, excluded_symbols, max_companies=100):
+    """Carica dati settore per una singola borsa"""
+    sector_data = []
+    companies_processed = 0
+    
+    try:
+        exch_file = exchanges[exchange_name]
+        companies_in_exchange = read_companies(exch_file)
+        
+        # Filtra aziende già selezionate
+        companies_to_process = [c for c in companies_in_exchange 
+                              if c["ticker"] not in excluded_symbols]
+        
+        for company in companies_to_process:
+            if companies_processed >= max_companies:
+                break
+                
+            desc = company.get("description", "")
+            try:
+                data = get_or_fetch_data(company["ticker"], [year], desc, exchange_name)
+                sector_matches = [d for d in data if d.get("sector") == sector]
+                if sector_matches:
+                    sector_data.extend(sector_matches)
+                    companies_processed += len(sector_matches)
+            except:
+                continue
+    except:
+        pass
+    
+    return sector_data
+
+# --- Caricamento dati aziende selezionate ---
+financial_data = []
+used_exchanges = set()  # Traccia le borse effettivamente usate
+
+for symbol in selected_symbols:
+    desc = symbol_to_name.get(symbol, "")
+    # se All → ciclo su tutte le borse, altrimenti solo quella selezionata
+    if selected_exchange == "All":
+        # ciclo su tutte le borse per trovare l'azienda
+        for exch_name, exch_file in exchanges.items():
+            try:
+                data = get_or_fetch_data(symbol, [selected_year], desc, exch_name)
+                if data:  # se trovo dati, li aggiungo e passo al prossimo symbol
+                    financial_data.extend(data)
+                    used_exchanges.add(exch_name)  # Traccia borsa usata
+                    break
+            except:
+                continue
+    else:
+        data = get_or_fetch_data(symbol, [selected_year], desc, selected_exchange)
+        if data:
+            financial_data.extend(data)
+            used_exchanges.add(selected_exchange)  # Traccia borsa usata
+
+# --- Se settore selezionato e NON All exchange, usa logica veloce originale ---
+sector_data = []
+# Non serve più caricare dati aggiuntivi, useremo solo quelli in df_kpi_all
+
+# --- Se non c'è nulla, stop ---
+if not financial_data:
+    st.warning("No data available for the selected companies.")
+    st.stop()
+
+# --- Unisco dati selezionati e settore (per calcolo media) ---
+combined_data = financial_data  # Solo dati delle aziende selezionate
+
+# --- Calcolo KPI ---
+df_kpi_all = compute_kpis(combined_data)
+df_kpi_all = df_kpi_all[df_kpi_all["year"] == int(selected_year)]
+
+# --- EPS e settore dal raw data ---
+df_raw = pd.DataFrame(combined_data)
+if "ticker" in df_raw.columns and "symbol" not in df_raw.columns:
+    df_raw.rename(columns={"ticker": "symbol"}, inplace=True)
+
+df_kpi_all = pd.merge(
+    df_kpi_all,
+    df_raw[["symbol", "basic_eps", "sector"]],
+    on="symbol",
+    how="left"
+)
+
+# Rinomina chiara
+df_kpi_all.rename(columns={
+    "EBITDA Margin": "EBITDA Margin",
+    "Debt/Equity": "Debt to Equity",
+    "FCF Margin": "FCF Margin",
+    "basic_eps": "EPS"
+}, inplace=True)
+
+# Aggiungi descrizione azienda
+df_kpi_all["company_name"] = df_kpi_all["symbol"].map(symbol_to_name)
+
+# Split: dati visibili vs per media di settore
+df_visible = df_kpi_all[df_kpi_all["symbol"].isin(selected_symbols)]
+
+# --- Info per l'utente (SPOSTATO QUI DOPO CREAZIONE df_kpi_all) ---
+if selected_exchange != "All" and selected_sector != "All":
+    # Conta quante aziende del settore abbiamo in df_kpi_all
+    sector_count = len(df_kpi_all[df_kpi_all["sector"] == selected_sector])
+    if sector_count > 0:
+        st.info(f"🔍 Sector median calculated from {sector_count} {selected_sector} companies in {selected_exchange}")
+    else:
+        st.warning(f"⚠️ No {selected_sector} companies found in dataset for comparison")
+
+def legend_chart():
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=[None], y=[None],
+        mode="lines",
+        line=dict(color="red", dash="dash"),
+        name="Companies Median"
+    ))
+    fig.add_trace(go.Scatter(
+        x=[None], y=[None],
+        mode="lines",
+        line=dict(color="blue", dash="dot"),
+        name="Sector Median"
+    ))
+    fig.update_layout(
+        height=50,
+        margin=dict(t=0, b=0, l=0, r=0),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1,
+            xanchor="center",
+            x=0.5
+        )
+    )
+    return fig
+
+# Mostro legenda sotto filtri, sopra grafici
+st.plotly_chart(legend_chart(), use_container_width=True)
+
+def _safe_median(df, col):
+    """Restituisce la mediana sicura (gestisce NaN, inf, col mancanti)."""
+    if df is None or df.empty or col not in df.columns:
+        return np.nan
+    series = pd.to_numeric(df[col], errors="coerce").replace([np.inf, -np.inf], np.nan).dropna()
+    if series.empty:
+        return np.nan
+    return float(series.median())
+
 # Funzione grafico ottimizzata (senza sovrapposizioni)
 def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
               selected_year=None, selected_sector=None):
@@ -569,6 +783,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

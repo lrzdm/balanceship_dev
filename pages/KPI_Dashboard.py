@@ -209,6 +209,25 @@ def _safe_median(df, col):
         return np.nan
     return float(series.median())
 
+# Pre-calcola tutte le mediane di settore una volta sola
+sector_medians = {}
+if selected_sector != "All" and selected_exchange != "All" and not df_all_sector.empty:
+    df_sector = df_all_sector[df_all_sector["sector"] == selected_sector]
+    if not df_sector.empty:
+        metrics = ["EBITDA Margin", "FCF Margin", "Debt to Equity", "EPS"]
+        for metric in metrics:
+            sector_medians[metric] = _safe_median(df_sector, metric)
+        
+        # Debug per vedere quali metriche hanno dati
+        st.write("**🔍 Sector median debug:**")
+        for metric in metrics:
+            value = sector_medians[metric]
+            valid_count = df_sector[metric].count() if metric in df_sector.columns else 0
+            if np.isnan(value):
+                st.write(f"- {metric}: ❌ NaN ({valid_count} valid values)")
+            else:
+                st.write(f"- {metric}: ✅ {value:.3f} ({valid_count} valid values)")
+
 def kpi_chart(df_visible, metric, title, is_percent=True):
     fig = go.Figure()
     
@@ -238,21 +257,10 @@ def kpi_chart(df_visible, metric, title, is_percent=True):
     if is_percent and not np.isnan(global_median):
         global_median *= 100
 
-    # Mediana settore con debug
-    sector_median = np.nan
-    if selected_sector != "All" and selected_exchange != "All" and not df_all_sector.empty:
-        df_sector = df_all_sector[df_all_sector["sector"] == selected_sector]
-        if not df_sector.empty:
-            sector_median = _safe_median(df_sector, metric)
-            if is_percent and not np.isnan(sector_median):
-                sector_median *= 100
-            
-            # Debug per capire perché non appare
-            if np.isnan(sector_median):
-                st.write(f"🔍 Debug {metric}: Sector data exists ({len(df_sector)} companies) but median is NaN")
-                st.write(f"Sample values: {df_sector[metric].head().tolist()}")
-        else:
-            st.write(f"⚠️ Debug {metric}: No companies found for sector '{selected_sector}'")
+    # Usa la mediana pre-calcolata
+    sector_median = sector_medians.get(metric, np.nan)
+    if is_percent and not np.isnan(sector_median):
+        sector_median *= 100
 
     # Valori sopra barre
     for i, (name, val) in enumerate(zip(company_names_wrapped, y_values)):

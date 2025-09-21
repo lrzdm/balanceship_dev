@@ -11,50 +11,6 @@ import textwrap
 import numpy as np
 import random
 
-MEASUREMENT_ID = "G-Q5FDX0L1H2" # Il tuo ID GA4 
-API_SECRET = "kRfQwfxDQ0aACcjkJNENPA" # Quello creato in GA4 
-
-if "client_id" not in st.session_state:
-    st.session_state["client_id"] = str(uuid.uuid4())
-
-# --------------- Client-side GA4 -----------------
-st.markdown(f"""
-<!-- GA4 tracking client-side -->
-<script async src="https://www.googletagmanager.com/gtag/js?id={MEASUREMENT_ID}"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){{dataLayer.push(arguments);}}
-  gtag('js', new Date());
-  gtag('config', '{MEASUREMENT_ID}');
-</script>
-""", unsafe_allow_html=True)
-
-def send_pageview():
-    url = f"https://www.google-analytics.com/mp/collect?measurement_id={MEASUREMENT_ID}&api_secret={API_SECRET}"
-    payload = {
-        "client_id": st.session_state["client_id"],
-        "events": [
-            {
-                "name": "page_view",
-                "params": {
-                    "page_title": "KPI_Dashboard",
-                    "page_location": "https://www.balanceship.net/KPI_Dashboard",
-                    "engagement_time_msec": 1
-                }
-            }
-        ]
-    }
-    requests.post(url, json=payload)
-
-send_pageview()
-
-#Google tag:
-add_meta_tags(
-    title="KPI Dashboard",
-    description="Explore company dashboards with smart insights",
-    url_path="/KPI_Dashboard"
-)
-
 
 st.set_page_config(page_title="KPI Dashboard", layout="wide")
 st.title("📊 KPI Dashboard")
@@ -138,12 +94,23 @@ with col3:
 with col4:
     selected_sector = st.selectbox("Sector", options=["All"] + sectors_available)
 
-# --- Cache per evitare ricaricamenti ---
+# --- Cache per evitare ricaricamenti (OTTIMIZZATA) ---
 @st.cache_data(ttl=3600)  # Cache per 1 ora
-def load_sector_data_cached(sector, exchanges_list, year, excluded_symbols, max_companies=50):
-    """Carica dati settore con cache"""
+def load_sector_data_cached(sector, exchanges_list, year, excluded_symbols, max_companies=200):
+    """Carica dati settore con cache e diagnostica"""
     sector_data = []
     companies_processed = 0
+    companies_checked = 0
+    companies_with_data = 0
+    companies_with_sector = 0
+    
+    diagnostics = {
+        "companies_checked": 0,
+        "companies_with_data": 0,
+        "companies_with_sector_field": 0,
+        "companies_matching_sector": 0,
+        "sector_distribution": {}
+    }
     
     for exch_name in exchanges_list:
         if companies_processed >= max_companies:
@@ -153,27 +120,45 @@ def load_sector_data_cached(sector, exchanges_list, year, excluded_symbols, max_
             exch_file = exchanges[exch_name]
             companies_in_exchange = read_companies(exch_file)
             
-            # Filtra aziende già selezionate
+            # Aumentato limite per borsa da 20 a 100
             companies_to_process = [c for c in companies_in_exchange 
-                                  if c["ticker"] not in excluded_symbols][:20]  # Max 20 per borsa
+                                  if c["ticker"] not in excluded_symbols][:100]  # Max 100 per borsa
             
             for company in companies_to_process:
                 if companies_processed >= max_companies:
                     break
                     
+                diagnostics["companies_checked"] += 1
                 desc = company.get("description", "")
+                
                 try:
                     data = get_or_fetch_data(company["ticker"], [year], desc, exch_name)
-                    sector_matches = [d for d in data if d.get("sector") == sector]
-                    if sector_matches:
-                        sector_data.extend(sector_matches)
-                        companies_processed += len(sector_matches)
+                    if data:
+                        diagnostics["companies_with_data"] += 1
+                        
+                        for d in data:
+                            company_sector = d.get("sector")
+                            if company_sector:
+                                diagnostics["companies_with_sector_field"] += 1
+                                
+                                # Traccia distribuzione settori
+                                if company_sector not in diagnostics["sector_distribution"]:
+                                    diagnostics["sector_distribution"][company_sector] = 0
+                                diagnostics["sector_distribution"][company_sector] += 1
+                                
+                                # Confronto flessibile del settore (case-insensitive e parziale)
+                                if (company_sector.lower() == sector.lower() or 
+                                    sector.lower() in company_sector.lower() or
+                                    company_sector.lower() in sector.lower()):
+                                    sector_data.append(d)
+                                    diagnostics["companies_matching_sector"] += 1
+                                    companies_processed += 1
                 except:
                     continue
         except:
             continue
     
-    return sector_data
+    return sector_data, diagnostics
 
 # --- Caricamento dati aziende selezionate ---
 financial_data = []
@@ -199,29 +184,72 @@ for symbol in selected_symbols:
             financial_data.extend(data)
             used_exchanges.add(selected_exchange)  # Traccia borsa usata
 
-# --- Se settore selezionato, carico dati settore OTTIMIZZATO ---
+# --- Se settore selezionato, carico dati settore OTTIMIZZATO CON DEBUG ---
 sector_data = []
 if selected_sector != "All":
     with st.spinner(f"Loading {selected_sector} sector data..."):
         if selected_exchange == "All":
-            sector_data = load_sector_data_cached(
+            sector_data, diagnostics = load_sector_data_cached(
                 selected_sector, 
                 list(used_exchanges), 
                 selected_year,
-                selected_symbols
+                selected_symbols,
+                max_companies=200  # Aumentato da 50 a 200
             )
         else:
-            sector_data = load_sector_data_cached(
+            sector_data, diagnostics = load_sector_data_cached(
                 selected_sector, 
                 [selected_exchange], 
                 selected_year,
-                selected_symbols
+                selected_symbols,
+                max_companies=200
             )
+    
+    # --- DIAGNOSTICA DETTAGLIATA ---
+    if diagnostics:
+        col_diag1, col_diag2 = st.columns(2)
+        
+        with col_diag1:
+            st.write("🔍 **Diagnostics:**")
+            st.write(f"- Companies checked: {diagnostics['companies_checked']}")
+            st.write(f"- Companies with data: {diagnostics['companies_with_data']}")
+            st.write(f"- Companies with sector field: {diagnostics['companies_with_sector_field']}")
+            st.write(f"- Companies matching '{selected_sector}': {diagnostics['companies_matching_sector']}")
+        
+        with col_diag2:
+            if diagnostics["sector_distribution"]:
+                st.write("📊 **Sectors found:**")
+                # Mostra top 10 settori trovati
+                sorted_sectors = sorted(diagnostics["sector_distribution"].items(), 
+                                      key=lambda x: x[1], reverse=True)[:10]
+                for sector_name, count in sorted_sectors:
+                    # Evidenzia il settore cercato
+                    if (sector_name.lower() == selected_sector.lower() or 
+                        selected_sector.lower() in sector_name.lower()):
+                        st.write(f"- **{sector_name}**: {count} ⭐")
+                    else:
+                        st.write(f"- {sector_name}: {count}")
     
     if sector_data:
         st.success(f"✅ Loaded {len(sector_data)} companies from {selected_sector} sector for comparison")
     else:
-        st.warning(f"⚠️ No companies found in {selected_sector} sector for comparison")
+        st.error(f"❌ No companies found in {selected_sector} sector for comparison")
+        
+        # Suggerimenti se non trova nulla
+        if diagnostics and diagnostics["sector_distribution"]:
+            st.write("💡 **Available sectors in your data:**")
+            available_sectors = list(diagnostics["sector_distribution"].keys())
+            similar_sectors = [s for s in available_sectors 
+                             if selected_sector.lower() in s.lower() or s.lower() in selected_sector.lower()]
+            
+            if similar_sectors:
+                st.write("**Similar sectors found:**")
+                for s in similar_sectors:
+                    st.write(f"- {s}")
+            else:
+                st.write("**All available sectors:**")
+                for s in sorted(available_sectors)[:20]:  # Mostra primi 20
+                    st.write(f"- {s}")
 
 # --- Se non c'è nulla, stop ---
 if not financial_data:
@@ -620,6 +648,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

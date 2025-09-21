@@ -105,15 +105,6 @@ with col3:
         display_options = sorted(company_names)
         label = "Companies (up to 10)"
     
-    # Aggiunge campo di ricerca solo se ci sono molte aziende
-    if len(company_names) > 20:
-        st.session_state.company_search = search_placeholder.text_input(
-            "Search:", 
-            value=st.session_state.company_search,
-            placeholder="Type to filter companies...",
-            key="search_companies"
-        )
-    
     selected_company_names = st.multiselect(
         label,
         options=display_options,
@@ -578,6 +569,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

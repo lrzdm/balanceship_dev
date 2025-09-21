@@ -67,7 +67,7 @@ exchange_names = list(exchanges.keys())
 exchange_names = ["All"] + exchange_names   # aggiungo opzione All
 
 years_available = ['2021', '2022', '2023', '2024']
-sectors_available = ['Communication Services', 'Consumer Cyclical', 'Consumer Defensive', 'Energy', 'Financial Services', 'Healthcare', 'Industrials', 'Real Estate', 'Technology', 'Utilities']
+sectors_available = ['Communication Services', 'Consumer Cyclical', 'Consumer Defensive', 'Energy', 'Finance Services', 'Healthcare', 'Industrials', 'Real Estate', 'Technology', 'Utilities']
 
 # --- Layout filtri in riga ---
 col1, col2, col3, col4 = st.columns([1.2, 1.5, 2.2, 2])
@@ -89,7 +89,29 @@ name_to_symbol = {v: k for k, v in symbol_to_name.items()}
 company_names = list(symbol_to_name.values())
 
 with col3:
-    selected_company_names = st.multiselect("Companies (up to 10)", options=company_names, max_selections=10)
+    # Campo di ricerca per aziende
+    search_query = st.text_input("🔍 Search companies", placeholder="Type to filter companies...")
+    
+    # Filtra le aziende in base alla ricerca
+    if search_query:
+        filtered_companies = [name for name in company_names 
+                            if search_query.lower() in name.lower()]
+        # Ordina alfabeticamente i risultati filtrati
+        filtered_companies.sort()
+    else:
+        filtered_companies = sorted(company_names)  # Ordina alfabeticamente tutte
+    
+    # Limita a prime 100 per performance (opzionale)
+    if len(filtered_companies) > 100:
+        st.info(f"Showing first 100 of {len(filtered_companies)} matches. Refine your search for more specific results.")
+        filtered_companies = filtered_companies[:100]
+    
+    selected_company_names = st.multiselect(
+        f"Companies (up to 10) - {len(filtered_companies)} available", 
+        options=filtered_companies, 
+        max_selections=10,
+        help="Use the search box above to filter companies"
+    )
     selected_symbols = [name_to_symbol[name] for name in selected_company_names]
 with col4:
     if selected_exchange == "All":
@@ -164,15 +186,6 @@ if not financial_data:
     st.warning("No data available for the selected companies.")
     st.stop()
 
-# --- Info per l'utente (solo se borsa specifica e settore selezionato) ---
-if selected_exchange != "All" and selected_sector != "All":
-    # Conta quante aziende del settore abbiamo in df_kpi_all
-    sector_count = len(df_kpi_all[df_kpi_all["sector"] == selected_sector])
-    if sector_count > 0:
-        st.info(f"🔍 Sector median calculated from {sector_count} {selected_sector} companies in {selected_exchange}")
-    else:
-        st.warning(f"⚠️ No {selected_sector} companies found in dataset for comparison")
-
 # --- Unisco dati selezionati e settore (per calcolo media) ---
 combined_data = financial_data  # Solo dati delle aziende selezionate
 
@@ -205,6 +218,15 @@ df_kpi_all["company_name"] = df_kpi_all["symbol"].map(symbol_to_name)
 
 # Split: dati visibili vs per media di settore
 df_visible = df_kpi_all[df_kpi_all["symbol"].isin(selected_symbols)]
+
+# --- Info per l'utente (SPOSTATO QUI DOPO CREAZIONE df_kpi_all) ---
+if selected_exchange != "All" and selected_sector != "All":
+    # Conta quante aziende del settore abbiamo in df_kpi_all
+    sector_count = len(df_kpi_all[df_kpi_all["sector"] == selected_sector])
+    if sector_count > 0:
+        st.info(f"🔍 Sector median calculated from {sector_count} {selected_sector} companies in {selected_exchange}")
+    else:
+        st.warning(f"⚠️ No {selected_sector} companies found in dataset for comparison")
 
 def legend_chart():
     fig = go.Figure()
@@ -561,6 +583,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

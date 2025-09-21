@@ -155,21 +155,9 @@ for symbol in selected_symbols:
             financial_data.extend(data)
             used_exchanges.add(selected_exchange)  # Traccia borsa usata
 
-# --- Se settore selezionato e NON All exchange, carico dati settore ---
+# --- Se settore selezionato e NON All exchange, usa logica veloce originale ---
 sector_data = []
-if selected_sector != "All" and selected_exchange != "All":
-    with st.spinner(f"Loading {selected_sector} sector data from {selected_exchange}..."):
-        sector_data = load_sector_data_cached(
-            selected_sector, 
-            selected_exchange, 
-            selected_year,
-            selected_symbols
-        )
-    
-    if sector_data:
-        st.success(f"✅ Loaded {len(sector_data)} companies from {selected_sector} sector ({selected_exchange}) for comparison")
-    else:
-        st.warning(f"⚠️ No companies found in {selected_sector} sector for {selected_exchange}")
+# Non serve più caricare dati aggiuntivi, useremo solo quelli in df_kpi_all
 
 # --- Se non c'è nulla, stop ---
 if not financial_data:
@@ -178,10 +166,15 @@ if not financial_data:
 
 # --- Info per l'utente (solo se borsa specifica e settore selezionato) ---
 if selected_exchange != "All" and selected_sector != "All":
-    st.info(f"🔍 Sector median calculated from {selected_sector} companies in {selected_exchange}")
+    # Conta quante aziende del settore abbiamo in df_kpi_all
+    sector_count = len(df_kpi_all[df_kpi_all["sector"] == selected_sector])
+    if sector_count > 0:
+        st.info(f"🔍 Sector median calculated from {sector_count} {selected_sector} companies in {selected_exchange}")
+    else:
+        st.warning(f"⚠️ No {selected_sector} companies found in dataset for comparison")
 
 # --- Unisco dati selezionati e settore (per calcolo media) ---
-combined_data = financial_data + sector_data
+combined_data = financial_data  # Solo dati delle aziende selezionate
 
 # --- Calcolo KPI ---
 df_kpi_all = compute_kpis(combined_data)
@@ -292,8 +285,9 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
     global_median_raw = _safe_median(df_visible, metric)
     global_median = np.nan if np.isnan(global_median_raw) else (global_median_raw * (100 if is_percent else 1))
 
+    # --- Sector median: logica veloce originale (filtra dati già in memoria) ---
     sector_median = np.nan
-    if selected_sector and selected_sector != "All" and "sector" in df_kpi_all.columns:
+    if selected_sector and selected_sector != "All" and selected_exchange != "All" and "sector" in df_kpi_all.columns:
         df_temp = df_kpi_all.copy()
         if "year" in df_temp.columns:
             df_temp["year"] = df_temp["year"].astype(str)
@@ -567,6 +561,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

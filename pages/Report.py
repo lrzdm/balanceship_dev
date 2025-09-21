@@ -181,16 +181,28 @@ if st.button("📄 Generate Report"):
     doc.build(story)
 
     # ---------------- FLUSSO PAGAMENTO + DOWNLOAD ----------------
-    st.markdown("### 💳 Pay to Download Report")
-    paypal_url = "https://www.paypal.com/donate?hosted_button_id=XXXXXXXXXXXX"  # sostituire con il tuo link
-    if st.button("Pay with PayPal"):
-        # Apri PayPal in una nuova scheda
-        js = f"window.open('{paypal_url}')"
-        st.components.v1.html(f"<script>{js}</script>", height=0)
-        # Simuliamo pagamento completato (per test)
-        st.session_state.payment_done = True
+# ---------------- PAYPAL + DOWNLOAD ----------------
+paypal_url = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YOUR_BUTTON_ID"
 
-    # Pulsante download attivo solo se pagamento confermato
-    if st.session_state.get("payment_done"):
-        with open(pdf_file, "rb") as f:
-            st.download_button("📥 Download Report", f, file_name="BalanceShip_Report.pdf", mime="application/pdf")
+# Inizializza session_state per gestire lo stato pagamento
+if "payment_done" not in st.session_state:
+    st.session_state.payment_done = False
+
+# Pulsante PayPal
+if not st.session_state.payment_done:
+    if st.button("💳 Pay with PayPal"):
+        st.session_state.payment_done = True
+        st.success("✅ Payment simulated. You can now download your report.")
+        st.info(f"Please complete payment here: [PayPal]({paypal_url})")
+
+# Pulsante download abilitato solo dopo il pagamento
+if st.session_state.payment_done:
+    with open(pdf_file, "rb") as f:
+        st.download_button(
+            label="📥 Download Report",
+            data=f,
+            file_name="BalanceShip_Report.pdf",
+            mime="application/pdf"
+        )
+
+

@@ -89,9 +89,35 @@ name_to_symbol = {v: k for k, v in symbol_to_name.items()}
 company_names = list(symbol_to_name.values())
 
 with col3:
+    # Stato per il filtro di ricerca (nascosto nell'interfaccia)
+    if "company_search" not in st.session_state:
+        st.session_state.company_search = ""
+    
+    # Campo di ricerca nascosto che si aggiorna automaticamente
+    search_placeholder = st.empty()
+    
+    # Se c'è una ricerca attiva, filtra le aziende
+    if st.session_state.company_search:
+        filtered_names = [name for name in company_names 
+                         if st.session_state.company_search.lower() in name.lower()]
+        display_options = sorted(filtered_names)
+        label = f"Companies (up to 10) - {len(display_options)} matches"
+    else:
+        display_options = sorted(company_names)
+        label = "Companies (up to 10)"
+    
+    # Aggiunge campo di ricerca solo se ci sono molte aziende
+    if len(company_names) > 20:
+        st.session_state.company_search = search_placeholder.text_input(
+            "Search:", 
+            value=st.session_state.company_search,
+            placeholder="Type to filter companies...",
+            key="search_companies"
+        )
+    
     selected_company_names = st.multiselect(
-        "Companies (up to 10)", 
-        options=sorted(company_names),  # Ordina alfabeticamente
+        label,
+        options=display_options,
         max_selections=10
     )
     selected_symbols = [name_to_symbol[name] for name in selected_company_names]
@@ -565,6 +591,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

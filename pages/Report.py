@@ -13,6 +13,7 @@ from reportlab.lib import colors
 st.set_page_config(page_title="📑 Report Generator", layout="wide")
 st.title("📑 Report Generator")
 
+# ---------------- FUNZIONI ----------------
 def get_base64_of_bin_file(bin_file):
     with open(bin_file, "rb") as f:
         data = f.read()
@@ -69,7 +70,6 @@ if st.button("📄 Generate Report"):
         comp_data = get_or_fetch_data(
             company["ticker"], [selected_year], company.get("description", ""), selected_exchange
         )
-        # Filtra per sector reale dai dati
         if selected_sector != "All":
             comp_data = [d for d in comp_data if d.get("sector") == selected_sector]
         data.extend(comp_data)
@@ -92,7 +92,6 @@ if st.button("📄 Generate Report"):
         st.stop()
 
     median_values = df_kpi[available_cols].median()
-    st.write("✅ Median KPIs:", median_values)
 
     # ---------------- COMMENTI ----------------
     comments = []
@@ -122,21 +121,16 @@ if st.button("📄 Generate Report"):
 
     styles = getSampleStyleSheet()
     story = []
-    
+
     # Logo
-    # Percorsi dei loghi
     logo1_path = os.path.join("images", "logo1.png")
     logo2_path = os.path.join("images", "logo2.png")
-    
-    # Lista delle immagini da mettere nella stessa riga
     logos = []
     if os.path.exists(logo1_path):
-        logos.append(Image(logo1_path, width=80, height=70))  # dimensione adattata per A4
+        logos.append(Image(logo1_path, width=80, height=70))
     if os.path.exists(logo2_path):
-        logos.append(Image(logo2_path, width=160, height=40))   # dimensione adattata per A4
-    
+        logos.append(Image(logo2_path, width=160, height=40))
     if logos:
-        # Creiamo una tabella con una riga e due colonne per affiancare le immagini
         table = Table([logos], hAlign='CENTER')
         table.setStyle(TableStyle([
             ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
@@ -147,7 +141,7 @@ if st.button("📄 Generate Report"):
             ('BOTTOMPADDING', (0,0), (-1,-1), 0),
         ]))
         story.append(table)
-        story.append(Spacer(1, 12))  # spazio sotto i loghi
+        story.append(Spacer(1, 12))
 
     story.append(Paragraph("<b>BalanceShip Report</b>", styles["Title"]))
     story.append(Spacer(1, 12))
@@ -186,13 +180,17 @@ if st.button("📄 Generate Report"):
 
     doc.build(story)
 
-    # Link download
-    with open(pdf_file, "rb") as f:
-        b64_pdf = base64.b64encode(f.read()).decode()
-    st.markdown(f'<a href="data:application/pdf;base64,{b64_pdf}" download="BalanceShip_Report.pdf">📥 Download Report</a>', unsafe_allow_html=True)
+    # ---------------- FLUSSO PAGAMENTO + DOWNLOAD ----------------
+    st.markdown("### 💳 Pay to Download Report")
+    paypal_url = "https://www.paypal.com/donate?hosted_button_id=XXXXXXXXXXXX"  # sostituire con il tuo link
+    if st.button("Pay with PayPal"):
+        # Apri PayPal in una nuova scheda
+        js = f"window.open('{paypal_url}')"
+        st.components.v1.html(f"<script>{js}</script>", height=0)
+        # Simuliamo pagamento completato (per test)
+        st.session_state.payment_done = True
 
-
-
-
-
-
+    # Pulsante download attivo solo se pagamento confermato
+    if st.session_state.get("payment_done"):
+        with open(pdf_file, "rb") as f:
+            st.download_button("📥 Download Report", f, file_name="BalanceShip_Report.pdf", mime="application/pdf")

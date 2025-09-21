@@ -217,16 +217,6 @@ if selected_sector != "All" and selected_exchange != "All" and not df_all_sector
         metrics = ["EBITDA Margin", "FCF Margin", "Debt to Equity", "EPS"]
         for metric in metrics:
             sector_medians[metric] = _safe_median(df_sector, metric)
-        
-        # Debug per vedere quali metriche hanno dati
-        st.write("**🔍 Sector median debug:**")
-        for metric in metrics:
-            value = sector_medians[metric]
-            valid_count = df_sector[metric].count() if metric in df_sector.columns else 0
-            if np.isnan(value):
-                st.write(f"- {metric}: ❌ NaN ({valid_count} valid values)")
-            else:
-                st.write(f"- {metric}: ✅ {value:.3f} ({valid_count} valid values)")
 
 def kpi_chart(df_visible, metric, title, is_percent=True):
     fig = go.Figure()
@@ -429,3 +419,4 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+

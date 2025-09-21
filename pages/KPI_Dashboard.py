@@ -258,12 +258,19 @@ def _safe_median(df, col):
         return np.nan
     return float(series.median())
 
+# --- Funzione mediana sicura per Series (per groupby) ---
+def _safe_median_series(series):
+    """Restituisce la mediana sicura per Pandas Series, gestisce NaN e inf"""
+    series = pd.to_numeric(series, errors="coerce").replace([np.inf, -np.inf], np.nan).dropna()
+    if series.empty:
+        return np.nan
+    return float(series.median())
 
 # --- Pre-calcolo mediane settore per tutte le metriche ---
 metrics = ["EBITDA Margin", "FCF Margin", "Debt to Equity", "EPS"]
 sector_medians = {}
 for metric in metrics:
-    sector_medians[metric] = df_kpi_all.groupby("sector")[metric].apply(_safe_median).to_dict()
+    sector_medians[metric] = df_kpi_all.groupby("sector")[metric].apply(_safe_median_series).to_dict()
 
 # --- Funzione grafico KPI ottimizzata ---
 def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
@@ -282,7 +289,7 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
     if is_percent:
         y_values = y_values * 100
 
-    # --- Calcolo range per posizionamento smart ---
+    # --- Calcolo range ---
     valid_values = y_values[~np.isnan(y_values)]
     if len(valid_values) > 0:
         y_min, y_max = valid_values.min(), valid_values.max()
@@ -305,8 +312,9 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
     global_median_raw = _safe_median(df_visible, metric)
     if is_percent and not np.isnan(global_median_raw):
         global_median_raw *= 100
+    global_median = global_median_raw
 
-    # --- Sector median basata su tutte le aziende dell'exchange ---
+    # --- Sector median ---
     sector_median = np.nan
     if selected_sector and selected_sector != "All":
         try:
@@ -316,7 +324,7 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
             if not np.isnan(sector_median_raw):
                 sector_median = sector_median_raw * (100 if is_percent else 1)
 
-            # --- Conta le aziende del settore corretto ---
+            # --- Conta aziende del settore ---
             sector_count = len(df_sector)
             if sector_count > 0:
                 st.info(f"🔍 Sector median calculated from {sector_count} {selected_sector} companies in {selected_year}")
@@ -326,7 +334,7 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
         except Exception as e:
             st.error(f"Error calculating sector median/count: {e}")
 
-    # --- Aggiungi valori sopra le barre ---
+    # --- Valori sopra le barre ---
     for i, (name, val) in enumerate(zip(company_names_wrapped, y_values)):
         if not np.isnan(val):
             fig.add_annotation(
@@ -341,7 +349,7 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
                 borderwidth=1
             )
 
-    # --- Delta frecce con posizionamento smart ---
+    # --- Delta frecce ---
     if not np.isnan(global_median):
         for i, val in enumerate(y_values):
             if np.isnan(val):
@@ -349,11 +357,9 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
             delta = val - global_median
             if abs(delta) < 0.05:
                 continue
-                
             arrow = "▲" if delta > 0 else "▼"
             color = "#28a745" if delta > 0 else "#dc3545"
             y_position = val + (y_range * 0.12)
-            
             fig.add_annotation(
                 x=company_names_wrapped[i],
                 y=y_position,
@@ -365,13 +371,11 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
                 borderwidth=1
             )
 
-    # --- Linee mediane con posizionamento smart ---
+    # --- Linee mediane ---
     annotation_positions = []
-    
     if not np.isnan(global_median):
         companies_pos = "top left"
         companies_y_pos = y_max + (y_range * 0.05)
-        
         fig.add_hline(
             y=global_median,
             line=dict(color="#dc3545", dash="dash", width=2),
@@ -385,11 +389,7 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
         annotation_positions.append(("companies", companies_pos, companies_y_pos))
 
     if not np.isnan(sector_median):
-        if any(pos[1] == "top left" for pos in annotation_positions):
-            sector_pos = "top right"
-        else:
-            sector_pos = "bottom right"
-            
+        sector_pos = "top right" if any(pos[1] == "top left" for pos in annotation_positions) else "bottom right"
         fig.add_hline(
             y=sector_median,
             line=dict(color="#007bff", dash="dot", width=2),
@@ -401,7 +401,7 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
             annotation_borderwidth=1
         )
 
-    # --- Layout ottimizzato ---
+    # --- Layout ---
     fig.update_layout(
         title=dict(text=title, font=dict(size=14, family="Arial")),
         yaxis_title=f"{metric}{' (%)' if is_percent else ''}",
@@ -415,7 +415,6 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
     )
 
     return fig
-
 
 # --- Mostro i grafici ---
 col1, col2 = st.columns(2)
@@ -570,6 +569,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

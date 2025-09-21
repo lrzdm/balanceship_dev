@@ -258,48 +258,49 @@ def _safe_median(df, col):
         return np.nan
     return float(series.median())
 
-# --- Calcolo mediana settore e numero aziende (una sola volta) ---
-sector_median = np.nan
+# --- Calcolo mediana di settore e numero aziende (una sola volta) ---
+sector_median_dict = {}
 sector_count = 0
-if selected_sector and selected_sector != "All" and selected_year:
+if selected_sector and selected_sector != "All" and selected_year and selected_exchange:
     df_sector = df_kpi_all[
         (df_kpi_all["sector"].str.strip() == selected_sector) &
-        (df_kpi_all["year"] == int(selected_year))
+        (df_kpi_all["year"] == int(selected_year)) &
+        (df_kpi_all["exchange"].str.strip() == selected_exchange)
     ]
-    sector_median_raw = _safe_median(df_sector, "EBITDA Margin")  # puoi calcolare altre metriche separatamente
-    if not np.isnan(sector_median_raw):
-        sector_median = sector_median_raw * 100  # se is_percent=True
     sector_count = len(df_sector)
+    if sector_count > 0:
+        st.info(f"🔍 Sector median calculated from {sector_count} {selected_sector} companies in {selected_exchange}, {selected_year}")
+    else:
+        st.warning(f"⚠️ No {selected_sector} companies found in dataset for comparison in {selected_exchange}, {selected_year}")
 
-# --- Mostra info solo una volta ---
-if sector_count > 0:
-    st.info(f"🔍 Sector median calculated from {sector_count} {selected_sector} companies in {selected_year}")
-else:
-    st.warning(f"⚠️ No {selected_sector} companies found in dataset for comparison")
+# --- Funzione KPI chart ottimizzata ---
+def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
+              selected_year=None, selected_sector=None, sector_median_dict=None):
 
-# --- Funzione grafico KPI ottimizzata ---
-def kpi_chart(df_visible, metric, title, is_percent=True, sector_median=np.nan):
     fig = go.Figure()
-
+    
+    # --- Preparazioni ---
     company_names_raw = df_visible["company_name"].tolist()
     company_names_wrapped = [textwrap.fill(label, width=12) for label in company_names_raw]
     company_colors = {name: color_palette[i % len(color_palette)] for i, name in enumerate(company_names_raw)}
 
-    # Valori y
+    # valori y
     y_series = pd.to_numeric(df_visible[metric], errors="coerce")
     y_values = y_series.values.astype(float)
     if is_percent:
         y_values = y_values * 100
 
-    # Calcolo range per posizionamento smart
+    # --- Calcolo range per posizionamento smart ---
     valid_values = y_values[~np.isnan(y_values)]
     if len(valid_values) > 0:
         y_min, y_max = valid_values.min(), valid_values.max()
-        y_range = y_max - y_min if y_max - y_min != 0 else 1
+        y_range = y_max - y_min
+        if y_range == 0:
+            y_range = abs(y_max) * 0.1 if y_max != 0 else 1
     else:
         y_min, y_max, y_range = 0, 1, 1
 
-    # Bar principale
+    # --- Bar principale ---
     fig.add_trace(go.Bar(
         x=company_names_wrapped,
         y=y_values,
@@ -308,12 +309,20 @@ def kpi_chart(df_visible, metric, title, is_percent=True, sector_median=np.nan):
         hovertemplate='<b>%{x}</b><br>%{y:.1f}' + ('%' if is_percent else '') + '<extra></extra>'
     ))
 
-    # Mediana aziende selezionate
-    global_median = _safe_median(df_visible, metric)
-    if is_percent and not np.isnan(global_median):
-        global_median *= 100
+    # --- Calcolo mediane ---
+    global_median_raw = _safe_median(df_visible, metric)
+    if is_percent and not np.isnan(global_median_raw):
+        global_median_raw *= 100
+    global_median = global_median_raw
 
-    # Aggiungi valori sopra le barre
+    # --- Sector median (usando calcolo globale) ---
+    sector_median = np.nan
+    if selected_sector and selected_sector != "All" and sector_median_dict is not None:
+        sector_median_raw = sector_median_dict.get(metric, np.nan)
+        if not np.isnan(sector_median_raw):
+            sector_median = sector_median_raw * (100 if is_percent else 1)
+
+    # --- Aggiungi valori sopra le barre ---
     for i, (name, val) in enumerate(zip(company_names_wrapped, y_values)):
         if not np.isnan(val):
             fig.add_annotation(
@@ -328,7 +337,7 @@ def kpi_chart(df_visible, metric, title, is_percent=True, sector_median=np.nan):
                 borderwidth=1
             )
 
-    # Delta frecce con posizionamento smart
+    # --- Delta frecce con posizionamento smart ---
     if not np.isnan(global_median):
         for i, val in enumerate(y_values):
             if np.isnan(val):
@@ -336,9 +345,11 @@ def kpi_chart(df_visible, metric, title, is_percent=True, sector_median=np.nan):
             delta = val - global_median
             if abs(delta) < 0.05:
                 continue
+                
             arrow = "▲" if delta > 0 else "▼"
             color = "#28a745" if delta > 0 else "#dc3545"
             y_position = val + (y_range * 0.12)
+            
             fig.add_annotation(
                 x=company_names_wrapped[i],
                 y=y_position,
@@ -350,11 +361,13 @@ def kpi_chart(df_visible, metric, title, is_percent=True, sector_median=np.nan):
                 borderwidth=1
             )
 
-    # Linee mediane con posizionamento smart
+    # --- Linee mediane con posizionamento smart ---
     annotation_positions = []
+    
     if not np.isnan(global_median):
         companies_pos = "top left"
         companies_y_pos = y_max + (y_range * 0.05)
+        
         fig.add_hline(
             y=global_median,
             line=dict(color="#dc3545", dash="dash", width=2),
@@ -368,7 +381,11 @@ def kpi_chart(df_visible, metric, title, is_percent=True, sector_median=np.nan):
         annotation_positions.append(("companies", companies_pos, companies_y_pos))
 
     if not np.isnan(sector_median):
-        sector_pos = "top right" if any(pos[1] == "top left" for pos in annotation_positions) else "bottom right"
+        if any(pos[1] == "top left" for pos in annotation_positions):
+            sector_pos = "top right"
+        else:
+            sector_pos = "bottom right"
+            
         fig.add_hline(
             y=sector_median,
             line=dict(color="#007bff", dash="dot", width=2),
@@ -380,7 +397,7 @@ def kpi_chart(df_visible, metric, title, is_percent=True, sector_median=np.nan):
             annotation_borderwidth=1
         )
 
-    # Layout grafico
+    # --- Layout ottimizzato ---
     fig.update_layout(
         title=dict(text=title, font=dict(size=14, family="Arial")),
         yaxis_title=f"{metric}{' (%)' if is_percent else ''}",
@@ -395,14 +412,32 @@ def kpi_chart(df_visible, metric, title, is_percent=True, sector_median=np.nan):
 
     return fig
 
-# --- Mostro i grafici ---
+# --- Preparazione dict mediane per passaggio alla funzione ---
+sector_median_dict = {}
+metrics = ["EBITDA Margin", "FCF Margin", "Debt to Equity", "EPS"]
+if selected_sector and selected_sector != "All" and selected_year and selected_exchange:
+    for metric in metrics:
+        sector_median_dict[metric] = _safe_median(
+            df_kpi_all[
+                (df_kpi_all["sector"].str.strip() == selected_sector) &
+                (df_kpi_all["year"] == int(selected_year)) &
+                (df_kpi_all["exchange"].str.strip() == selected_exchange)
+            ],
+            metric
+        )
+
+# --- Mostro i 4 grafici ---
 col1, col2 = st.columns(2)
 with col1:
-    st.plotly_chart(kpi_chart(df_visible, "EBITDA Margin", "EBITDA Margin", is_percent=True, sector_median=sector_median), use_container_width=True)
-    st.plotly_chart(kpi_chart(df_visible, "FCF Margin", "FCF Margin", is_percent=True, sector_median=sector_median), use_container_width=True)
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "EBITDA Margin", "EBITDA Margin", is_percent=True,
+                              selected_year=selected_year, selected_sector=selected_sector, sector_median_dict=sector_median_dict), use_container_width=True)
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "FCF Margin", "FCF Margin", is_percent=True,
+                              selected_year=selected_year, selected_sector=selected_sector, sector_median_dict=sector_median_dict), use_container_width=True)
 with col2:
-    st.plotly_chart(kpi_chart(df_visible, "Debt to Equity", "Debt to Equity", is_percent=False, sector_median=sector_median), use_container_width=True)
-    st.plotly_chart(kpi_chart(df_visible, "EPS", "Earnings per Share (EPS)", is_percent=False, sector_median=sector_median), use_container_width=True)
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "Debt to Equity", "Debt to Equity", is_percent=False,
+                              selected_year=selected_year, selected_sector=selected_sector, sector_median_dict=sector_median_dict), use_container_width=True)
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "EPS", "Earnings per Share (EPS)", is_percent=False,
+                              selected_year=selected_year, selected_sector=selected_sector, sector_median_dict=sector_median_dict), use_container_width=True)
 
 
 # --- INSIGHT CLEAN (niente duplicati) ---
@@ -548,6 +583,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

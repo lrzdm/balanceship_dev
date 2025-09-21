@@ -218,118 +218,35 @@ df_kpi_all["company_name"] = df_kpi_all["symbol"].map(symbol_to_name)
 # Split: dati visibili vs per media di settore
 df_visible = df_kpi_all[df_kpi_all["symbol"].isin(selected_symbols)]
 
-# --- Info per l'utente (SPOSTATO QUI DOPO CREAZIONE df_kpi_all) ---
-# --- Conteggio aziende del settore (tutte, non solo selezionate) ---
-if selected_exchange != "All" and selected_sector != "All":
-    try:
-        # Leggi tutte le aziende dell'exchange selezionato
-        exch_file = exchanges[selected_exchange]
-        all_companies = read_companies(exch_file)
-
-        # Carica i dati per tutte le aziende dell'exchange
-        all_data = []
-        for comp in all_companies:
-            desc = comp.get("description", "")
-            try:
-                data = get_or_fetch_data(comp["ticker"], [selected_year], desc, selected_exchange)
-                all_data.extend(data)
-            except:
-                continue
-
-        # Calcola KPI per tutte le aziende
-        df_all = compute_kpis(all_data)
-        df_all = df_all[df_all["year"] == int(selected_year)]
-
-        # Aggiungi EPS e settore
-        df_raw_all = pd.DataFrame(all_data)
-        if "ticker" in df_raw_all.columns and "symbol" not in df_raw_all.columns:
-            df_raw_all.rename(columns={"ticker": "symbol"}, inplace=True)
-
-        df_all = pd.merge(
-            df_all,
-            df_raw_all[["symbol", "basic_eps", "sector"]],
-            on="symbol",
-            how="left"
-        )
-
-        # Conta le aziende del settore corretto
-        sector_count = len(df_all[df_all["sector"] == selected_sector])
-        if sector_count > 0:
-            st.info(f"🔍 Sector median calculated from {sector_count} {selected_sector} companies in {selected_exchange}")
-        else:
-            st.warning(f"⚠️ No {selected_sector} companies found in dataset for comparison")
-
-    except Exception as e:
-        st.error(f"Error loading sector data: {e}")
-
-
-def legend_chart():
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=[None], y=[None],
-        mode="lines",
-        line=dict(color="red", dash="dash"),
-        name="Companies Median"
-    ))
-    fig.add_trace(go.Scatter(
-        x=[None], y=[None],
-        mode="lines",
-        line=dict(color="blue", dash="dot"),
-        name="Sector Median"
-    ))
-    fig.update_layout(
-        height=50,
-        margin=dict(t=0, b=0, l=0, r=0),
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1,
-            xanchor="center",
-            x=0.5
-        )
-    )
-    return fig
-
-# Mostro legenda sotto filtri, sopra grafici
-st.plotly_chart(legend_chart(), use_container_width=True)
-
-def _safe_median(df, col):
-    """Restituisce la mediana sicura (gestisce NaN, inf, col mancanti)."""
-    if df is None or df.empty or col not in df.columns:
-        return np.nan
-    series = pd.to_numeric(df[col], errors="coerce").replace([np.inf, -np.inf], np.nan).dropna()
+# --- Funzione di mediana sicura ---
+def _safe_median(series):
+    series = pd.to_numeric(series, errors="coerce").replace([np.inf, -np.inf], np.nan).dropna()
     if series.empty:
         return np.nan
     return float(series.median())
 
-# Funzione grafico ottimizzata (senza sovrapposizioni)
-def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
-              selected_year=None, selected_sector=None):
+# --- Pre-calcolo mediane settore per tutte le metriche ---
+metrics = ["EBITDA Margin", "FCF Margin", "Debt to Equity", "EPS"]
+sector_medians = {}
+for metric in metrics:
+    sector_medians[metric] = df_kpi_all.groupby("sector")[metric].apply(_safe_median).to_dict()
 
+# --- Funzione grafico KPI ottimizzata ---
+def kpi_chart(df_visible, metric, title, is_percent=True, selected_sector=None):
     fig = go.Figure()
     
-    # --- Preparazioni ---
     company_names_raw = df_visible["company_name"].tolist()
-    company_names_wrapped = [textwrap.fill(label, width=12) for label in company_names_raw]
+    company_names_wrapped = [textwrap.fill(name, width=12) for name in company_names_raw]
     company_colors = {name: color_palette[i % len(color_palette)] for i, name in enumerate(company_names_raw)}
-
-    # valori y per il grafico (converti in % se richiesto)
-    y_series = pd.to_numeric(df_visible[metric], errors="coerce")
-    y_values = y_series.values.astype(float)
+    
+    y_values = pd.to_numeric(df_visible[metric], errors="coerce").values.astype(float)
     if is_percent:
         y_values = y_values * 100
-
-    # --- Calcolo range per posizionamento smart ---
+    
     valid_values = y_values[~np.isnan(y_values)]
-    if len(valid_values) > 0:
-        y_min, y_max = valid_values.min(), valid_values.max()
-        y_range = y_max - y_min
-        if y_range == 0:
-            y_range = abs(y_max) * 0.1 if y_max != 0 else 1
-    else:
-        y_min, y_max, y_range = 0, 1, 1
+    y_min, y_max = (valid_values.min(), valid_values.max()) if len(valid_values) else (0, 1)
+    y_range = y_max - y_min if y_max - y_min != 0 else 1
 
-    # --- Bar principale ---
     fig.add_trace(go.Bar(
         x=company_names_wrapped,
         y=y_values,
@@ -338,99 +255,27 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
         hovertemplate='<b>%{x}</b><br>%{y:.1f}' + ('%' if is_percent else '') + '<extra></extra>'
     ))
 
-    # --- Calcolo mediane ---
-    global_median_raw = _safe_median(df_visible, metric)
-    global_median = np.nan if np.isnan(global_median_raw) else (global_median_raw * (100 if is_percent else 1))
+    # Mediane
+    global_median = _safe_median(df_visible[metric])
+    if is_percent:
+        global_median *= 100
 
-    # --- Sector median basata su tutte le aziende dell'exchange ---
     sector_median = np.nan
-    if selected_sector and selected_sector != "All" and selected_exchange != "All":
-        try:
-            # df_all deve essere passato a kpi_chart o accessibile globalmente
-            df_sector = df_all[(df_all["sector"] == selected_sector) & (df_all["year"] == int(selected_year))]
-            sector_median_raw = _safe_median(df_sector, metric)
-            if not np.isnan(sector_median_raw):
-                sector_median = sector_median_raw * (100 if is_percent else 1)
-        except Exception as e:
-            st.warning(f"⚠️ Unable to calculate sector median: {e}")
+    if selected_sector and selected_sector != "All":
+        sector_median = sector_medians.get(metric, {}).get(selected_sector, np.nan)
+        if is_percent and not np.isnan(sector_median):
+            sector_median *= 100
 
-
-    # --- Aggiungi valori sopra le barre ---
-    for i, (name, val) in enumerate(zip(company_names_wrapped, y_values)):
-        if not np.isnan(val):
-            fig.add_annotation(
-                x=name,
-                y=val,
-                text=f"{val:.1f}{'%' if is_percent else ''}",
-                showarrow=False,
-                yshift=8,
-                font=dict(size=9, color="black"),
-                bgcolor="rgba(255,255,255,0.8)",
-                bordercolor="rgba(0,0,0,0.1)",
-                borderwidth=1
-            )
-
-    # --- Delta frecce con posizionamento smart ---
+    # Linee mediane
     if not np.isnan(global_median):
-        for i, val in enumerate(y_values):
-            if np.isnan(val):
-                continue
-            delta = val - global_median
-            if abs(delta) < 0.05:
-                continue
-                
-            arrow = "▲" if delta > 0 else "▼"
-            color = "#28a745" if delta > 0 else "#dc3545"
-            y_position = val + (y_range * 0.12)
-            
-            fig.add_annotation(
-                x=company_names_wrapped[i],
-                y=y_position,
-                text=f"{arrow}{abs(delta):.1f}{'%' if is_percent else ''}",
-                showarrow=False,
-                font=dict(size=8, color=color, family="Arial Black"),
-                bgcolor="rgba(255,255,255,0.9)",
-                bordercolor=color,
-                borderwidth=1
-            )
-
-    # --- Linee mediane con posizionamento smart ---
-    annotation_positions = []
-    
-    if not np.isnan(global_median):
-        companies_pos = "top left"
-        companies_y_pos = y_max + (y_range * 0.05)
-        
-        fig.add_hline(
-            y=global_median,
-            line=dict(color="#dc3545", dash="dash", width=2),
-            annotation_text=f"Companies: {global_median:.1f}{'%' if is_percent else ''}",
-            annotation_position=companies_pos,
-            annotation_font=dict(color="#dc3545", size=10),
-            annotation_bgcolor="rgba(255,255,255,0.9)",
-            annotation_bordercolor="#dc3545",
-            annotation_borderwidth=1
-        )
-        annotation_positions.append(("companies", companies_pos, companies_y_pos))
-
+        fig.add_hline(y=global_median, line=dict(color="#dc3545", dash="dash", width=2),
+                      annotation_text=f"Companies: {global_median:.1f}{'%' if is_percent else ''}",
+                      annotation_position="top left")
     if not np.isnan(sector_median):
-        if any(pos[1] == "top left" for pos in annotation_positions):
-            sector_pos = "top right"
-        else:
-            sector_pos = "bottom right"
-            
-        fig.add_hline(
-            y=sector_median,
-            line=dict(color="#007bff", dash="dot", width=2),
-            annotation_text=f"Sector: {sector_median:.1f}{'%' if is_percent else ''}",
-            annotation_position=sector_pos,
-            annotation_font=dict(color="#007bff", size=10),
-            annotation_bgcolor="rgba(255,255,255,0.9)",
-            annotation_bordercolor="#007bff",
-            annotation_borderwidth=1
-        )
+        fig.add_hline(y=sector_median, line=dict(color="#007bff", dash="dot", width=2),
+                      annotation_text=f"Sector: {sector_median:.1f}{'%' if is_percent else ''}",
+                      annotation_position="top right")
 
-    # --- Layout ottimizzato ---
     fig.update_layout(
         title=dict(text=title, font=dict(size=14, family="Arial")),
         yaxis_title=f"{metric}{' (%)' if is_percent else ''}",
@@ -440,38 +285,19 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
         plot_bgcolor='rgba(248,249,250,0.8)',
         paper_bgcolor='rgba(0,0,0,0)',
         font=dict(family="Arial", size=10),
-        yaxis=dict(
-            range=[
-                y_min - (y_range * 0.1),
-                y_max + (y_range * 0.25)
-            ]
-        )
+        yaxis=dict(range=[y_min - (y_range * 0.1), y_max + (y_range * 0.25)])
     )
-
     return fig
 
-
+# --- Mostro i grafici ---
 col1, col2 = st.columns(2)
-
 with col1:
-    st.plotly_chart(
-        kpi_chart(df_visible, df_kpi_all, "EBITDA Margin", "EBITDA Margin", is_percent=True, selected_year=selected_year, selected_sector=selected_sector),
-        use_container_width=True
-    )
-    st.plotly_chart(
-        kpi_chart(df_visible, df_kpi_all, "FCF Margin", "FCF Margin", is_percent=True, selected_year=selected_year, selected_sector=selected_sector),
-        use_container_width=True
-    )
-
+    st.plotly_chart(kpi_chart(df_visible, "EBITDA Margin", "EBITDA Margin", is_percent=True, selected_sector=selected_sector), use_container_width=True)
+    st.plotly_chart(kpi_chart(df_visible, "FCF Margin", "FCF Margin", is_percent=True, selected_sector=selected_sector), use_container_width=True)
 with col2:
-    st.plotly_chart(
-        kpi_chart(df_visible, df_kpi_all, "Debt to Equity", "Debt to Equity", is_percent=False, selected_year=selected_year, selected_sector=selected_sector),
-        use_container_width=True
-    )
-    st.plotly_chart(
-        kpi_chart(df_visible, df_kpi_all, "EPS", "Earnings per Share (EPS)", is_percent=False, selected_year=selected_year, selected_sector=selected_sector),
-        use_container_width=True
-    )
+    st.plotly_chart(kpi_chart(df_visible, "Debt to Equity", "Debt to Equity", is_percent=False, selected_sector=selected_sector), use_container_width=True)
+    st.plotly_chart(kpi_chart(df_visible, "EPS", "Earnings per Share (EPS)", is_percent=False, selected_sector=selected_sector), use_container_width=True)
+
 
 # --- INSIGHT CLEAN (niente duplicati) ---
 insight_list = []
@@ -616,6 +442,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

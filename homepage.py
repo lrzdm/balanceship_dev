@@ -11,45 +11,6 @@ import os
 from PIL import Image
 import random
 from urllib.parse import urlparse
-import requests
-import uuid
-
-MEASUREMENT_ID = "G-Q5FDX0L1H2" # Il tuo ID GA4 
-API_SECRET = "kRfQwfxDQ0aACcjkJNENPA" # Quello creato in GA4 
-
-if "client_id" not in st.session_state:
-    st.session_state["client_id"] = str(uuid.uuid4())
-
-# --------------- Client-side GA4 -----------------
-st.markdown(f"""
-<!-- GA4 tracking client-side -->
-<script async src="https://www.googletagmanager.com/gtag/js?id={MEASUREMENT_ID}"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){{dataLayer.push(arguments);}}
-  gtag('js', new Date());
-  gtag('config', '{MEASUREMENT_ID}');
-</script>
-""", unsafe_allow_html=True)
-
-def send_pageview():
-    url = f"https://www.google-analytics.com/mp/collect?measurement_id={MEASUREMENT_ID}&api_secret={API_SECRET}"
-    payload = {
-        "client_id": st.session_state["client_id"],
-        "events": [
-            {
-                "name": "page_view",
-                "params": {
-                    "page_title": "Homepage",
-                    "page_location": "https://www.balanceship.net/",
-                    "engagement_time_msec": 1
-                }
-            }
-        ]
-    }
-    requests.post(url, json=payload)
-
-send_pageview()
 
 
 st.set_page_config(
@@ -58,22 +19,6 @@ st.set_page_config(
     layout="wide"
 )
 
-
-# ✅ SEO & LinkedIn metadata
-st.markdown("""
-<meta name="description" content="Explore company KPIs and financial data on BalanceShip. Use AI-powered insights to guide smart investment decisions.">
-<meta property="og:title" content="Balanceship – Global Financial Dashboard">
-<meta property="og:description" content="Explore KPIs, revenue, and financial ratios for thousands of companies.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://balanceship.net">
-<meta property="og:image" content="https://balanceship.net/images/icon.png">
-<meta property="og:site_name" content="Balanceship">
-""", unsafe_allow_html=True)
-
-
-if "robots" in st.query_params:
-    st.markdown("User-agent: *\nAllow: /\n\nSitemap: https://sitemap.balanceship.net/sitemap.xml", unsafe_allow_html=True)
-    st.stop()
 
 st.markdown("""
 <style>
@@ -661,6 +606,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

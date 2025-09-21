@@ -11,49 +11,6 @@ import textwrap
 import numpy as np
 import random
 
-MEASUREMENT_ID = "G-Q5FDX0L1H2" # Il tuo ID GA4 
-API_SECRET = "kRfQwfxDQ0aACcjkJNENPA" # Quello creato in GA4 
-
-if "client_id" not in st.session_state:
-    st.session_state["client_id"] = str(uuid.uuid4())
-
-# --------------- Client-side GA4 -----------------
-st.markdown(f"""
-<!-- GA4 tracking client-side -->
-<script async src="https://www.googletagmanager.com/gtag/js?id={MEASUREMENT_ID}"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){{dataLayer.push(arguments);}}
-  gtag('js', new Date());
-  gtag('config', '{MEASUREMENT_ID}');
-</script>
-""", unsafe_allow_html=True)
-
-def send_pageview():
-    url = f"https://www.google-analytics.com/mp/collect?measurement_id={MEASUREMENT_ID}&api_secret={API_SECRET}"
-    payload = {
-        "client_id": st.session_state["client_id"],
-        "events": [
-            {
-                "name": "page_view",
-                "params": {
-                    "page_title": "KPI_Dashboard",
-                    "page_location": "https://www.balanceship.net/KPI_Dashboard",
-                    "engagement_time_msec": 1
-                }
-            }
-        ]
-    }
-    requests.post(url, json=payload)
-
-send_pageview()
-
-#Google tag:
-add_meta_tags(
-    title="KPI Dashboard",
-    description="Explore company dashboards with smart insights",
-    url_path="/KPI_Dashboard"
-)
 
 st.set_page_config(page_title="KPI Dashboard", layout="wide")
 st.title("📊 KPI Dashboard")
@@ -635,3 +592,4 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+

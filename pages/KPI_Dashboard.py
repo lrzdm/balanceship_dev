@@ -88,29 +88,23 @@ name_to_symbol = {v: k for k, v in symbol_to_name.items()}
 company_names = list(symbol_to_name.values())
 
 with col3:
-    # Stato per il filtro di ricerca (nascosto nell'interfaccia)
-    if "company_search" not in st.session_state:
-        st.session_state.company_search = ""
-    
-    # Campo di ricerca nascosto che si aggiorna automaticamente
-    search_placeholder = st.empty()
-    
     # Se c'è una ricerca attiva, filtra le aziende
     if st.session_state.company_search:
-        filtered_names = [name for name in company_names 
-                         if st.session_state.company_search.lower() in name.lower()]
+        query = st.session_state.company_search.lower()
+        filtered_names = [name for name in company_names if query in name.lower()]
         display_options = sorted(filtered_names)
         label = f"Companies (up to 10) - {len(display_options)} matches"
     else:
         display_options = sorted(company_names)
         label = "Companies (up to 10)"
-    
+
     selected_company_names = st.multiselect(
         label,
         options=display_options,
         max_selections=10
     )
     selected_symbols = [name_to_symbol[name] for name in selected_company_names]
+
 with col4:
     if selected_exchange == "All":
         selected_sector = st.selectbox("Sector", options=["All"], disabled=True, 
@@ -581,6 +575,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

@@ -64,7 +64,7 @@ st.title("📊 Financial Data")
 exchanges = read_exchanges('exchanges.txt')
 exchange_names = list(exchanges.keys())
 years_available = ['2021', '2022', '2023', '2024']
-sectors_available = ['Communication Services', 'Consumer Cyclical', 'Consumer Defensive', 'Energy', 'Finance Services', 'Healthcare', 'Industrials', 'Real Estate', 'Technology', 'Utilities']
+sectors_available = ['Communication Services', 'Consumer Cyclical', 'Consumer Defensive', 'Energy', 'Financial Services', 'Healthcare', 'Industrials', 'Real Estate', 'Technology', 'Utilities']
 
 financial_data = []
 selected_years = ['2023']
@@ -298,6 +298,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

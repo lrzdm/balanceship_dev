@@ -67,7 +67,7 @@ exchange_names = list(exchanges.keys())
 exchange_names = ["All"] + exchange_names   # aggiungo opzione All
 
 years_available = ['2021', '2022', '2023', '2024']
-sectors_available = ['Communication Services', 'Consumer Cyclical', 'Consumer Defensive', 'Energy', 'Finance Services', 'Healthcare', 'Industrials', 'Real Estate', 'Technology', 'Utilities']
+sectors_available = ['Communication Services', 'Consumer Cyclical', 'Consumer Defensive', 'Energy', 'Financial Services', 'Healthcare', 'Industrials', 'Real Estate', 'Technology', 'Utilities']
 
 # --- Layout filtri in riga ---
 col1, col2, col3, col4 = st.columns([1.2, 1.5, 2.2, 2])
@@ -561,6 +561,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

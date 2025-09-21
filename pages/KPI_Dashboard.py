@@ -291,8 +291,30 @@ def kpi_chart(df_visible, metric, title, is_percent=True):
         sector_pos = "top right" if any(pos[1] == "top left" for pos in annotation_positions) else "bottom right"
         fig.add_hline(y=sector_median, line=dict(color="#007bff", dash="dot", width=2), annotation_text=f"Sector: {sector_median:.1f}{'%' if is_percent else ''}", annotation_position=sector_pos, annotation_font=dict(color="#007bff", size=10), annotation_bgcolor="rgba(255,255,255,0.9)", annotation_bordercolor="#007bff", annotation_borderwidth=1)
 
+    # Layout con range Y adattivo che include tutte le mediane
+    all_important_values = []
+    all_important_values.extend(valid_values.tolist())
+    if not np.isnan(global_median):
+        all_important_values.append(global_median)
+    if not np.isnan(sector_median):
+        all_important_values.append(sector_median)
+    
+    if all_important_values:
+        actual_min = min(all_important_values)
+        actual_max = max(all_important_values) 
+        value_range = actual_max - actual_min
+        if value_range == 0:
+            value_range = abs(actual_max) * 0.1 if actual_max != 0 else 1
+        
+        # Range con padding del 15% per dare spazio alle annotazioni
+        y_range_min = actual_min - (value_range * 0.15)
+        y_range_max = actual_max + (value_range * 0.15)
+    else:
+        y_range_min = y_min - (y_range * 0.1)
+        y_range_max = y_max + (y_range * 0.25)
+
     # Layout
-    fig.update_layout(title=dict(text=title, font=dict(size=14, family="Arial")), yaxis_title=f"{metric}{' (%)' if is_percent else ''}", height=350, margin=dict(t=60, b=70, l=50, r=50), showlegend=False, plot_bgcolor='rgba(248,249,250,0.8)', paper_bgcolor='rgba(0,0,0,0)', font=dict(family="Arial", size=10), yaxis=dict(range=[y_min - (y_range * 0.1), y_max + (y_range * 0.25)]))
+    fig.update_layout(title=dict(text=title, font=dict(size=14, family="Arial")), yaxis_title=f"{metric}{' (%)' if is_percent else ''}", height=350, margin=dict(t=60, b=70, l=50, r=50), showlegend=False, plot_bgcolor='rgba(248,249,250,0.8)', paper_bgcolor='rgba(0,0,0,0)', font=dict(family="Arial", size=10), yaxis=dict(range=[y_range_min, y_range_max]))
 
     return fig
 

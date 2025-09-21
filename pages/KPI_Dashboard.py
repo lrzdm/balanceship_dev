@@ -238,13 +238,21 @@ def kpi_chart(df_visible, metric, title, is_percent=True):
     if is_percent and not np.isnan(global_median):
         global_median *= 100
 
-    # Mediana settore
+    # Mediana settore con debug
     sector_median = np.nan
     if selected_sector != "All" and selected_exchange != "All" and not df_all_sector.empty:
         df_sector = df_all_sector[df_all_sector["sector"] == selected_sector]
-        sector_median = _safe_median(df_sector, metric)
-        if is_percent and not np.isnan(sector_median):
-            sector_median *= 100
+        if not df_sector.empty:
+            sector_median = _safe_median(df_sector, metric)
+            if is_percent and not np.isnan(sector_median):
+                sector_median *= 100
+            
+            # Debug per capire perché non appare
+            if np.isnan(sector_median):
+                st.write(f"🔍 Debug {metric}: Sector data exists ({len(df_sector)} companies) but median is NaN")
+                st.write(f"Sample values: {df_sector[metric].head().tolist()}")
+        else:
+            st.write(f"⚠️ Debug {metric}: No companies found for sector '{selected_sector}'")
 
     # Valori sopra barre
     for i, (name, val) in enumerate(zip(company_names_wrapped, y_values)):

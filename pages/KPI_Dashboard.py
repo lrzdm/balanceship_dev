@@ -11,6 +11,50 @@ import textwrap
 import numpy as np
 import random
 
+MEASUREMENT_ID = "G-Q5FDX0L1H2" # Il tuo ID GA4 
+API_SECRET = "kRfQwfxDQ0aACcjkJNENPA" # Quello creato in GA4 
+
+if "client_id" not in st.session_state:
+    st.session_state["client_id"] = str(uuid.uuid4())
+
+# --------------- Client-side GA4 -----------------
+st.markdown(f"""
+<!-- GA4 tracking client-side -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={MEASUREMENT_ID}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+  gtag('config', '{MEASUREMENT_ID}');
+</script>
+""", unsafe_allow_html=True)
+
+def send_pageview():
+    url = f"https://www.google-analytics.com/mp/collect?measurement_id={MEASUREMENT_ID}&api_secret={API_SECRET}"
+    payload = {
+        "client_id": st.session_state["client_id"],
+        "events": [
+            {
+                "name": "page_view",
+                "params": {
+                    "page_title": "KPI_Dashboard",
+                    "page_location": "https://www.balanceship.net/KPI_Dashboard",
+                    "engagement_time_msec": 1
+                }
+            }
+        ]
+    }
+    requests.post(url, json=payload)
+
+send_pageview()
+
+#Google tag:
+add_meta_tags(
+    title="KPI Dashboard",
+    description="Explore company dashboards with smart insights",
+    url_path="/KPI_Dashboard"
+)
+
 st.set_page_config(page_title="KPI Dashboard", layout="wide")
 st.title("📊 KPI Dashboard")
 
@@ -99,29 +143,49 @@ def get_sector_medians_cached(sector, exchange, year):
     """Calcola e cachea le mediane di settore"""
     try:
         all_sector_data = []
+        sectors_found = {}  # Per debug
         exch_file = exchanges[exchange]
         companies_in_exchange = read_companies(exch_file)
         
         # Limita a massimo 50 aziende per settore (sample rappresentativo)
         companies_processed = 0
         max_companies = 50
+        companies_checked = 0
         
         for company in companies_in_exchange:
             if companies_processed >= max_companies:
                 break
                 
+            companies_checked += 1
             desc = company.get("description", "")
             try:
                 data = get_or_fetch_data(company["ticker"], [year], desc, exchange)
-                sector_matches = [d for d in data if d.get("sector") == sector]
-                if sector_matches:
-                    all_sector_data.extend(sector_matches)
-                    companies_processed += len(sector_matches)
+                for d in data:
+                    company_sector = d.get("sector")
+                    if company_sector:
+                        # Conta tutti i settori trovati (per debug)
+                        if company_sector not in sectors_found:
+                            sectors_found[company_sector] = 0
+                        sectors_found[company_sector] += 1
+                        
+                        # Match più flessibile del settore
+                        if (company_sector == sector or 
+                            company_sector.strip().lower() == sector.strip().lower()):
+                            all_sector_data.append(d)
+                            companies_processed += 1
             except:
                 continue
         
+        # Debug info (restituiamo anche questo)
+        debug_info = {
+            "companies_checked": companies_checked,
+            "sectors_found": sectors_found,
+            "target_sector": sector,
+            "companies_matched": len(all_sector_data)
+        }
+        
         if not all_sector_data:
-            return {}, 0
+            return {}, 0, debug_info
             
         # Calcola KPI
         df_all_sector = compute_kpis(all_sector_data)
@@ -153,10 +217,10 @@ def get_sector_medians_cached(sector, exchange, year):
         for metric in metrics:
             medians[metric] = _safe_median(df_all_sector, metric)
             
-        return medians, len(df_all_sector)
+        return medians, len(df_all_sector), debug_info
         
     except Exception as e:
-        return {}, 0
+        return {}, 0, {"error": str(e)}
 
 # --- Caricamento dati aziende selezionate ---
 financial_data = []
@@ -190,7 +254,7 @@ sector_count = 0
 if selected_sector != "All" and selected_exchange != "All":
     # Carica da cache o calcola (con progress limitato)
     with st.spinner(f"Loading {selected_sector} sector benchmark..."):
-        sector_medians, sector_count = get_sector_medians_cached(
+        sector_medians, sector_count, debug_info = get_sector_medians_cached(
             selected_sector, selected_exchange, selected_year
         )
     
@@ -198,6 +262,19 @@ if selected_sector != "All" and selected_exchange != "All":
         st.success(f"✅ Sector benchmark from {sector_count} {selected_sector} companies ({selected_exchange})")
     else:
         st.warning(f"⚠️ No {selected_sector} companies found in {selected_exchange}")
+        
+        # Mostra debug info per capire il problema
+        if "sectors_found" in debug_info:
+            st.write("**🔍 Debug - Sectors found in data:**")
+            sorted_sectors = sorted(debug_info["sectors_found"].items(), key=lambda x: x[1], reverse=True)
+            for sector_name, count in sorted_sectors[:10]:  # Top 10
+                if sector_name.lower() == selected_sector.lower():
+                    st.write(f"- **{sector_name}**: {count} companies ⭐ (MATCH)")
+                else:
+                    st.write(f"- {sector_name}: {count} companies")
+            
+            st.write(f"Companies checked: {debug_info.get('companies_checked', 0)}")
+            st.write(f"Target sector: '{debug_info.get('target_sector', '')}'")
         
 elif selected_sector != "All" and selected_exchange == "All":
     st.info("💡 Sector comparison disabled when 'All' exchanges selected")

@@ -107,7 +107,7 @@ if st.button("📄 Generate Report"):
 
     # ---------------- CREAZIONE PDF ----------------
     pdf_file = "report.pdf"
-    doc = SimpleDocTemplate(pdf_file, pagesize=A4)
+    doc = SimpleDocTemplate( pdf_file, pagesize=A4, title="BalanceShip Report", author="BalanceShip", subject="Financial report", creator="BalanceShip Platform" )
     styles = getSampleStyleSheet()
     story = []
 
@@ -184,5 +184,6 @@ if st.session_state.report_generated:
             file_name="BalanceShip_Report.pdf",
             mime="application/pdf"
         )
+
 
 

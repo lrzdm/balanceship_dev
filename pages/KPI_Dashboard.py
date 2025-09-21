@@ -264,17 +264,16 @@ metrics = ["EBITDA Margin", "FCF Margin", "Debt to Equity", "EPS"]
 sector_medians = {}
 sector_count = 0  # numero aziende per mediana di settore
 
-if selected_exchange != "All" and selected_sector != "All":
+if selected_sector != "All":
     try:
-        # df_all è il DataFrame con TUTTI i dati caricati per l'exchange selezionato
+        # Filtra per settore e anno solo
         df_sector = df_kpi_all[
-            (df_kpi_all["exchange"] == selected_exchange) &
-            (df_kpi_all["sector"] == selected_sector) &
+            (df_kpi_all["sector"].str.strip() == selected_sector) &
             (df_kpi_all["year"] == int(selected_year))
         ]
         sector_count = len(df_sector)
         if sector_count > 0:
-            st.info(f"🔍 Sector median calculated from {sector_count} {selected_sector} companies in {selected_exchange} for {selected_year}")
+            st.info(f"🔍 Sector median calculated from {sector_count} {selected_sector} companies for {selected_year}")
         else:
             st.warning(f"⚠️ No {selected_sector} companies found in dataset for comparison")
         
@@ -282,6 +281,7 @@ if selected_exchange != "All" and selected_sector != "All":
             sector_medians[metric] = _safe_median(df_sector, metric)
     except Exception as e:
         st.error(f"Error calculating sector median: {e}")
+
 
 
 # --- Funzione grafico KPI ottimizzata ---
@@ -566,6 +566,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

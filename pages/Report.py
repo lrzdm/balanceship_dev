@@ -169,20 +169,20 @@ if st.button("📄 Generate Report"):
     st.session_state.report_generated = True
     status_placeholder.success("✅ Report completato e pronto per il download")
 
-# ---------------- PAYPAL + DOWNLOAD ----------------
+# ---------------- PAYPAL + DOWNLOAD SEMPLIFICATO ----------------
 paypal_url = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YOUR_BUTTON_ID"
 
 if st.session_state.report_generated:
-    if not st.session_state.payment_done:
-        if st.button("💳 Pay with PayPal"):
-            st.session_state.payment_done = True
-            st.success("✅ Payment simulated. You can now download your report.")
-            st.info(f"Please complete payment here: [PayPal]({paypal_url})")
-    if st.session_state.payment_done:
-        with open(pdf_file, "rb") as f:
-            st.download_button(
-                label="📥 Download Report",
-                data=f,
-                file_name="BalanceShip_Report.pdf",
-                mime="application/pdf"
-            )
+    # Messaggio informativo sul pagamento (disabilitato per ora)
+    st.info(f"💳 Payment link (disabled for now): {paypal_url}", icon="🔒")
+
+    # Pulsante download sempre abilitato
+    with open(pdf_file, "rb") as f:
+        st.download_button(
+            label="📥 Download Report",
+            data=f,
+            file_name="BalanceShip_Report.pdf",
+            mime="application/pdf"
+        )
+
+

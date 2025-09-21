@@ -250,7 +250,6 @@ st.plotly_chart(legend_chart(), use_container_width=True)
 
 # --- Funzione di mediana sicura ---
 def _safe_median(df, col):
-    """Restituisce la mediana sicura (gestisce NaN, inf, col mancanti)."""
     if df is None or df.empty or col not in df.columns:
         return np.nan
     series = pd.to_numeric(df[col], errors="coerce").replace([np.inf, -np.inf], np.nan).dropna()
@@ -258,15 +257,14 @@ def _safe_median(df, col):
         return np.nan
     return float(series.median())
 
-
-# --- Pre-calcolo mediane settore per tutte le metriche (una volta sola) ---
+# --- Calcolo mediana di settore una volta sola ---
 metrics = ["EBITDA Margin", "FCF Margin", "Debt to Equity", "EPS"]
 sector_medians = {}
-sector_count = 0  # numero aziende per mediana di settore
+sector_count = 0
 
 if selected_sector != "All":
     try:
-        # Filtra per settore e anno solo
+        # Tutte le aziende dello stesso settore e anno
         df_sector = df_kpi_all[
             (df_kpi_all["sector"].str.strip() == selected_sector) &
             (df_kpi_all["year"] == int(selected_year))
@@ -281,7 +279,6 @@ if selected_sector != "All":
             sector_medians[metric] = _safe_median(df_sector, metric)
     except Exception as e:
         st.error(f"Error calculating sector median: {e}")
-
 
 
 # --- Funzione grafico KPI ottimizzata ---
@@ -566,6 +563,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

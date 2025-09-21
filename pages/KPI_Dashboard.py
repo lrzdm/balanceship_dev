@@ -61,7 +61,6 @@ color_palette = [
 
 
 # Lettura borse e aziende
-# Lettura borse e aziende
 exchanges = read_exchanges("exchanges.txt")
 exchange_names = list(exchanges.keys())
 exchange_names = ["All"] + exchange_names   # aggiungo opzione All
@@ -591,6 +590,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

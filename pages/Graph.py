@@ -218,62 +218,78 @@ def render_kpis(exchanges_dict):
     styled = df_clean.style.format({col: "{:.2%}" for col in num_cols})
     st.dataframe(styled, height=600)
 
-
-import plotly.graph_objects as go
-
-# === RADAR CHART ===
-st.subheader("📈 KPI Radar Chart")
-
-# Prendo solo i KPI numerici già presenti
-numeric_cols = [col for col in df_filtered.columns if col not in ['symbol', 'description', 'year']]
-
-if numeric_cols:
-    # Pivot per avere un record per ogni azienda+anno
-    radar_df = df_filtered[['description', 'year'] + numeric_cols].copy()
-    radar_df = radar_df.groupby(['description', 'year']).mean().reset_index()
-
-    # Normalizzazione min-max per ciascun KPI (così le scale sono comparabili 0-100)
-    norm_df = radar_df.copy()
-    for col in numeric_cols:
-        col_data = radar_df[col].astype(float)
-        minv, maxv = col_data.min(), col_data.max()
-        if pd.isna(minv) or pd.isna(maxv) or minv == maxv:
-            norm_df[col] = 50  # default neutro se tutto uguale o NaN
+    
+    import plotly.graph_objects as go
+    
+    st.subheader("📈 KPI Radar Chart")
+    
+    # 1) Safety checks: df_filtered deve esistere e non essere vuoto
+    if 'df_filtered' not in locals() and 'df_filtered' not in globals():
+        st.warning("Il radar chart non può essere creato perché 'df_filtered' non è definito qui. Assicurati di inserire questo blocco *dentro* render_kpis, dopo la creazione di df_filtered.")
+    else:
+        if df_filtered is None or df_filtered.shape[0] == 0:
+            st.info("Nessun dato disponibile per il radar chart.")
         else:
-            norm_df[col] = 100 * (col_data - minv) / (maxv - minv)
+            # identifico colonne KPI candidate (escludo id_vars)
+            id_vars = ['symbol', 'description', 'year']
+            candidate_cols = []
+            for c in df_filtered.columns:
+                if c in id_vars:
+                    continue
+                # se c ha almeno un valore convertibile a numero lo considero KPI
+                s = pd.to_numeric(df_filtered[c], errors='coerce')
+                if s.notna().any():
+                    candidate_cols.append(c)
+    
+            if not candidate_cols:
+                st.info("Nessun KPI numerico disponibile per il radar chart.")
+            else:
+                # groupby description+year (mean) --> una riga per azienda+anno
+                radar_df = df_filtered[['description', 'year'] + candidate_cols].copy()
+                radar_df = radar_df.groupby(['description', 'year']).mean().reset_index()
+    
+                # normalizzazione min-max su ogni KPI (escludendo NaN nel calcolo)
+                norm_df = radar_df.copy()
+                for col in candidate_cols:
+                    col_series = pd.to_numeric(radar_df[col], errors='coerce')
+                    minv = col_series.min(skipna=True)
+                    maxv = col_series.max(skipna=True)
+                    if pd.isna(minv) or pd.isna(maxv) or minv == maxv:
+                        # se nessuna variazione visibile, assegno 50 a tutti i valori esistenti
+                        norm_df[col] = 50.0
+                    else:
+                        norm_df[col] = 100.0 * (col_series - minv) / (maxv - minv)
+    
+                # IMPORTANT: KPI mancanti (NaN) -> vogliamo che la linea stia al centro => 0
+                norm_df = norm_df.fillna(0.0)
+    
+                # etichette leggibili usando COLUMN_LABELS
+                kpi_labels = [COLUMN_LABELS.get(c, c).replace('_', ' ').title() for c in candidate_cols]
+    
+                # costruisco il radar
+                fig = go.Figure()
+                for _, row in norm_df.iterrows():
+                    values = [float(row[c]) for c in candidate_cols]
+                    # chiudo il loop
+                    values_closed = values + [values[0]]
+                    labels_closed = kpi_labels + [kpi_labels[0]]
+    
+                    fig.add_trace(go.Scatterpolar(
+                        r=values_closed,
+                        theta=labels_closed,
+                        fill='toself',
+                        name=f"{row['description']} {row['year']}"
+                    ))
+    
+                fig.update_layout(
+                    polar=dict(radialaxis=dict(visible=True, range=[0, 100])),
+                    showlegend=True,
+                    margin=dict(l=20, r=20, t=40, b=20),
+                    height=600
+                )
+    
+                st.plotly_chart(fig, use_container_width=True)
 
-    # Se un KPI è nullo per una certa azienda -> linea va al centro (0)
-    norm_df = norm_df.fillna(0)
-
-    # Etichette KPI leggibili
-    kpi_labels = [COLUMN_LABELS.get(c, c) for c in numeric_cols]
-
-    fig = go.Figure()
-
-    for _, row in norm_df.iterrows():
-        values = [row[c] for c in numeric_cols]
-        values += [values[0]]  # chiusura del radar
-        labels = kpi_labels + [kpi_labels[0]]
-
-        fig.add_trace(go.Scatterpolar(
-            r=values,
-            theta=labels,
-            fill='toself',
-            name=f"{row['description']} {row['year']}"
-        ))
-
-    fig.update_layout(
-        polar=dict(
-            radialaxis=dict(visible=True, range=[0, 100])
-        ),
-        showlegend=True,
-        margin=dict(l=20, r=20, t=40, b=20),
-        height=600
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
-else:
-    st.info("Nessun KPI numerico disponibile per il radar chart.")
 
     
     # Download Excel
@@ -505,6 +521,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

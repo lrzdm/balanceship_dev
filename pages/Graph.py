@@ -221,7 +221,21 @@ def render_kpis(exchanges_dict):
     
     import plotly.graph_objects as go
 
-    st.subheader("📊 Confronto aziende sui KPI (Radar con area media)")
+    # 🎨 Palette accesa e distinta
+    color_palette = [
+        "#E41A1C",  # Rosso acceso
+        "#377EB8",  # Blu vivo
+        "#4DAF4A",  # Verde brillante
+        "#984EA3",  # Viola intenso
+        "#FF7F00",  # Arancione acceso
+        "#FFD700",  # Giallo oro
+        "#00CED1",  # Turchese
+        "#A65628",  # Bronzo/marrone
+        "#F781BF",  # Rosa shocking
+        "#000000",  # Nero
+    ]
+    
+    st.subheader("📊 Confronto aziende sui KPI (Radar con area media e colori accesi)")
     
     id_vars = ['symbol', 'description', 'year']
     candidate_cols = [c for c in df_filtered.columns if c not in id_vars]
@@ -229,7 +243,7 @@ def render_kpis(exchanges_dict):
     if not candidate_cols:
         st.info("Nessun KPI numerico disponibile per il radar chart.")
     else:
-        # preparo dataset: media per azienda+anno
+        # dataset: media per azienda+anno
         radar_df = df_filtered[['description', 'year'] + candidate_cols].copy()
         radar_df = radar_df.groupby(['description', 'year']).mean().reset_index()
     
@@ -253,8 +267,8 @@ def render_kpis(exchanges_dict):
             opacity=0.4
         ))
     
-        # === Linee delle aziende ===
-        for _, row in radar_df.iterrows():
+        # === Linee delle aziende con colori accesi ===
+        for i, (_, row) in enumerate(radar_df.iterrows()):
             values = [row[c] if pd.notna(row[c]) else 0 for c in candidate_cols]
             values_closed = values + [values[0]]
     
@@ -263,19 +277,19 @@ def render_kpis(exchanges_dict):
                 theta=labels_closed,
                 fill='none',
                 mode='lines+markers',
+                line=dict(color=color_palette[i % len(color_palette)], width=2),
+                marker=dict(size=6, color=color_palette[i % len(color_palette)]),
                 name=f"{row['description']} {row['year']}"
             ))
     
         fig.update_layout(
-            polar=dict(radialaxis=dict(visible=True)),  # range auto in base ai valori reali
+            polar=dict(radialaxis=dict(visible=True)),  # range auto adattato ai valori reali
             showlegend=True,
             margin=dict(l=20, r=20, t=40, b=20),
             height=650
         )
     
         st.plotly_chart(fig, use_container_width=True)
-    
-
 
 
     
@@ -508,6 +522,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

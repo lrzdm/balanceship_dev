@@ -235,7 +235,7 @@ def render_kpis(exchanges_dict):
         "#000000",  # Nero
     ]
     
-    st.subheader("📊 Confronto aziende sui KPI (Radar con area media e hover in %)")
+    st.subheader("📊 KPI Comparison Radar")
     
     id_vars = ['symbol', 'description', 'year']
     candidate_cols = [c for c in df_filtered.columns if c not in id_vars]
@@ -528,6 +528,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

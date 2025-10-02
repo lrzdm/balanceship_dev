@@ -221,20 +221,6 @@ def render_kpis(exchanges_dict):
     
     import plotly.graph_objects as go
 
-    # 🎨 Palette accesa e distinta
-    color_palette = [
-        "#E41A1C",  # Rosso acceso
-        "#377EB8",  # Blu vivo
-        "#4DAF4A",  # Verde brillante
-        "#984EA3",  # Viola intenso
-        "#FF7F00",  # Arancione acceso
-        "#FFD700",  # Giallo oro
-        "#00CED1",  # Turchese
-        "#A65628",  # Bronzo/marrone
-        "#F781BF",  # Rosa shocking
-        "#000000",  # Nero
-    ]
-    
     st.subheader("📊 KPI Comparison Radar")
     
     id_vars = ['symbol', 'description', 'year']
@@ -243,16 +229,13 @@ def render_kpis(exchanges_dict):
     if not candidate_cols:
         st.info("Nessun KPI numerico disponibile per il radar chart.")
     else:
-        # dataset: media per azienda+anno
         radar_df = df_filtered[['description', 'year'] + candidate_cols].copy()
         radar_df = radar_df.groupby(['description', 'year']).mean().reset_index()
-    
-        # etichette KPI leggibili
         kpi_labels = [COLUMN_LABELS.get(c, c).replace('_', ' ').title() for c in candidate_cols]
     
         fig = go.Figure()
     
-        # === Fascia media (riempimento grigio) ===
+        # === Fascia media (grigio) ===
         mean_values = radar_df[candidate_cols].mean().tolist()
         mean_values_closed = mean_values + [mean_values[0]]
         labels_closed = kpi_labels + [kpi_labels[0]]
@@ -262,15 +245,17 @@ def render_kpis(exchanges_dict):
             theta=labels_closed,
             fill='toself',
             mode='lines',
-            line=dict(color="grey", dash="dot"),
+            line=dict(color="lightgrey", dash="dot"),
             name="Media aziende",
             opacity=0.4,
-            hovertemplate='<b>%{theta}</b><br>' +
-                          'Media: %{r:.2f}%<extra></extra>'
+            hovertemplate='<b>%{theta}</b><br>Media: %{r:.2f}%<extra></extra>'
         ))
     
-        # === Linee delle aziende con colori accesi ===
+        # === Linee aziende con colori accesi ===
+        max_traces = min(6, len(radar_df))  # max 6 tracciati per mobile
         for i, (_, row) in enumerate(radar_df.iterrows()):
+            if i >= max_traces:
+                break
             values = [row[c] if pd.notna(row[c]) else 0 for c in candidate_cols]
             values_closed = values + [values[0]]
     
@@ -280,7 +265,7 @@ def render_kpis(exchanges_dict):
                 fill='none',
                 mode='lines+markers',
                 line=dict(color=color_palette[i % len(color_palette)], width=2),
-                marker=dict(size=6, color=color_palette[i % len(color_palette)]),
+                marker=dict(size=5, color=color_palette[i % len(color_palette)]),
                 name=f"{row['description']} {row['year']}",
                 hovertemplate='<b>%{theta}</b><br>' +
                               f'Azienda: {row["description"]} {row["year"]}<br>' +
@@ -288,13 +273,20 @@ def render_kpis(exchanges_dict):
             ))
     
         fig.update_layout(
-            polar=dict(radialaxis=dict(visible=True)),  # range auto adattato ai valori reali
+            polar=dict(
+                radialaxis=dict(visible=True, tickfont=dict(size=10)),  # testo più piccolo
+                angularaxis=dict(tickfont=dict(size=10))
+            ),
             showlegend=True,
-            margin=dict(l=20, r=20, t=40, b=20),
-            height=650
+            legend=dict(font=dict(size=10)),
+            margin=dict(l=10, r=10, t=30, b=10),
+            height=550,
+            hovermode='closest',
+            autosize=True
         )
     
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, config={"responsive": True})
+
 
 
 
@@ -528,6 +520,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

@@ -221,7 +221,21 @@ def render_kpis(exchanges_dict):
     
     import plotly.graph_objects as go
 
-    st.subheader("📊 KPI Comparison Radar")
+    # 🎨 Palette accesa e distinta
+    color_palette = [
+        "#E41A1C",  # Rosso acceso
+        "#377EB8",  # Blu vivo
+        "#4DAF4A",  # Verde brillante
+        "#984EA3",  # Viola intenso
+        "#FF7F00",  # Arancione acceso
+        "#FFD700",  # Giallo oro
+        "#00CED1",  # Turchese
+        "#A65628",  # Bronzo/marrone
+        "#F781BF",  # Rosa shocking
+        "#000000",  # Nero
+    ]
+    
+    st.subheader("📊 Confronto aziende sui KPI (Radar con area media e hover in %)")
     
     id_vars = ['symbol', 'description', 'year']
     candidate_cols = [c for c in df_filtered.columns if c not in id_vars]
@@ -252,7 +266,7 @@ def render_kpis(exchanges_dict):
         ))
     
         # === Linee aziende con colori accesi ===
-        max_traces = min(6, len(radar_df))  # max 6 tracciati per mobile
+        max_traces = min(10, len(radar_df))  # max 10 tracciati per leggibilità
         for i, (_, row) in enumerate(radar_df.iterrows()):
             if i >= max_traces:
                 break
@@ -274,7 +288,7 @@ def render_kpis(exchanges_dict):
     
         fig.update_layout(
             polar=dict(
-                radialaxis=dict(visible=True, tickfont=dict(size=10)),  # testo più piccolo
+                radialaxis=dict(visible=True, tickfont=dict(size=10)),
                 angularaxis=dict(tickfont=dict(size=10))
             ),
             showlegend=True,
@@ -286,6 +300,7 @@ def render_kpis(exchanges_dict):
         )
     
         st.plotly_chart(fig, use_container_width=True, config={"responsive": True})
+
 
 
 
@@ -520,6 +535,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

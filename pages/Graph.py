@@ -235,7 +235,7 @@ def render_kpis(exchanges_dict):
         "#000000",  # Nero
     ]
     
-    st.subheader("📊 Confronto aziende sui KPI (Radar con area media e colori accesi)")
+    st.subheader("📊 Confronto aziende sui KPI (Radar con area media e hover in %)")
     
     id_vars = ['symbol', 'description', 'year']
     candidate_cols = [c for c in df_filtered.columns if c not in id_vars]
@@ -262,9 +262,11 @@ def render_kpis(exchanges_dict):
             theta=labels_closed,
             fill='toself',
             mode='lines',
-            line=dict(color="lightgrey", dash="dot"),
+            line=dict(color="grey", dash="dot"),
             name="Media aziende",
-            opacity=0.4
+            opacity=0.4,
+            hovertemplate='<b>%{theta}</b><br>' +
+                          'Media: %{r:.2f}%<extra></extra>'
         ))
     
         # === Linee delle aziende con colori accesi ===
@@ -279,7 +281,10 @@ def render_kpis(exchanges_dict):
                 mode='lines+markers',
                 line=dict(color=color_palette[i % len(color_palette)], width=2),
                 marker=dict(size=6, color=color_palette[i % len(color_palette)]),
-                name=f"{row['description']} {row['year']}"
+                name=f"{row['description']} {row['year']}",
+                hovertemplate='<b>%{theta}</b><br>' +
+                              f'Azienda: {row["description"]} {row["year"]}<br>' +
+                              'Valore: %{r:.2f}%<extra></extra>'
             ))
     
         fig.update_layout(
@@ -290,6 +295,7 @@ def render_kpis(exchanges_dict):
         )
     
         st.plotly_chart(fig, use_container_width=True)
+
 
 
     
@@ -522,6 +528,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

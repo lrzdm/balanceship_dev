@@ -220,8 +220,8 @@ def render_kpis(exchanges_dict):
 
     
     import plotly.graph_objects as go
-    
-    st.subheader("📊 Confronto aziende sui KPI (Radar)")
+
+    st.subheader("📊 Confronto aziende sui KPI (Radar con area media)")
     
     id_vars = ['symbol', 'description', 'year']
     candidate_cols = [c for c in df_filtered.columns if c not in id_vars]
@@ -233,50 +233,48 @@ def render_kpis(exchanges_dict):
         radar_df = df_filtered[['description', 'year'] + candidate_cols].copy()
         radar_df = radar_df.groupby(['description', 'year']).mean().reset_index()
     
-        # calcolo range globale min-max per ogni KPI (tra tutte le aziende filtrate)
-        ranges = {}
-        for col in candidate_cols:
-            series = pd.to_numeric(radar_df[col], errors='coerce')
-            ranges[col] = (series.min(skipna=True), series.max(skipna=True))
-    
-        # normalizzo i valori su 0-100 per confronto diretto
-        norm_df = radar_df.copy()
-        for col in candidate_cols:
-            col_series = pd.to_numeric(radar_df[col], errors='coerce')
-            minv, maxv = ranges[col]
-            if pd.isna(minv) or pd.isna(maxv) or minv == maxv:
-                norm_df[col] = 50.0
-            else:
-                norm_df[col] = 100.0 * (col_series - minv) / (maxv - minv)
-        norm_df = norm_df.fillna(0.0)
-    
         # etichette KPI leggibili
         kpi_labels = [COLUMN_LABELS.get(c, c).replace('_', ' ').title() for c in candidate_cols]
     
         fig = go.Figure()
     
-        # ogni azienda = una linea colorata
-        for _, row in norm_df.iterrows():
-            values = [float(row[c]) for c in candidate_cols]
+        # === Fascia media (riempimento grigio) ===
+        mean_values = radar_df[candidate_cols].mean().tolist()
+        mean_values_closed = mean_values + [mean_values[0]]
+        labels_closed = kpi_labels + [kpi_labels[0]]
+    
+        fig.add_trace(go.Scatterpolar(
+            r=mean_values_closed,
+            theta=labels_closed,
+            fill='toself',
+            mode='lines',
+            line=dict(color="lightgrey", dash="dot"),
+            name="Media aziende",
+            opacity=0.4
+        ))
+    
+        # === Linee delle aziende ===
+        for _, row in radar_df.iterrows():
+            values = [row[c] if pd.notna(row[c]) else 0 for c in candidate_cols]
             values_closed = values + [values[0]]
-            labels_closed = kpi_labels + [kpi_labels[0]]
     
             fig.add_trace(go.Scatterpolar(
                 r=values_closed,
                 theta=labels_closed,
-                fill='none',  # solo linee, niente riempimento
+                fill='none',
                 mode='lines+markers',
                 name=f"{row['description']} {row['year']}"
             ))
     
         fig.update_layout(
-            polar=dict(radialaxis=dict(visible=True, range=[0, 100])),
+            polar=dict(radialaxis=dict(visible=True)),  # range auto in base ai valori reali
             showlegend=True,
             margin=dict(l=20, r=20, t=40, b=20),
-            height=600
+            height=650
         )
     
         st.plotly_chart(fig, use_container_width=True)
+    
 
 
 
@@ -510,6 +508,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

@@ -292,7 +292,9 @@ def render_kpis(exchanges_dict):
         file_name="kpi_filtered.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    
+
+    # Aggiunge 2 righe vuote
+    st.markdown("<br><br>", unsafe_allow_html=True)
     st.subheader("📊 KPI Comparison Radar")
     
     id_vars = ['symbol', 'description', 'year']
@@ -360,6 +362,8 @@ def render_kpis(exchanges_dict):
         st.plotly_chart(fig, use_container_width=True, config={"responsive": True})
     
     # Bubble Chart
+    # Aggiunge 2 righe vuote
+    st.markdown("<br><br>", unsafe_allow_html=True)
     st.subheader("🔵 Bubble Chart")
     bubble_cols = [col for col in df_filtered.columns if col not in ['symbol', 'description', 'year', 'exchange']]
     if len(bubble_cols) >= 3:
@@ -433,6 +437,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

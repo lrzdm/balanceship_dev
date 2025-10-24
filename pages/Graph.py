@@ -137,15 +137,19 @@ def render_kpis(exchanges_dict):
     exchange_names = list(exchanges_dict.keys())
     exchange_options = ["All"] + exchange_names
 
-    # Imposta default "FTSE MIB"
+    # Imposta default "NASDAQ"
     try:
         default_index = exchange_options.index("NASDAQ")
     except ValueError:
         default_index = 0
 
-    selected_exchange = st.selectbox("Select Exchange", exchange_options, index=default_index)
+    # ---------------- FILTRI IN UNA RIGA ----------------
+    col1, col2, col3 = st.columns(3)
 
-    # Caricamento dati
+    with col1:
+        selected_exchange = st.selectbox("Select Exchange", exchange_options, index=default_index)
+
+    # Caricamento dati in base all’exchange
     if selected_exchange != "All":
         companies_exchange = read_companies(exchanges_dict[selected_exchange])
         symbols_for_exchange = {c["ticker"] for c in companies_exchange if "ticker" in c}
@@ -154,14 +158,14 @@ def render_kpis(exchanges_dict):
         df_all_kpis = load_kpis_filtered_by_exchange()
         symbols_for_exchange = None
 
-    # 🔄 Se mancano i KPI 2024, proviamo a caricarli
+    # 🔄 Se mancano i KPI 2024, prova a caricarli
     years_present = df_all_kpis["year"].astype(str).unique().tolist()
     if selected_exchange != "All" and '2024' not in years_present:
         try:
             st.info("Caricamento dati 2024 in corso...")
             load_data_for_selection(list(symbols_for_exchange), ['2024'])
 
-            # Ricarico i dati dopo l'import
+            # Ricarico dopo l’import
             df_all_kpis = load_kpis_filtered_by_exchange(symbols_for_exchange)
             years_present = df_all_kpis["year"].astype(str).unique().tolist()
 
@@ -175,17 +179,21 @@ def render_kpis(exchanges_dict):
         st.warning("Nessun dato disponibile.")
         return
 
-    # UI per selezione azienda e anni
+    # Prepara liste per i filtri successivi
     descriptions_dict = df_all_kpis.groupby("description")["symbol"].apply(lambda x: list(sorted(set(x)))).to_dict()
     descriptions_available = sorted(k for k in descriptions_dict if k is not None)
     years_available = sorted(df_all_kpis["year"].astype(str).unique())
 
-    selected_desc = st.multiselect("Select Companies", descriptions_available, default=descriptions_available[:1])
-    default_years_selection = ['2024'] if '2024' in years_available else years_available[-1:]
-    selected_years = st.multiselect("Select Years", years_available, default=default_years_selection)
+    # Altri due filtri in linea
+    with col2:
+        selected_desc = st.multiselect("Select Companies", descriptions_available, default=descriptions_available[:1])
+    with col3:
+        default_years_selection = ['2024'] if '2024' in years_available else years_available[-1:]
+        selected_years = st.multiselect("Select Years", years_available, default=default_years_selection)
 
+    # ---------------- FILTRAGGIO ----------------
     if not selected_desc or not selected_years:
-        st.warning("Please select at least one company.")
+        st.warning("Please select at least one company and year.")
         return
 
     selected_symbols = []
@@ -202,23 +210,22 @@ def render_kpis(exchanges_dict):
         st.warning("No data found.")
         return
 
-    # Pivot per visualizzazione tabellare
+    # ---------------- TABELLA KPI ----------------
     id_vars = ['symbol', 'description', 'year']
     value_vars = [col for col in df_filtered.columns if col not in id_vars and df_filtered[col].dtype != 'object']
+
     df_melt = df_filtered.melt(id_vars=id_vars, value_vars=value_vars, var_name='KPI', value_name='Value')
     df_melt['desc_year'] = df_melt['description'] + ' ' + df_melt['year'].astype(str)
     df_melt['KPI'] = df_melt['KPI'].apply(lambda k: COLUMN_LABELS.get(k, k))
-    df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
 
-    df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
-    df_clean = df_pivot.fillna(np.nan)
+    df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
+    df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce').fillna(np.nan)
 
     st.subheader("📋 KPIs List")
-    num_cols = df_clean.select_dtypes(include=['number']).columns
-    styled = df_clean.style.format({col: "{:.2%}" for col in num_cols})
+    num_cols = df_pivot.select_dtypes(include=['number']).columns
+    styled = df_pivot.style.format({col: "{:.2%}" for col in num_cols})
     st.dataframe(styled, height=600)
-
-    
+   
     import plotly.graph_objects as go
 
     # 🎨 Palette accesa e distinta
@@ -387,6 +394,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

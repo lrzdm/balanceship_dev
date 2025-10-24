@@ -234,6 +234,18 @@ def render_kpis(exchanges_dict):
         "#F781BF",  # Rosa shocking
         "#000000",  # Nero
     ]
+
+    # Download Excel
+    buffer = io.BytesIO()
+    df_filtered_clean = df_filtered.copy().replace({np.nan: ""})
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        df_filtered_clean.to_excel(writer, index=False, sheet_name='KPI')
+    st.download_button(
+        label="📥 Download Excel",
+        data=buffer.getvalue(),
+        file_name="kpi_filtered.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
     
     st.subheader("📊 KPI Comparison Radar")
     
@@ -300,18 +312,6 @@ def render_kpis(exchanges_dict):
         )
     
         st.plotly_chart(fig, use_container_width=True, config={"responsive": True})
-
-    # Download Excel
-    buffer = io.BytesIO()
-    df_filtered_clean = df_filtered.copy().replace({np.nan: ""})
-    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-        df_filtered_clean.to_excel(writer, index=False, sheet_name='KPI')
-    st.download_button(
-        label="📥 Download Excel",
-        data=buffer.getvalue(),
-        file_name="kpi_filtered.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
     
     # Bubble Chart
     st.subheader("🔵 Bubble Chart")
@@ -387,6 +387,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 

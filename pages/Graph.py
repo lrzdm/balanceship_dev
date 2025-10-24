@@ -222,9 +222,48 @@ def render_kpis(exchanges_dict):
     df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce').fillna(np.nan)
 
     st.subheader("📋 KPIs List")
+
+    # Calcola quante aziende sono selezionate (cioè quante colonne avremo)
+    num_companies = len(selected_desc)
+    # Imposta la larghezza massima dinamicamente
+    if num_companies <= 1:
+        max_width = 700
+    elif num_companies == 2:
+        max_width = 1000
+    elif num_companies == 3:
+        max_width = 1300
+    else:
+        max_width = 1600
+
+    # 💄 Applica lo stile CSS con larghezza dinamica
+    st.markdown(
+        f"""
+        <style>
+        .dataframe-container table {{
+            max-width: {max_width}px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }}
+        .dataframe-container th, .dataframe-container td {{
+            text-align: center !important;
+            padding: 6px 8px !important;
+            font-size: 0.9rem !important;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
     num_cols = df_pivot.select_dtypes(include=['number']).columns
     styled = df_pivot.style.format({col: "{:.2%}" for col in num_cols})
-    st.dataframe(styled, height=600)
+
+    with st.container():
+        st.dataframe(
+            styled,
+            height=500,
+            use_container_width=False  # così rispetta la max-width definita sopra
+        )
+
    
     import plotly.graph_objects as go
 
@@ -394,6 +433,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
